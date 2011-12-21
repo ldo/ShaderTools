@@ -212,610 +212,78 @@ history.close()
 # *                                     LANGUAGE PARAMETERS                           *
 # ************************************************************************************
 
+LanguageKeys = \
+    { # sets of keys for language strings, grouped by category prefix
+        "Panel" : {"Name"},
+        "FindImageMenu" : {"Name"},
+        "Buttons" :
+            {
+                "Open", "Save", "Configuration", "Export",
+                "Import", "Help", "Informations", "Create",
+            },
+        "OpenMenu" : {"Title"} | set("Label%02d" % i for i in range(1, 10)),
+        "BookmarksMenu" : {"Name"},
+        "ErrorsMenu" : set("Error%03d" % i for i in range(1, 21)),
+        "InformationsMenu" :
+            {
+                "Title", "LabelName", "Name", "LabelCreator", "Creator",
+                "LabelCategory", "Category", "LabelDescription", "Description",
+                "LabelWebLink", "WebLink", "LabelEmail", "Email",
+            },
+        "WarningWin" : {"Title"} | set("Label%02d" % i for i in range(1, 11)),
+        "SaveMenu" :
+                {
+                    "Title", "Label01", "Name", "Creator", "CreatorValue",
+                    "CategoryDefault", "DescriptionLabel", "Description",
+                    "WebLinkLabel", "WebLink", "EmailLabel", "Email",
+                }
+            |
+                set("Warning%02d" % i for i in range(1, 6)),
+        "SaveCategory" :
+            {
+                "Title", "CategoryTitle", "CarPaint", "Dirt", "FabricClothes", "Fancy",
+                "FibreFur", "Glass", "Halo", "Liquids", "Metal", "Misc", "Nature",
+                "Organic", "Personal", "Plastic", "Sky", "Space", "Stone", "Toon",
+                "Wall", "Water", "Wood",
+            },
+        "ConfigurationMenu" :
+                {"Title", "ExportPath", "ResolutionPreviewX", "ResolutionPreviewY", "DataBasePath", }
+            |
+                set("Label%02d" % i for i in range(1, 4))
+            |
+                set("Warning%02d" % i for i in range(1, 6)),
+        "ExportMenu" : {"Title", "Label01", "Name", "Creator", "CreatorDefault", "TakePreview"},
+        "ImportMenu" : {"Title"},
+        "HelpMenu" : {"Title"} | set("Label%02d" % i for i in range(1, 41)),
+    }
 
-def LanguageValues(languageUser, languageDict):
-
-    #I open language file:
-    readValue = ""
-    readValueList = ""
-    categoryConfig = '[Panel]'
-    saveCategoryConfig = ""
-    section = ''
-    sectionValue = ''
-    value=""
-
+def LoadLanguageValues(languageUser, languageDict) :
+    saveCategoryConfig = None
     languageFile = open(os.path.join(AppPath, "lang", languageUser),'r')
-
     for readValue in languageFile:
-
-        c = 0
-        for value in readValue.split('=', 1):
-            if c == 0:
-                section = value
-            else:
-                sectionValue = value
-            c = c + 1
-
-        if readValue == '*!-*':
-            saveCategoryConfig == ''
-
-        section = section.replace('\n','')
-        sectionValue = sectionValue.replace('\n','')
-
-        #Panel Values :
-        if section == '[Panel]' or saveCategoryConfig == '[Panel]':
-
-            if section == 'Name':
-                languageDict['PanelName'] = sectionValue
-
-            saveCategoryConfig = '[Panel]'
-
-
-        #Find Image Values :
-        if section == '[FindImageMenu]' or saveCategoryConfig == '[FindImageMenu]':
-
-            if section == 'Name':
-                languageDict['FindImageMenuName'] = sectionValue
-
-            saveCategoryConfig = '[FindImageMenu]'
-
-        #Buttons Values :
-        if section == '[Buttons]' or saveCategoryConfig == '[Buttons]':
-
-            if section == 'Open':
-                languageDict['ButtonsOpen'] = sectionValue
-
-            if section == 'Save':
-                languageDict['ButtonsSave'] = sectionValue
-
-            if section == 'Configuration':
-                languageDict['ButtonsConfiguration'] = sectionValue
-
-            if section == 'Export':
-                languageDict['ButtonsExport'] = sectionValue
-
-            if section == 'Import':
-                languageDict['ButtonsImport'] = sectionValue
-
-            if section == 'Help':
-                languageDict['ButtonsHelp'] = sectionValue
-
-            if section == 'Informations':
-                languageDict['ButtonsInformations'] = sectionValue
-
-
-            if section == 'Create':
-                languageDict['ButtonsCreate'] = sectionValue
-
-            saveCategoryConfig = '[Buttons]'
-
-        #OpenMenu Values :
-        if section == '[OpenMenu]' or saveCategoryConfig == '[OpenMenu]':
-
-            if section == 'Title':
-                languageDict['OpenMenuTitle'] = sectionValue
-
-            if section == 'Label01':
-                languageDict['OpenMenuLabel01'] = sectionValue
-
-            if section == 'Label02':
-                languageDict['OpenMenuLabel02'] = sectionValue
-
-            if section == 'Label03':
-                languageDict['OpenMenuLabel03'] = sectionValue
-
-            if section == 'Label04':
-                languageDict['OpenMenuLabel04'] = sectionValue
-
-            if section == 'Label05':
-                languageDict['OpenMenuLabel05'] = sectionValue
-
-            if section == 'Label06':
-                languageDict['OpenMenuLabel06'] = sectionValue
-
-            if section == 'Label07':
-                languageDict['OpenMenuLabel07'] = sectionValue
-
-            if section == 'Label08':
-                languageDict['OpenMenuLabel08'] = sectionValue
-
-            if section == 'Label09':
-                languageDict['OpenMenuLabel09'] = sectionValue
-
-            saveCategoryConfig = '[OpenMenu]'
-
-        #BookmarksMenu Values :
-        if section == '[BookmarksMenu]' or saveCategoryConfig == '[BookmarksMenu]':
-
-            if section == 'Name':
-                languageDict['BookmarksMenuName'] = sectionValue
-
-            saveCategoryConfig = '[BookmarksMenu]'
-
-        #BookmarksMenu Values :
-        if section == '[ErrorsMenu]' or saveCategoryConfig == '[ErrorsMenu]':
-
-            if section == 'Error001':
-                languageDict['ErrorsMenuError001'] = sectionValue
-
-            if section == 'Error002':
-                languageDict['ErrorsMenuError002'] = sectionValue
-
-            if section == 'Error003':
-                languageDict['ErrorsMenuError003'] = sectionValue
-
-            if section == 'Error004':
-                languageDict['ErrorsMenuError004'] = sectionValue
-
-            if section == 'Error005':
-                languageDict['ErrorsMenuError005'] = sectionValue
-
-            if section == 'Error006':
-                languageDict['ErrorsMenuError006'] = sectionValue
-
-            if section == 'Error007':
-                languageDict['ErrorsMenuError007'] = sectionValue
-
-            if section == 'Error008':
-                languageDict['ErrorsMenuError008'] = sectionValue
-
-            if section == 'Error009':
-                languageDict['ErrorsMenuError009'] = sectionValue
-
-            if section == 'Error010':
-                languageDict['ErrorsMenuError010'] = sectionValue
-
-            if section == 'Error011':
-                languageDict['ErrorsMenuError011'] = sectionValue
-
-            if section == 'Error012':
-                languageDict['ErrorsMenuError012'] = sectionValue
-
-            if section == 'Error013':
-                languageDict['ErrorsMenuError013'] = sectionValue
-
-            if section == 'Error014':
-                languageDict['ErrorsMenuError014'] = sectionValue
-
-            if section == 'Error015':
-                languageDict['ErrorsMenuError015'] = sectionValue
-
-            if section == 'Error016':
-                languageDict['ErrorsMenuError016'] = sectionValue
-
-            if section == 'Error017':
-                languageDict['ErrorsMenuError017'] = sectionValue
-
-            if section == 'Error018':
-                languageDict['ErrorsMenuError018'] = sectionValue
-
-            if section == 'Error019':
-                languageDict['ErrorsMenuError019'] = sectionValue
-
-            if section == 'Error020':
-                languageDict['ErrorsMenuError020'] = sectionValue
-
-            saveCategoryConfig = '[ErrorsMenu]'
-
-        #InformationsMenu Values :
-        if section == '[InformationsMenu]' or saveCategoryConfig == '[InformationsMenu]':
-
-            if section == 'Title':
-                languageDict['InformationsMenuTitle'] = sectionValue
-
-            if section == 'LabelName':
-                languageDict['InformationsMenuLabelName'] = sectionValue
-
-            if section == 'Name':
-                languageDict['InformationsMenuName'] = sectionValue
-
-            if section == 'LabelCreator':
-                languageDict['InformationsMenuLabelCreator'] = sectionValue
-
-            if section == 'Creator':
-                languageDict['InformationsMenuCreator'] = sectionValue
-
-            if section == 'LabelCategory':
-                languageDict['InformationsMenuLabelCategory'] = sectionValue
-
-            if section == 'Category':
-                languageDict['InformationsMenuCategory'] = sectionValue
-
-            if section == 'LabelDescription':
-                languageDict['InformationsMenuLabelDescription'] = sectionValue
-
-            if section == 'Description':
-                languageDict['InformationsMenuDescription'] = sectionValue
-
-            if section == 'LabelWebLink':
-                languageDict['InformationsMenuLabelWebLink'] = sectionValue
-
-            if section == 'WebLink':
-                languageDict['InformationsMenuWebLink'] = sectionValue
-
-            if section == 'LabelEmail':
-                languageDict['InformationsMenuLabelEmail'] = sectionValue
-
-            if section == 'Email':
-                languageDict['InformationsMenuEmail'] = sectionValue
-
-            saveCategoryConfig = '[InformationsMenu]'
-
-        #WarningWin Values :
-        if section == '[WarningWin]' or saveCategoryConfig == '[WarningWin]':
-
-            if section == 'Title':
-                languageDict['WarningWinTitle'] = sectionValue
-
-            if section == 'Label01':
-                languageDict['WarningWinLabel01'] = sectionValue
-
-            if section == 'Label02':
-                languageDict['WarningWinLabel02'] = sectionValue
-
-            if section == 'Label03':
-                languageDict['WarningWinLabel03'] = sectionValue
-
-            if section == 'Label04':
-                languageDict['WarningWinLabel04'] = sectionValue
-
-            if section == 'Label05':
-                languageDict['WarningWinLabel05'] = sectionValue
-
-            if section == 'Label06':
-                languageDict['WarningWinLabel06'] = sectionValue
-
-            if section == 'Label07':
-                languageDict['WarningWinLabel07'] = sectionValue
-
-            if section == 'Label08':
-                languageDict['WarningWinLabel08'] = sectionValue
-
-            if section == 'Label09':
-                languageDict['WarningWinLabel09'] = sectionValue
-
-            if section == 'Label10':
-                languageDict['WarningWinLabel10'] = sectionValue
-
-            saveCategoryConfig = '[WarningWin]'
-
-        #SaveMenu Values :
-        if section == '[SaveMenu]' or saveCategoryConfig == '[SaveMenu]':
-
-            if section == 'Title':
-                languageDict['SaveMenuTitle'] = sectionValue
-
-            if section == 'Label01':
-                languageDict['SaveMenuLabel01'] = sectionValue
-
-            if section == 'Name':
-                languageDict['SaveMenuName'] = sectionValue
-
-            if section == 'Creator':
-                languageDict['SaveMenuCreator'] = sectionValue
-
-            if section == 'CreatorValue':
-                languageDict['SaveMenuCreatorValue'] = sectionValue
-
-            if section == 'CategoryDefault':
-                languageDict['SaveMenuCategoryDefault'] = sectionValue
-
-            if section == 'DescriptionLabel':
-                languageDict['SaveMenuDescriptionLabel'] = sectionValue
-
-            if section == 'Description':
-                languageDict['SaveMenuDescription'] = sectionValue
-
-            if section == 'WebLinkLabel':
-                languageDict['SaveMenuWebLinkLabel'] = sectionValue
-
-            if section == 'WebLink':
-                languageDict['SaveMenuWebLink'] = sectionValue
-
-            if section == 'EmailLabel':
-                languageDict['SaveMenuEmailLabel'] = sectionValue
-
-            if section == 'Email':
-                languageDict['SaveMenuEmail'] = sectionValue
-
-            if section == 'Warning01':
-                languageDict['SaveMenuWarning01'] = sectionValue
-
-            if section == 'Warning02':
-                languageDict['SaveMenuWarning02'] = sectionValue
-
-            if section == 'Warning03':
-                languageDict['SaveMenuWarning03'] = sectionValue
-
-            if section == 'Warning04':
-                languageDict['SaveMenuWarning04'] = sectionValue
-
-            if section == 'Warning05':
-                languageDict['SaveMenuWarning05'] = sectionValue
-
-            saveCategoryConfig = '[SaveMenu]'
-
-        #SaveCategory Values :
-        if section == '[SaveCategory]' or saveCategoryConfig == '[SaveCategory]':
-
-            if section == 'Title':
-                languageDict['SaveCategoryTitle'] = sectionValue
-
-            if section == 'CategoryTitle':
-                languageDict['SaveCategoryCategoryTitle'] = sectionValue
-
-            if section == 'CarPaint':
-                languageDict['SaveCategoryCarPaint'] = sectionValue
-
-            if section == 'Dirt':
-                languageDict['SaveCategoryDirt'] = sectionValue
-
-            if section == 'FabricClothes':
-                languageDict['SaveCategoryFabricClothes'] = sectionValue
-
-            if section == 'Fancy':
-                languageDict['SaveCategoryFancy'] = sectionValue
-
-            if section == 'FibreFur':
-                languageDict['SaveCategoryFibreFur'] = sectionValue
-
-            if section == 'Glass':
-                languageDict['SaveCategoryGlass'] = sectionValue
-
-            if section == 'Halo':
-                languageDict['SaveCategoryHalo'] = sectionValue
-
-            if section == 'Liquids':
-                languageDict['SaveCategoryLiquids'] = sectionValue
-
-            if section == 'Metal':
-                languageDict['SaveCategoryMetal'] = sectionValue
-
-            if section == 'Misc':
-                languageDict['SaveCategoryMisc'] = sectionValue
-
-            if section == 'Nature':
-                languageDict['SaveCategoryNature'] = sectionValue
-
-            if section == 'Organic':
-                languageDict['SaveCategoryOrganic'] = sectionValue
-
-            if section == 'Personal':
-                languageDict['SaveCategoryPersonal'] = sectionValue
-
-            if section == 'Plastic':
-                languageDict['SaveCategoryPlastic'] = sectionValue
-
-            if section == 'Sky':
-                languageDict['SaveCategorySky'] = sectionValue
-
-            if section == 'Space':
-                languageDict['SaveCategorySpace'] = sectionValue
-
-            if section == 'Stone':
-                languageDict['SaveCategoryStone'] = sectionValue
-
-            if section == 'Toon':
-                languageDict['SaveCategoryToon'] = sectionValue
-
-            if section == 'Wall':
-                languageDict['SaveCategoryWall'] = sectionValue
-
-            if section == 'Water':
-                languageDict['SaveCategoryWater'] = sectionValue
-
-            if section == 'Wood':
-                languageDict['SaveCategoryWood'] = sectionValue
-
-            saveCategoryConfig = '[SaveCategory]'
-
-        #ConfigurationMenu Values :
-        if section == '[ConfigurationMenu]' or saveCategoryConfig == '[ConfigurationMenu]':
-
-            if section == 'Title':
-                languageDict['ConfigurationMenuTitle'] = sectionValue
-
-            if section == 'Label01':
-                languageDict['ConfigurationMenuLabel01'] = sectionValue
-
-            if section == 'ExportPath':
-                languageDict['ConfigurationMenuExportPath'] = sectionValue
-
-            if section == 'Label02':
-                languageDict['ConfigurationMenuLabel02'] = sectionValue
-
-            if section == 'Label03':
-                languageDict['ConfigurationMenuLabel03'] = sectionValue
-
-            if section == 'ResolutionPreviewX':
-                languageDict['ConfigurationMenuResolutionPreviewX'] = sectionValue
-
-            if section == 'ResolutionPreviewY':
-                languageDict['ConfigurationMenuResolutionPreviewY'] = sectionValue
-
-            if section == 'DataBasePath':
-                languageDict['ConfigurationMenuDataBasePath'] = sectionValue
-
-            if section == 'Warning01':
-                languageDict['ConfigurationMenuWarning01'] = sectionValue
-
-            if section == 'Warning02':
-                languageDict['ConfigurationMenuWarning02'] = sectionValue
-
-            if section == 'Warning03':
-                languageDict['ConfigurationMenuWarning03'] = sectionValue
-
-            if section == 'Warning04':
-                languageDict['ConfigurationMenuWarning04'] = sectionValue
-
-            if section == 'Warning05':
-                languageDict['ConfigurationMenuWarning05'] = sectionValue
-
-            saveCategoryConfig = '[ConfigurationMenu]'
-
-        #ExportMenu Values :
-        if section == '[ExportMenu]' or saveCategoryConfig == '[ExportMenu]':
-
-            if section == 'Title':
-                languageDict['ExportMenuTitle'] = sectionValue
-
-            if section == 'Label01':
-                languageDict['ExportMenuLabel01'] = sectionValue
-
-            if section == 'Name':
-                languageDict['ExportMenuName'] = sectionValue
-
-            if section == 'Creator':
-                languageDict['ExportMenuCreator'] = sectionValue
-
-            if section == 'CreatorDefault':
-                languageDict['ExportMenuCreatorDefault'] = sectionValue
-
-            if section == 'TakePreview':
-                languageDict['ExportMenuTakePreview'] = sectionValue
-
-            saveCategoryConfig = '[ExportMenu]'
-
-        #ImportMenu Values :
-        if section == '[ImportMenu]' or saveCategoryConfig == '[ImportMenu]':
-
-            if section == 'Title':
-                languageDict['ImportMenuTitle'] = sectionValue
-
-            saveCategoryConfig = '[ImportMenu]'
-
-        #HelpMenu Values :
-        if section == '[HelpMenu]' or saveCategoryConfig == '[HelpMenu]':
-
-            if section == 'Title':
-                languageDict['HelpMenuTitle'] = sectionValue
-
-            if section == 'Label01':
-                languageDict['HelpMenuLabel01'] = sectionValue
-
-            if section == 'Label02':
-                languageDict['HelpMenuLabel02'] = sectionValue
-
-            if section == 'Label03':
-                languageDict['HelpMenuLabel03'] = sectionValue
-
-            if section == 'Label04':
-                languageDict['HelpMenuLabel04'] = sectionValue
-
-            if section == 'Label05':
-                languageDict['HelpMenuLabel05'] = sectionValue
-
-            if section == 'Label06':
-                languageDict['HelpMenuLabel06'] = sectionValue
-
-            if section == 'Label07':
-                languageDict['HelpMenuLabel07'] = sectionValue
-
-            if section == 'Label08':
-                languageDict['HelpMenuLabel08'] = sectionValue
-
-            if section == 'Label09':
-                languageDict['HelpMenuLabel09'] = sectionValue
-
-            if section == 'Label10':
-                languageDict['HelpMenuLabel10'] = sectionValue
-
-            if section == 'Label11':
-                languageDict['HelpMenuLabel11'] = sectionValue
-
-            if section == 'Label12':
-                languageDict['HelpMenuLabel12'] = sectionValue
-
-            if section == 'Label13':
-                languageDict['HelpMenuLabel13'] = sectionValue
-
-            if section == 'Label14':
-                languageDict['HelpMenuLabel14'] = sectionValue
-
-            if section == 'Label15':
-                languageDict['HelpMenuLabel15'] = sectionValue
-
-            if section == 'Label16':
-                languageDict['HelpMenuLabel16'] = sectionValue
-
-            if section == 'Label17':
-                languageDict['HelpMenuLabel17'] = sectionValue
-
-            if section == 'Label18':
-                languageDict['HelpMenuLabel18'] = sectionValue
-
-            if section == 'Label19':
-                languageDict['HelpMenuLabel19'] = sectionValue
-
-            if section == 'Label20':
-                languageDict['HelpMenuLabel20'] = sectionValue
-
-            if section == 'Label21':
-                languageDict['HelpMenuLabel21'] = sectionValue
-
-            if section == 'Label22':
-                languageDict['HelpMenuLabel22'] = sectionValue
-
-            if section == 'Label23':
-                languageDict['HelpMenuLabel23'] = sectionValue
-
-            if section == 'Label24':
-                languageDict['HelpMenuLabel24'] = sectionValue
-
-            if section == 'Label25':
-                languageDict['HelpMenuLabel25'] = sectionValue
-
-            if section == 'Label26':
-                languageDict['HelpMenuLabel26'] = sectionValue
-
-            if section == 'Label27':
-                languageDict['HelpMenuLabel27'] = sectionValue
-
-            if section == 'Label28':
-                languageDict['HelpMenuLabel28'] = sectionValue
-
-            if section == 'Label29':
-                languageDict['HelpMenuLabel29'] = sectionValue
-
-            if section == 'Label30':
-                languageDict['HelpMenuLabel30'] = sectionValue
-
-            if section == 'Label31':
-                languageDict['HelpMenuLabel31'] = sectionValue
-
-            if section == 'Label32':
-                languageDict['HelpMenuLabel32'] = sectionValue
-
-            if section == 'Label33':
-                languageDict['HelpMenuLabel33'] = sectionValue
-
-            if section == 'Label34':
-                languageDict['HelpMenuLabel34'] = sectionValue
-
-            if section == 'Label35':
-                languageDict['HelpMenuLabel35'] = sectionValue
-
-            if section == 'Label36':
-                languageDict['HelpMenuLabel36'] = sectionValue
-
-            if section == 'Label37':
-                languageDict['HelpMenuLabel37'] = sectionValue
-
-            if section == 'Label38':
-                languageDict['HelpMenuLabel38'] = sectionValue
-
-            if section == 'Label39':
-                languageDict['HelpMenuLabel39'] = sectionValue
-
-            if section == 'Label40':
-                languageDict['HelpMenuLabel40'] = sectionValue
-
-            saveCategoryConfig = '[HelpMenu]'
-
+        readValue = readValue.rstrip("\n")
+        section = None
+        if readValue.startswith("[") and readValue.endswith("]") :
+            saveCategoryConfig = readValue[1:-1]
+        elif "=" in readValue :
+            section, sectionValue = readValue.split('=', 1)
+        elif readValue == "*!-*" :
+            saveCategoryConfig = None
+        #end if
+        if (
+                section != None
+            and
+                saveCategoryConfig != None
+            and
+                saveCategoryConfig in LanguageKeys
+            and
+                section in LanguageKeys[saveCategoryConfig]
+        ) :
+            languageDict[saveCategoryConfig + section] = sectionValue
+        #end if
+    #end for
     languageFile.close()
-    return languageDict
-
-
+#end LoadLanguageValues
 
 #Open language file:
 c = 0
@@ -1011,10 +479,10 @@ for value in locale.getdefaultlocale():
 
 
 if os.path.exists(os.path.join(AppPath, "lang", language)) :
-    LanguageValuesDict = LanguageValues(language, LanguageValuesDict)
+    LoadLanguageValues(language, LanguageValuesDict)
 
 else:
-    LanguageValuesDict = LanguageValues('en_US', LanguageValuesDict)
+    LoadLanguageValues('en_US', LanguageValuesDict)
 
 
 
