@@ -93,17 +93,17 @@ ZipPath = os.path.join(AppPath, "zip")
 #Config Path :
 if os.path.exists(os.path.join(AppPath, "config")) :
     config = open(os.path.join(AppPath, "config"), 'r')
-    AppPath = config.readline()
-    ExportPath = config.readline()
-    DataBasePath = config.readline()
-    DefaultCreator = config.readline()
-    DefaultDescription = config.readline()
-    DefaultWeblink = config.readline()
-    DefaultMaterialName = config.readline()
-    DefaultCategory = config.readline()
-    DefaultEmail = config.readline()
-    Resolution_X = config.readline()
-    Resolution_Y = config.readline()
+    AppPath = config.readline().rstrip("\n")
+    ExportPath = config.readline().rstrip("\n")
+    DataBasePath = config.readline().rstrip("\n")
+    DefaultCreator = config.readline().rstrip("\n")
+    DefaultDescription = config.readline().rstrip("\n")
+    DefaultWeblink = config.readline().rstrip("\n")
+    DefaultMaterialName = config.readline().rstrip("\n")
+    DefaultCategory = config.readline().rstrip("\n")
+    DefaultEmail = config.readline().rstrip("\n")
+    Resolution_X = config.readline().rstrip("\n")
+    Resolution_Y = config.readline().rstrip("\n")
 
 
     if ExportPath == "" or ExportPath == "\n":
@@ -138,10 +138,6 @@ else:
 
 
 config.close()
-
-AppPath = AppPath.replace('\n', '')
-ExportPath = ExportPath.replace('\n', '')
-DataBasePath = DataBasePath.replace('\n', '')
 
 
 BookmarksPathUser = os.path.join(bpy.utils.resource_path('USER', major=bpy.app.version[0], minor=bpy.app.version[1]), "config", "bookmarks.txt")
