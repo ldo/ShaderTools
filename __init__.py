@@ -109,32 +109,32 @@ if os.path.exists(os.path.join(AppPath, "config")) :
     if ExportPath == "" or ExportPath == "\n":
         config.close()
         config = open(os.path.join(AppPath, "config"), 'w')
-        config.writelines(AppPath + '\n')
-        config.writelines(ExportPath + '\n')
-        config.writelines(DataBasePath + '\n')
-        config.writelines(DefaultCreator + '\n')
-        config.writelines(DefaultDescription + '\n')
-        config.writelines(DefaultWeblink + '\n')
-        config.writelines(DefaultMaterialName + '\n')
-        config.writelines(DefaultCategory + '\n')
-        config.writelines(DefaultEmail + '\n')
-        config.writelines(str(Resolution_X) + '\n')
-        config.writelines(str(Resolution_Y) + '\n')
+        config.write(AppPath + '\n')
+        config.write(ExportPath + '\n')
+        config.write(DataBasePath + '\n')
+        config.write(DefaultCreator + '\n')
+        config.write(DefaultDescription + '\n')
+        config.write(DefaultWeblink + '\n')
+        config.write(DefaultMaterialName + '\n')
+        config.write(DefaultCategory + '\n')
+        config.write(DefaultEmail + '\n')
+        config.write(str(Resolution_X) + '\n')
+        config.write(str(Resolution_Y) + '\n')
 
 
 else:
     config = open(os.path.join(AppPath, "config"),'w')
-    config.writelines(AppPath + '\n')
-    config.writelines(ExportPath + '\n')
-    config.writelines(DataBasePath + '\n')
-    config.writelines(DefaultCreator + '\n')
-    config.writelines(DefaultDescription + '\n')
-    config.writelines(DefaultWeblink + '\n')
-    config.writelines(DefaultMaterialName + '\n')
-    config.writelines(DefaultCategory + '\n')
-    config.writelines(DefaultEmail + '\n')
-    config.writelines(str(Resolution_X) + '\n')
-    config.writelines(str(Resolution_Y) + '\n')
+    config.write(AppPath + '\n')
+    config.write(ExportPath + '\n')
+    config.write(DataBasePath + '\n')
+    config.write(DefaultCreator + '\n')
+    config.write(DefaultDescription + '\n')
+    config.write(DefaultWeblink + '\n')
+    config.write(DefaultMaterialName + '\n')
+    config.write(DefaultCategory + '\n')
+    config.write(DefaultEmail + '\n')
+    config.write(str(Resolution_X) + '\n')
+    config.write(str(Resolution_Y) + '\n')
 
 
 config.close()
@@ -182,10 +182,10 @@ if os.path.exists(os.path.join(AppPath, "history")) :
 
 else:
     history = open(os.path.join(AppPath, "history"),'w')
-    history.writelines('[HISTORY]\n')
+    history.write('[HISTORY]\n')
     x = 1
     while x <= 20:
-        history.writelines('History' + str(x) + '=\n')
+        history.write('History' + str(x) + '=\n')
         x = x + 1
 
     history.close()
@@ -4484,7 +4484,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
 
     file = open(fileExport, "w")
     for line in MY_EXPORT_INFORMATIONS:
-        file.writelines(line)
+        file.write(line)
     file.close()
 
     #Now I zip files :
@@ -5156,12 +5156,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                     Source_path = Source_path.replace("'", "")
 
                 file = open(Source_path, "rb")
-                val = ""
-                out = ""
-                for val in file:
-                    out = file.read()
-
-                ImageBlobConversion = val + out
+                ImageBlobConversion = file.read()
                 file.close()
 
                 Tex_ima_filepath = '"' + IMAGE_FILEPATH + '"'
@@ -7142,8 +7137,8 @@ class OpenShaders(bpy.types.Operator):
 
             #I create a new History File:
             history = open(os.path.join(AppPath, "history"),'w')
-            history.writelines('[HISTORY]\n')
-            history.writelines('History1=' + selectedFile + "\n")
+            history.write('[HISTORY]\n')
+            history.write('History1=' + selectedFile + "\n")
 
             #Now I must to create new structure:
             c = 0
@@ -7152,7 +7147,7 @@ class OpenShaders(bpy.types.Operator):
                 if c == 1 and values != '' and values != '\n':
                     if x <= 20:
                         values = values.replace('History' + str(x-1), 'History' + str(x))
-                        history.writelines(values)
+                        history.write(values)
                         x =  x + 1
 
                 if values == "[HISTORY]" or values == "[HISTORY]\n":
@@ -7164,11 +7159,11 @@ class OpenShaders(bpy.types.Operator):
 
             if selectedFile is not '' and selectedFile is not '\n':
                 history = open(os.path.join(AppPath, "history"),'w')
-                history.writelines('[HISTORY]\n')
-                history.writelines('History1=' + selectedFile + '\n')
+                history.write('[HISTORY]\n')
+                history.write('History1=' + selectedFile + '\n')
                 x = 2
                 while x <= 20:
-                    history.writelines('History' + str(x) + '=\n')
+                    history.write('History' + str(x) + '=\n')
                     x = x + 1
 
                 history.close()
@@ -7585,7 +7580,7 @@ def Importer(File_Path, Mat_Name):
 
         c = 0
         for values in MY_SCRIPT_LIST:
-            new_script.writelines(MY_SCRIPT_LIST[c])
+            new_script.write(MY_SCRIPT_LIST[c])
             c = c +1
 
         new_script.close()
@@ -7828,13 +7823,13 @@ def UpdateConfigurationsInformations(DataBasePathFile, Inf_Creator, Inf_Category
 
     #Create a new configuration file:
     config = open(os.path.join(AppPath, "config"),'w')
-    config.writelines(ExportPath + '\n')
-    config.writelines(DataBasePathFile + '\n')
-    config.writelines(Inf_Creator + '\n')
-    config.writelines(Inf_Description + '\n')
-    config.writelines(Inf_Weblink + '\n')
-    config.writelines(Inf_ResolutionX + '\n')
-    config.writelines(Inf_ResolutionY + '\n')
+    config.write(ExportPath + '\n')
+    config.write(DataBasePathFile + '\n')
+    config.write(Inf_Creator + '\n')
+    config.write(Inf_Description + '\n')
+    config.write(Inf_Weblink + '\n')
+    config.write(Inf_ResolutionX + '\n')
+    config.write(Inf_ResolutionY + '\n')
 
     config.close()
 
@@ -7988,17 +7983,17 @@ class Configuration(bpy.types.Operator):
 
         #Create a new configuration file:
         config = open(os.path.join(AppPath, "config"),'w')
-        config.writelines(AppPath + '\n')
-        config.writelines(ExportPath + '\n')
-        config.writelines(self.DataBasePathFile + '\n')
-        config.writelines(self.Inf_Creator + '\n')
-        config.writelines(self.Inf_Description + '\n')
-        config.writelines(self.Inf_Weblink + '\n')
-        config.writelines(self.Mat_Name + '\n')
-        config.writelines(self.Inf_Category + '\n')
-        config.writelines(self.Inf_Email + '\n')
-        config.writelines(self.Inf_ResolutionX + '\n')
-        config.writelines(self.Inf_ResolutionY + '\n')
+        config.write(AppPath + '\n')
+        config.write(ExportPath + '\n')
+        config.write(self.DataBasePathFile + '\n')
+        config.write(self.Inf_Creator + '\n')
+        config.write(self.Inf_Description + '\n')
+        config.write(self.Inf_Weblink + '\n')
+        config.write(self.Mat_Name + '\n')
+        config.write(self.Inf_Category + '\n')
+        config.write(self.Inf_Email + '\n')
+        config.write(self.Inf_ResolutionX + '\n')
+        config.write(self.Inf_ResolutionY + '\n')
 
         config.close()
 
@@ -8167,11 +8162,11 @@ if os.path.exists(BookmarksPathUser) :
         for value in MY_BOOKMARKS_FILE:
 
             if value=='[Bookmarks]' or value=='[Bookmarks]\n':
-                bookmarkspathfile.writelines(value)
-                bookmarkspathfile.writelines(shaderFolderPath+"\n")
+                bookmarkspathfile.write(value)
+                bookmarkspathfile.write(shaderFolderPath+"\n")
 
             else:
-                bookmarkspathfile.writelines(value)
+                bookmarkspathfile.write(value)
 
 
         bookmarkspathfile.close()
@@ -8231,11 +8226,11 @@ if os.path.exists(BookmarksPathSystem) :
         for value in MY_BOOKMARKS_FILE:
 
             if value=='[Bookmarks]' or value=='[Bookmarks]\n':
-                bookmarkspathfile.writelines(value)
-                bookmarkspathfile.writelines(shaderFolderPath+"\n")
+                bookmarkspathfile.write(value)
+                bookmarkspathfile.write(shaderFolderPath+"\n")
 
             else:
-                bookmarkspathfile.writelines(value)
+                bookmarkspathfile.write(value)
 
 
         bookmarkspathfile.close()
