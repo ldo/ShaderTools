@@ -41,7 +41,6 @@ import bpy
 from bpy.types import Header
 from bpy.props import (StringProperty,
                        BoolProperty,
-                       FloatProperty,
                        EnumProperty,
                        )
 
