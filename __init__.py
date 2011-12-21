@@ -77,13 +77,13 @@ NAME_ACTIVE_MATERIAL = False
 value = ""
 DataBasePath = ""
 AppPath = ""
-ExportPath = os.path.dirname(bpy.data.filepath) + "/"
-ImportPath = os.path.dirname(bpy.data.filepath) + "/"
-ErrorsPath = os.path.dirname(bpy.data.filepath) + "/"
-OutPath = os.path.dirname(bpy.data.filepath) + "/"
+ExportPath = os.path.dirname(bpy.data.filepath) + "/" # not used anywhere
+ImportPath = os.path.dirname(bpy.data.filepath) # redundant
+ErrorsPath = os.path.dirname(bpy.data.filepath) # redundant
+OutPath = os.path.dirname(bpy.data.filepath) + "/" # redundant
 BlendPath = os.path.dirname(bpy.data.filepath)
-ZipPath = AppPath +'zip/'
-BlenderPath = bpy.app.binary_path
+ZipPath = os.path.join(AppPath, 'zip') # redundant
+BlenderPath = bpy.app.binary_path # not used anywhere
 DefaultCreator = "You"
 DefaultDescription = "material description"
 DefaultWeblink = "http://"
@@ -125,80 +125,20 @@ BlenderPath = blender_directory.replace(str(majorVersion) + "." + str(minorVersi
 BlenderPath = '"' + BlenderPath + '"'
 
 
-#Script Path:
-for value in bpy.utils.script_paths():
-    if c == 0:
-        if platform.system() == 'Windows':
-            AppPath = value + '\\addons\shader_tools\\'
-            #AppPath = os.path.normpath(AppPath)
-
-        else:
-            AppPath = value + '/addons/shader_tools/'
+AppPath = os.path.join(bpy.utils.script_paths()[0], "addons", "shader_tools")
+ExportPath = os.path.dirname(bpy.data.filepath) # not used anywhere
+ImportPath = os.path.dirname(bpy.data.filepath)
+ErrorsPath = os.path.join(AppPath, "erro")
+OutPath = os.path.join(AppPath, "out")
 
 
-
-    c = c +1
-
-
-
-
-#Export Path:
-if platform.system() == 'Windows':
-    ExportPath = os.path.dirname(bpy.data.filepath) + "\\"
-    ExportPath = os.path.normpath(ExportPath)
-
-else:
-    ExportPath = os.path.dirname(bpy.data.filepath) + "/"
-
-
-#Import Path:
-if platform.system() == 'Windows':
-    ImportPath = os.path.dirname(bpy.data.filepath) + "\\"
-    ImportPath = os.path.normpath(ImportPath)
-
-else:
-    ImportPath = os.path.dirname(bpy.data.filepath) + "/"
-
-
-#Errors Path:
-if platform.system() == 'Windows':
-    ErrorsPath = AppPath + "\\erro\\"
-
-else:
-    ErrorsPath = AppPath + "erro/"
-
-
-#Errors Path:
-if platform.system() == 'Windows':
-    OutPath = AppPath + "\\out\\"
-
-else:
-    OutPath = AppPath + "out/"
-
-
-#DataBase Path:
-if platform.system() == 'Windows':
-    DataBasePath = AppPath +'\\ShaderToolsDatabase.sqlite'
-    DataBasePath = os.path.normpath(DataBasePath)
-
-else:
-    DataBasePath = AppPath +'ShaderToolsDatabase.sqlite'
-
-
-
-#Zip Path:
-if platform.system() == 'Windows':
-    ZipPath = AppPath +'\\zip\\'
-
-else:
-    ZipPath = AppPath +'zip/'
-
-
+DataBasePath = os.path.join(AppPath, "ShaderToolsDatabase.sqlite")
+ZipPath = os.path.join(AppPath, "zip")
 
 
 #Config Path :
-if os.path.exists(AppPath + "config") == True:
-    config = open(AppPath + "config",'r')
+if os.path.exists(os.path.join(AppPath, "config")) == True:
+    config = open(os.path.join(AppPath, "config"), 'r')
     AppPath = config.readline()
     ExportPath = config.readline()
     DataBasePath = config.readline()
@@ -214,7 +154,7 @@ if os.path.exists(AppPath + "config") == True:
 
     if ExportPath == "" or ExportPath == "\n":
         config.close()
-        config = open(AppPath + "config",'w')
+        config = open(os.path.join(AppPath, "config"), 'w')
         config.writelines(AppPath + '\n')
         config.writelines(ExportPath + '\n')
         config.writelines(DataBasePath + '\n')
@@ -250,44 +190,19 @@ ExportPath = ExportPath.replace('\n', '')
 DataBasePath = DataBasePath.replace('\n', '')
 
 
-#Bookmarks Path:
-BookmarksPathUser = ""
-BookmarksPathSystem = ""
-if platform.system() == 'Windows':
-    BookmarksPathUser = bpy.utils.resource_path('USER', major=bpy.app.version[0], minor=bpy.app.version[1]) + "\\config\\bookmarks.txt"
-    BookmarksPathUser = os.path.normpath(BookmarksPathUser)
-    BookmarksPathSystem = bpy.utils.resource_path('SYSTEM', major=bpy.app.version[0], minor=bpy.app.version[1]) + "\\config\\bookmarks.txt"
-    BookmarksPathSystem = os.path.normpath(BookmarksPathSystem)
+BookmarksPathUser = os.path.join(bpy.utils.resource_path('USER', major=bpy.app.version[0], minor=bpy.app.version[1]), "config", "bookmarks.txt")
+BookmarksPathSystem = os.path.join(bpy.utils.resource_path('SYSTEM', major=bpy.app.version[0], minor=bpy.app.version[1]), "config", "bookmarks.txt")
 
 
 
-else:
-    BookmarksPathUser = bpy.utils.resource_path('USER', major=bpy.app.version[0], minor=bpy.app.version[1]) + "/config/bookmarks.txt"
-    BookmarksPathSystem = bpy.utils.resource_path('SYSTEM', major=bpy.app.version[0], minor=bpy.app.version[1]) + "/config/bookmarks.txt"
-
-
-
-
-#Tempory Path:
-TempPath = ""
-
-if platform.system() == 'Windows':
-    TempPath = AppPath + 'temp\\'
-    #TempPath = os.path.normpath(TempPath)
-
-else:
-    TempPath = AppPath + 'temp/'
-
-
+TempPath = os.path.join(AppPath, "temp")
 if os.path.exists(TempPath) == True:
     files = os.listdir(TempPath)
     for f in files:
         if not os.path.isdir(f) and ".jpg" in f:
-            os.remove(TempPath+f)
-
+            os.remove(os.path.join(TempPath, f))
         else:
-            os.remove(TempPath+f)
-
+            os.remove(os.path.join(TempPath, f))
 
 else:
     os.mkdir(TempPath)
@@ -303,8 +218,8 @@ else:
 # ************************************************************************************
 HISTORY_FILE = []
 
-if os.path.exists(AppPath + "history") == True:
-    history = open(AppPath + "history",'r')
+if os.path.exists(os.path.join(AppPath, "history")) == True:
+    history = open(os.path.join(AppPath, "history"),'r')
     x = 0
     for values in history:
         if x > 0:
@@ -316,7 +231,7 @@ if os.path.exists(AppPath + "history") == True:
 
 
 else:
-    history = open(AppPath + "history",'w')
+    history = open(os.path.join(AppPath + "history"),'w')
     history.writelines('[HISTORY]\n')
     x = 1
     while x <= 20:
@@ -326,7 +241,7 @@ else:
     history.close()
 
 
-    history = open(AppPath + "history",'r')
+    history = open(os.path.join(AppPath, "history"),'r')
     x = 0
     for values in history:
         if x > 0:
@@ -362,14 +277,7 @@ def LangageValues(langageUser, langageDict):
     value=""
 
 
-    if platform.system() == 'Windows':
-        langagePath = os.path.normpath(AppPath + "\\lang\\" + langageUser)
-        langageFile = open(langagePath,'r')
-
-    else:
-        langageFile = open(AppPath + "lang/" + langageUser,'r')
-
-
+    langageFile = open(os.path.join(AppPath, "lang", langageUser),'r')
 
     for readValue in langageFile:
 
@@ -1222,25 +1130,11 @@ for value in locale.getdefaultlocale():
     c = c +1
 
 
-
-if platform.system() == 'Windows':
-    langageUserPath = AppPath + "\\lang\\" + langage
-    langageUserPath = os.path.normpath(langageUserPath)
-
-    if os.path.exists(langageUserPath) == True:
-        LangageValuesDict = LangageValues(langage, LangageValuesDict)
-
-    else:
-        LangageValuesDict = LangageValues('en_US', LangageValuesDict)
-
-
+if os.path.exists(os.path.join(AppPath, "lang", langage)) == True:
+    LangageValuesDict = LangageValues(langage, LangageValuesDict)
 
 else:
-    if os.path.exists(AppPath + "lang/" + langage) == True:
-        LangageValuesDict = LangageValues(langage, LangageValuesDict)
-
-    else:
-        LangageValuesDict = LangageValues('en_US', LangageValuesDict)
+    LangageValuesDict = LangageValues('en_US', LangageValuesDict)
 
 
 
@@ -2321,7 +2215,7 @@ def ImporterSQL(Mat_Name):
         files = os.listdir(OutPath)
         for f in files:
             if not os.path.isdir(f):
-                os.remove(OutPath+f)
+                os.remove(os.path.join(OutPath, f))
 
     else:
         os.makedirs(OutPath)
@@ -2374,9 +2268,9 @@ def ImporterSQL(Mat_Name):
 
                         #Now I generate image files:
                         if Tex_ima_name == '':
-                            adresse = OutPath + "error_save.jpg"
-                            test = shutil.copy2(ErrorsPath + "error_save.jpg", adresse)
-                            Tex_ima_filepath = AppPath + "error_save.jpg"
+                            adresse = os.path.join(OutPath, "error_save.jpg")
+                            test = shutil.copy2(os.path.join(ErrorsPath, "error_save.jpg"), adresse)
+                            Tex_ima_filepath = os.path.join(AppPath, "error_save.jpg")
 
                         else:
                             format_image = [".png", ".jpg", ".jpeg", ".tiff", ".tga", ".raw", ".bmp", ".hdr", ".gif", ".svg", ".wmf", ".pst"]
@@ -2384,11 +2278,11 @@ def ImporterSQL(Mat_Name):
                             for format in format_image:
                                 if c == 0:
                                     if format in Tex_ima_name:
-                                        adresse = OutPath + Tex_ima_name
+                                        adresse = os.path.join(OutPath, Tex_ima_name)
                                         c = 1
 
                                     else:
-                                        adresse = OutPath + Tex_ima_name + "." +  Tex_ima_fileformat
+                                        adresse = os.path.join(OutPath, Tex_ima_name + "." +  Tex_ima_fileformat)
 
 
                             generated_image = open(adresse,'wb')
@@ -2404,76 +2298,36 @@ def ImporterSQL(Mat_Name):
     print(LangageValuesDict['ErrorsMenuError001'])
     print(LangageValuesDict['ErrorsMenuError006'])
 
-    BlendPath = os.path.dirname(bpy.data.filepath)
     if Render_exists == True: #I verify if an image exists
-        if platform.system() == 'Windows':
-            CopyBlendFolder = BlendPath +'\\ShaderToolsImport\\' + Mat_Name
-
-        else:
-            CopyBlendFolder = BlendPath +'/ShaderToolsImport/' + Mat_Name
-
+        CopyBlendFolder = os.path.join(BlendPath, "ShaderToolsImport", Mat_Name)
 
         if os.path.exists(CopyBlendFolder) == False:
-            if platform.system() == 'Windows':
-                os.makedirs(CopyBlendFolder + "\\")
-                CopyBlendFolder = CopyBlendFolder + "\\"
-
-            else:
-                os.makedirs(CopyBlendFolder + "/")
-                CopyBlendFolder = CopyBlendFolder + "/"
-
+            os.makedirs(CopyBlendFolder)
         else:
             c = 1
             while os.path.exists(CopyBlendFolder) == True:
-                if platform.system() == 'Windows':
-                    CopyBlendFolder = BlendPath +'\\ShaderToolsImport\\' + Mat_Name + "_" + str(c) + "\\"
-
-                else:
-                    CopyBlendFolder = BlendPath +'/ShaderToolsImport/' + Mat_Name + "_" + str(c) + "/"
-
+                CopyBlendFolder = os.path.join(BlendPath, "ShaderToolsImport", Mat_Name + "_" + str(c))
                 c = c + 1
 
             os.makedirs(CopyBlendFolder)
 
-
-
         #Debug
         if os.path.exists(CopyBlendFolder) == False:
-            if platform.system() == 'Windows':
-                CopyBlendFolder = AppPath + '\\ShaderToolsImport'
-                if os.path.exists(CopyBlendFolder) == False:
-                    os.makedirs(CopyBlendFolder)
+            CopyBlendFolder = os.path.join(AppPath, "ShaderToolsImport")
+            if os.path.exists(CopyBlendFolder) == False:
+                os.makedirs(CopyBlendFolder)
 
-                CopyBlendFolder = AppPath + '\\ShaderToolsImport\\' + Mat_Name
-                if os.path.exists(CopyBlendFolder) == False:
-                    os.makedirs(CopyBlendFolder)
-
-                CopyBlendFolder = CopyBlendFolder + "\\"
-
-            else:
-                CopyBlendFolder = AppPath + '/ShaderToolsImport'
-                if os.path.exists(CopyBlendFolder) == False:
-                    os.makedirs(CopyBlendFolder)
-
-                CopyBlendFolder = AppPath + '/ShaderToolsImport/' + Mat_Name
-                if os.path.exists(CopyBlendFolder) == False:
-                    os.makedirs(CopyBlendFolder)
-
-                CopyBlendFolder = CopyBlendFolder + "/"
-
+            CopyBlendFolder = os.path.join(AppPath, "ShaderToolsImport", Mat_Name)
+            if os.path.exists(CopyBlendFolder) == False:
+                os.makedirs(CopyBlendFolder)
 
 
         #Here I copy all files in Out Folder to ShaderToolsImport folder:
-        if platform.system() == 'Windows':
-            files = os.listdir(OutPath + '\\')
-
-        else:
-            files = os.listdir(OutPath)
-
+        files = os.listdir(OutPath)
 
         for f in files:
             if not os.path.isdir(f):
-                shutil.copy2(OutPath + f, CopyBlendFolder+f)
+                shutil.copy2(os.path.join(OutPath, f), os.path.join(CopyBlendFolder, f))
 
 
 
@@ -3378,7 +3232,7 @@ def ImporterSQL(Mat_Name):
 
         if Tex_Type ==  'IMAGE' :
             #I create image texture environnement:
-            imagePath = CopyBlendFolder + Tex_ima_name
+            imagePath = os.path.join(CopyBlendFolder, Tex_ima_name)
             img=bpy.data.images.load(filepath=imagePath )
 
             #Now I create file:
@@ -3902,15 +3756,10 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
 
 
     #Here I remove all files in Zip Folder:
-    if platform.system() == 'Windows':
-        files = os.listdir(ZipPath + '\\')
-
-    else:
-        files = os.listdir(ZipPath)
-
+    files = os.listdir(ZipPath)
     for f in files:
         if not os.path.isdir(f):
-            os.remove(ZipPath+f)
+            os.remove(os.path.join(ZipPath, f))
 
 
 
@@ -4128,23 +3977,19 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                     IMAGE_FILENAME = Raw_Image_Name(IMAGE_FILEPATH)
 
                     if '*Error*' in IMAGE_FILEPATH:
-                        ErrorsPathJpg = ErrorsPath + 'error_save.jpg'
-                        shutil.copy2(ErrorsPathJpg, AppPath + 'error_save.jpg')
-                        IMAGE_FILEPATH = AppPath + 'error_save.jpg'
+                        ErrorsPathJpg = os.path.join(ErrorsPath, 'error_save.jpg')
+                        shutil.copy2(ErrorsPathJpg, os.path.join(AppPath, 'error_save.jpg'))
+                        IMAGE_FILEPATH = os.path.join(AppPath, 'error_save.jpg')
                         IMAGE_FILENAME = 'error_save.jpg'
                         print(LangageValuesDict['ErrorsMenuError013'])
                         #print("*******************************************************************************")
 
 
                     #I treat informations:
-                    MY_EXPORT_INFORMATIONS.append('imagePath = scriptPath + Mat_Name + "_" + "' + IMAGE_FILENAME +  '"\n')
+                    MY_EXPORT_INFORMATIONS.append('imagePath = os.path.join(scriptPath, Mat_Name + "_" + "' + IMAGE_FILENAME +  '")\n')
                     MY_EXPORT_INFORMATIONS.append('img=bpy.data.images.load(filepath=imagePath)\n')
 
-                    if platform.system() == 'Windows':
-                        save_path = ZipPath + '\\' + Mat_Name
-
-                    else:
-                        save_path = ZipPath + Mat_Name
+                    save_path = os.path.join(ZipPath, Mat_Name)
 
 
                     if '.py' in save_path:
@@ -4168,10 +4013,10 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                 if tex.texture_slots[textureNumbers].texture.image.source == 'GENERATED':
                     myImg = str(obj.active_material.texture_slots[textureNumbers].texture.image.name)
                     myImg = '"' + myImg
-                    MY_EXPORT_INFORMATIONS.append('imagePath = scriptPath + Mat_Name + "_" + ' + myImg +  '.png"\n')
+                    MY_EXPORT_INFORMATIONS.append('imagePath = os.path.join(scriptPath, Mat_Name + "_" + ' + myImg +  '.png")\n')
                     MY_EXPORT_INFORMATIONS.append('img=bpy.data.images.load(filepath=imagePath)\n')
 
-                    save_path = ZipPath + Mat_Name
+                    save_path = os.path.join(ZipPath, Mat_Name)
 
                     if '.py' in save_path:
                         save_path = save_path.replace('.py', '')
@@ -4698,15 +4543,11 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
 
 
     #fileExport =  File_Path + "_" + Inf_Creator + ".py"
-    fileExport =  ZipPath + Mat_Name + "_" + Inf_Creator + ".py"
+    fileExport =  os.path.join(ZipPath, Mat_Name + "_" + Inf_Creator + ".py")
 
     file = open(fileExport, "w")
-
-
     for line in MY_EXPORT_INFORMATIONS:
         file.writelines(line)
-
-
     file.close()
 
     #Now I zip files :
@@ -4717,7 +4558,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
     files = os.listdir(ZipPath)
     for f in files:
         if not os.path.isdir(f):
-            ZipFile_Write = ZipPath + f
+            ZipFile_Write = os.path.join(ZipPath, f)
             z.write(ZipFile_Write, os.path.basename(ZipFile_Write), zipfile.ZIP_DEFLATED)
 
 
@@ -4762,7 +4603,7 @@ def Raw_Image_Path(Image_Path):
     SaveOriginalPath = Image_Path
 
     if os.path.exists(Image_Path) == False:
-        Image_Path = BlendPath + Image_Path
+        Image_Path = os.path.join(BlendPath, Image_Path)
 
     if os.path.exists(Image_Path) == False:
         Image_Path = '~' + SaveOriginalPath
@@ -4785,22 +4626,7 @@ def Raw_Image_Path(Image_Path):
 # ************************************************************************************
 def Raw_Image_Name(Image_Path):
     Image_Path = Image_Path.replace("'", '')
-    Image_Name = ""
-
-    if platform.system() == 'Windows':
-        for value in Image_Path.split('\\', 1024):
-            Image_Name = value
-
-    else:
-
-        for value in Image_Path.split('/', 1024):
-            Image_Name = value
-
-
-
-
-
-    return Image_Name
+    return Image_Path.split(os.path.sep)[-1]
 
 
 
@@ -5347,9 +5173,9 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                     IMAGE_FILENAME = Raw_Image_Name(IMAGE_FILEPATH)
 
                     if '*Error*' in IMAGE_FILEPATH:
-                        ErrorsPathJpg = ErrorsPath + 'error_save.jpg'
-                        shutil.copy2(ErrorsPathJpg, AppPath + 'error_save.jpg')
-                        IMAGE_FILEPATH = AppPath + 'error_save.jpg'
+                        ErrorsPathJpg = os.path.join(ErrorsPath, 'error_save.jpg')
+                        shutil.copy2(ErrorsPathJpg, os.path.join(AppPath, 'error_save.jpg'))
+                        IMAGE_FILEPATH = os.path.join(AppPath, 'error_save.jpg')
                         IMAGE_FILENAME = 'error_save.jpg'
                         print(LangageValuesDict['ErrorsMenuError013'])
                         #print("************************************************************")
@@ -5382,7 +5208,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
 
 
                     save_name = Tex_ima_name.replace("'", '')
-                    save_path = AppPath + save_name.replace('.', '') + ".png"
+                    save_path = os.path.join(AppPath, save_name.replace('.', '') + ".png")
 
 
                     if os.path.exists(save_path) == True:
@@ -7090,7 +6916,7 @@ def TakePreviewRender(Inf_Creator, Mat_Name):
     ren.pixel_aspect_x = 1.0
     ren.pixel_aspect_y = 1.0
     ren.antialiasing_samples = '16'
-    ren.filepath = AppPath + Mat_Name + "_" + Inf_Creator + "_preview.jpg"
+    ren.filepath = os.path.join(AppPath, Mat_Name + "_" + Inf_Creator + "_preview.jpg")
     ren.image_settings.file_format = 'JPEG'
     ren.image_settings.color_mode = 'RGB'
 
@@ -7112,12 +6938,12 @@ def TakePreviewRender(Inf_Creator, Mat_Name):
 
 
     #I do a preview of scene and i send render in memory:
-    PreviewFileImage = open(AppPath + Mat_Name + "_" + Inf_Creator + "_preview.jpg",'rb')
+    PreviewFileImage = open(os.path.join(AppPath, Mat_Name + "_" + Inf_Creator + "_preview.jpg"),'rb')
     PreviewFileImageInMemory = PreviewFileImage.read()
     PreviewFileImage.close()
 
     #Remove Preview File:
-    os.remove( AppPath + Mat_Name + "_" + Inf_Creator + "_preview.jpg")
+    os.remove( os.path.join(AppPath, Mat_Name + "_" + Inf_Creator + "_preview.jpg"))
 
 
 
@@ -7182,10 +7008,10 @@ def UpdateDatabase(Inf_Creator, Inf_Category, Inf_Description, Inf_Weblink, Inf_
 def SearchShaders(self, context):
 
     #I must verify if search file not exist :
-    if os.path.exists(TempPath + "searching") == False:
+    if os.path.exists(os.path.join(TempPath, "searching")) == False:
 
         #I create file until user do not cancel or valid choice :
-        searchFile = open(TempPath + "searching", 'w')
+        searchFile = open(os.path.join(TempPath, "searching"), 'w')
         searchFile.close
 
 
@@ -7194,7 +7020,7 @@ def SearchShaders(self, context):
             files = os.listdir(TempPath)
             for f in files:
                 if not os.path.isdir(f) and ".jpg" in f:
-                    os.remove(TempPath+f)
+                    os.remove(os.path.join(TempPath, f))
 
         else:
             os.mkdir(TempPath)
@@ -7204,14 +7030,14 @@ def SearchShaders(self, context):
         files = os.listdir(shaderFolderPath)
         for f in files:
             if not os.path.isdir(f) and ".jpg" in f:
-                shutil.copy2(shaderFolderPath+f, TempPath+f)
+                shutil.copy2(os.path.join(shaderFolderPath, f), os.path.join(TempPath, f))
 
 
     #Here I remove all files in Base Preview Folder:
     files = os.listdir(shaderFolderPath)
     for f in files:
         if not os.path.isdir(f) and ".jpg" in f:
-            os.remove(shaderFolderPath+f)
+            os.remove(os.path.join(shaderFolderPath, f))
 
 
 
@@ -7221,7 +7047,7 @@ def SearchShaders(self, context):
     for f in files:
         if not os.path.isdir(f) and ".jpg" in f:
             if self.Search.upper() in f.upper():
-                shutil.copy2(TempPath+f, shaderFolderPath+f)
+                shutil.copy2(os.path.join(TempPath, f), os.path.join(shaderFolderPath, f))
 
 
     bpy.ops.file.refresh()
@@ -7235,10 +7061,10 @@ def SearchShaders(self, context):
 def SearchShadersEnum(self, context):
 
     #I must verify if search file not exist :
-    if os.path.exists(TempPath + "searching") == False:
+    if os.path.exists(os.path.join(TempPath, "searching")) == False:
 
         #I create file until user do not cancel or valid choice :
-        searchFile = open(TempPath + "searching", 'w')
+        searchFile = open(os.path.join(TempPath, "searching"), 'w')
         searchFile.close
 
 
@@ -7247,7 +7073,7 @@ def SearchShadersEnum(self, context):
             files = os.listdir(TempPath)
             for f in files:
                 if not os.path.isdir(f) and ".jpg" in f:
-                    os.remove(TempPath+f)
+                    os.remove(os.path.join(TempPath, f))
 
         else:
             os.makedirs(TempPath)
@@ -7257,14 +7083,14 @@ def SearchShadersEnum(self, context):
         files = os.listdir(shaderFolderPath)
         for f in files:
             if not os.path.isdir(f) and ".jpg" in f:
-                shutil.copy2(shaderFolderPath+f, TempPath+f)
+                shutil.copy2(os.path.join(shaderFolderPath, f), os.path.join(TempPath, f))
 
 
     #Here I remove all files in Base Preview Folder:
     files = os.listdir(shaderFolderPath)
     for f in files:
         if not os.path.isdir(f) and ".jpg" in f:
-            os.remove(shaderFolderPath+f)
+            os.remove(os.path.join(shaderFolderPath, f))
 
 
 
@@ -7274,7 +7100,7 @@ def SearchShadersEnum(self, context):
     for f in files:
         if not os.path.isdir(f) and ".jpg" in f:
             if self.History.upper() in f.upper():
-                shutil.copy2(TempPath+f, shaderFolderPath+f)
+                shutil.copy2(os.path.join(TempPath, f), os.path.join(shaderFolderPath, f))
 
 
 
@@ -7370,28 +7196,23 @@ class OpenShaders(bpy.types.Operator):
     def execute(self, context):
         selectedFile = self.filename.replace('.jpg', '')
 
-        if os.path.exists(TempPath + "searching") == True:
-            os.remove(TempPath + "searching")
+        if os.path.exists(os.path.join(TempPath, "searching")) == True:
+            os.remove(os.path.join(TempPath, "searching"))
 
 
         #I update history file (in config file):
-        #print(AppPath + "history")
+        #print(os.path.join(AppPath, "history"))
         History_save = []
-        if os.path.exists(AppPath + "history") == True and selectedFile is not '' and selectedFile is not '\n':
-            history = open(AppPath + "history",'r')
+        if os.path.exists(os.path.join(AppPath, "history")) == True and selectedFile is not '' and selectedFile is not '\n':
+            history = open(os.path.join(AppPath, "history"),'r')
             for l in history:
                 History_save.append(l)
-
             #I remove history path:
-            if platform.system() == 'Windows':
-                history.close()
-                os.remove(AppPath + "history")
-
-            else :
-                os.remove(AppPath + "history")
+            history.close()
+            os.remove(os.path.join(AppPath, "history"))
 
             #I create a new History File:
-            history = open(AppPath + "history",'w')
+            history = open(os.path.join(AppPath, "history"),'w')
             history.writelines('[HISTORY]\n')
             history.writelines('History1=' + selectedFile + "\n")
 
@@ -7425,7 +7246,7 @@ class OpenShaders(bpy.types.Operator):
 
 
         ImporterSQL(self.filename)
-        bpy.ops.script.python_file_run(filepath=AppPath + "__init__.py")
+        bpy.ops.script.python_file_run(filepath=os.path.join(AppPath, "__init__.py"))
 
         return {'FINISHED'}
 
@@ -7511,7 +7332,7 @@ class OpenShaders(bpy.types.Operator):
 
             NameFileJPG = Name + "_Ind_" + Indice + ".jpg"
             NameFileJPG = NameFileJPG.replace('MAT_PRE_', '')
-            NameFileJPG = shaderFolderPath + NameFileJPG
+            NameFileJPG = os.path.join(shaderFolderPath, NameFileJPG)
             imageFileJPG = open(NameFileJPG,'wb')
             imageFileJPG.write(Render)
             imageFileJPG.close()
@@ -7519,9 +7340,9 @@ class OpenShaders(bpy.types.Operator):
 
 
 
-        if os.path.exists(AppPath + "first") == True:
+        if os.path.exists(os.path.join(AppPath, "first")) == True:
             bpy.ops.object.warning('INVOKE_DEFAULT')
-            os.remove(AppPath + "first")
+            os.remove(os.path.join(AppPath, "first"))
             time.sleep(1)
 
         else:
@@ -7728,12 +7549,7 @@ class Help(bpy.types.Operator):
 # ************************************************************************************
 def Importer(File_Path, Mat_Name):
 
-    #Import Path:
-    if platform.system() == 'Windows':
-        ImportPath = os.path.dirname(bpy.data.filepath) + "\\"
-
-    else:
-        ImportPath = os.path.dirname(bpy.data.filepath) + "/"
+    ImportPath = os.path.dirname(bpy.data.filepath)
 
 
     #Blend file must be saved before import a file :
@@ -7745,12 +7561,11 @@ def Importer(File_Path, Mat_Name):
     if os.path.exists(ZipPath) == False:
         os.makedirs(ZipPath)
 
-
     #Here I remove all files in Zip Folder:
     files = os.listdir(ZipPath)
     for f in files:
         if not os.path.isdir(f):
-            os.remove(ZipPath+f)
+            os.remove(os.path.join(ZipPath, f))
 
 
 
@@ -7759,13 +7574,13 @@ def Importer(File_Path, Mat_Name):
         zfile = zipfile.ZipFile(ZipFile_Name, 'r')
         for z in zfile.namelist():
             if os.path.isdir(z):
-                try: os.makedirs(BlendDestination + os.sep + z)
+                try: os.makedirs(os.path.join(BlendDestination, z))
                 except: pass
             else:
-                try: os.makedirs(BlendDestination + os.sep + os.path.dirname(z))
+                try: os.makedirs(os.path.join(BlendDestination, + os.path.dirname(z)))
                 except: pass
                 data = zfile.read(z)
-                fp = open(BlendDestination + os.sep + z, "wb")
+                fp = open(os.path.join(BlendDestination, z), "wb")
                 fp.write(data)
                 fp.close()
         zfile.close()
@@ -7775,12 +7590,7 @@ def Importer(File_Path, Mat_Name):
 
     #I must create a Folder in .blend Path :
     #Here i verify if ShaderToolsImport Folder exists:
-    CopyBlendFolder = ""
-    if platform.system() == 'Windows':
-        CopyBlendFolder = ImportPath +'\\ShaderToolsImport\\'
-
-    else:
-        CopyBlendFolder = ImportPath +'ShaderToolsImport/'
+    CopyBlendFolder = os.path.join(ImportPath, "ShaderToolsImport")
 
 
     if os.path.exists(CopyBlendFolder) == False:
@@ -7788,12 +7598,7 @@ def Importer(File_Path, Mat_Name):
 
 
     #Here i verify if Material Name Folder exists:
-    CopyMatFolder = ""
-    if platform.system() == 'Windows':
-        CopyMatFolder = ImportPath +'\\ShaderToolsImport\\' + Mat_Name + '\\'
-
-    else:
-        CopyMatFolder = ImportPath +'ShaderToolsImport/' + Mat_Name + '/'
+    CopyMatFolder = os.path.join(ImportPath, "ShaderToolsImport", Mat_Name)
 
     CopyMatFolder = CopyMatFolder.replace('.blex', '')
     Mat_Name_folder = Mat_Name.replace('.blex', '')
@@ -7804,11 +7609,7 @@ def Importer(File_Path, Mat_Name):
     else:
         c = 1
         while os.path.exists(CopyMatFolder) == True:
-            if platform.system() == 'Windows':
-                CopyMatFolder = ImportPath +'ShaderToolsImport\\' + Mat_Name_folder + '_' + str(c) + '\\'
-
-            else:
-                CopyMatFolder = ImportPath +'ShaderToolsImport/' + Mat_Name_folder + '_' + str(c) + '/'
+            CopyMatFolder = os.path.join(ImportPath, "ShaderToolsImport", Mat_Name_folder + '_' + str(c))
             c = c + 1
 
         os.makedirs(CopyMatFolder)
@@ -7817,7 +7618,7 @@ def Importer(File_Path, Mat_Name):
     files = os.listdir(ZipPath)
     for f in files:
         if not os.path.isdir(f):
-            shutil.copy2(ZipPath+f, CopyMatFolder+f)
+            shutil.copy2(os.path.join(ZipPath, f), os.path.join(CopyMatFolder, f))
 
 
     #Here I must find .py script:
@@ -7836,16 +7637,11 @@ def Importer(File_Path, Mat_Name):
         #Here I save script in a list:
         MY_SCRIPT_LIST = []
 
-        env_file = open(CopyMatFolder + script_name,'r')
+        env_file = open(os.path.join(CopyMatFolder, script_name),'r')
 
         for values in env_file:
             if values == "!*- environnement path -*!" or values == "!*- environnement path -*!\n":
-                if platform.system() == 'Windows':
-                    path = "scriptPath = '" + CopyMatFolder + "\\'\n"
-                    path = path.replace("\\","\\\\")
-
-                else:
-                    path = "scriptPath = '" + CopyMatFolder + "'"
+                path = "scriptPath = '" + CopyMatFolder + "'"
 
                 MY_SCRIPT_LIST.append(path)
             else:
@@ -7855,8 +7651,8 @@ def Importer(File_Path, Mat_Name):
 
 
         #I remove old script and I create a new script in Material Folder:
-        os.remove(CopyMatFolder + script_name)
-        new_script = open(CopyMatFolder + script_name, "w")
+        os.remove(os.path.join(CopyMatFolder, script_name))
+        new_script = open(os.path.join(CopyMatFolder, script_name), "w")
 
         c = 0
         for values in MY_SCRIPT_LIST:
@@ -7868,7 +7664,7 @@ def Importer(File_Path, Mat_Name):
 
 
         #Now I execute the zip script file:
-        bpy.ops.script.python_file_run(filepath=CopyMatFolder + script_name)
+        bpy.ops.script.python_file_run(filepath=os.path.join(CopyMatFolder, script_name))
 
 
 
@@ -8098,11 +7894,11 @@ def InformationsUpdateInformations(info):
 def UpdateConfigurationsInformations(DataBasePathFile, Inf_Creator, Inf_Category, Inf_Description, Inf_Weblink, Inf_Email, Mat_Name, Inf_ResolutionX, Inf_ResolutionY):
 
     #Delete configuration file:
-    os.remove(AppPath + "config")
+    os.remove(os.path.join(AppPath, "config"))
 
 
     #Create a new configuration file:
-    config = open(AppPath + "config",'w')
+    config = open(os.path.join(AppPath, "config"),'w')
     config.writelines(ExportPath + '\n')
     config.writelines(DataBasePathFile + '\n')
     config.writelines(Inf_Creator + '\n')
@@ -8113,7 +7909,7 @@ def UpdateConfigurationsInformations(DataBasePathFile, Inf_Creator, Inf_Category
 
     config.close()
 
-    #bpy.ops.script.python_file_run(filepath=AppPath + "__init__.py")
+    #bpy.ops.script.python_file_run(filepath=os.path.join(AppPath, "__init__.py"))
 
 
 # ************************************************************************************
@@ -8259,10 +8055,10 @@ class Configuration(bpy.types.Operator):
 
     def execute(self, context):
         #Delete configuration file:
-        os.remove(AppPath + "config")
+        os.remove(os.path.join(AppPath, "config"))
 
         #Create a new configuration file:
-        config = open(AppPath + "config",'w')
+        config = open(os.path.join(AppPath, "config"),'w')
         config.writelines(AppPath + '\n')
         config.writelines(ExportPath + '\n')
         config.writelines(self.DataBasePathFile + '\n')
@@ -8277,7 +8073,7 @@ class Configuration(bpy.types.Operator):
 
         config.close()
 
-        bpy.ops.script.python_file_run(filepath=AppPath + "__init__.py")
+        bpy.ops.script.python_file_run(filepath=os.path.join(AppPath, "__init__.py"))
 
 
 
@@ -8301,22 +8097,22 @@ class CreateNew(bpy.types.Operator):
     def execute(self, context):
 
         #I delete old modele and I copy new empty modele:
-        if os.path.exists(AppPath + "env_base_save.blend") == True:
-            os.remove(AppPath + "env_base_save.blend")
+        if os.path.exists(os.path.join(AppPath, "env_base_save.blend")) == True:
+            os.remove(os.path.join(AppPath, "env_base_save.blend"))
 
-        if os.path.exists(AppPath + "env_base_save") == True:
-            shutil.copy2(AppPath + "env_base_save", AppPath + "env_base_save.blend")
+        if os.path.exists(os.path.join(AppPath, "env_base_save")) == True:
+            shutil.copy2(os.path.join(AppPath, "env_base_save"), os.path.join(AppPath + "env_base_save.blend"))
 
 
         #I open modele file:
         if platform.system() == 'Windows':
-            env_base_save= os.popen('"' + AppPath + 'env_base_save.blend' + '"')
+            env_base_save= os.popen('"' + os.path.join(AppPath, 'env_base_save.blend') + '"')
 
         if platform.system() == 'Darwin':
-            env_base_save= os.popen("open '" +bpy.app.binary_path + "' " + "'" + AppPath + "env_base_save.blend'")
+            env_base_save= os.popen("open '" + bpy.app.binary_path + " '" + os.path.join(AppPath, "env_base_save.blend") + "'")
 
         if platform.system() == 'Linux':
-            env_base_save= os.popen(bpy.app.binary_path + " '" + AppPath + "env_base_save.blend'")
+            env_base_save= os.popen(bpy.app.binary_path + " '" + os.path.join(AppPath, "env_base_save.blend") + "'")
 
 
         return {'FINISHED'}
@@ -8400,20 +8196,11 @@ if os.path.exists(BookmarksPathUser) == True:
     shutil.copy2(BookmarksPathUser, BookmarksPathUser+"_2")
     value = ""
     bookmarks_category = False
-    shaderFolderPath = ""
     updateInformation = True
     MY_BOOKMARKS_FILE = []
 
 
-    if platform.system() == 'Windows':
-        shaderFolderPath = AppPath + '\\' + LangageValuesDict['BookmarksMenuName']  + '\\'
-        #shaderFolderPath = os.path.normpath(shaderFolderPath)
-
-    else:
-        shaderFolderPath = AppPath + LangageValuesDict['BookmarksMenuName'] + "/"
-
-
-
+    shaderFolderPath = os.path.join(AppPath, LangageValuesDict['BookmarksMenuName'])
     #I verify Shader tempory File is correcly created:
     if os.path.exists(shaderFolderPath) == False :
         os.mkdir(shaderFolderPath)
@@ -8460,8 +8247,8 @@ if os.path.exists(BookmarksPathUser) == True:
 
         bookmarkspathfile.close()
 
-        if os.path.exists(AppPath + "first") == False:
-            firstFile = open(AppPath + "first",'w')
+        if os.path.exists(os.path.join(AppPath, "first")) == False:
+            firstFile = open(os.path.join(AppPath, "first"),'w')
             firstFile.close()
 
 
@@ -8478,14 +8265,7 @@ if os.path.exists(BookmarksPathSystem) == True:
     MY_BOOKMARKS_FILE = []
 
 
-    if platform.system() == 'Windows':
-        shaderFolderPath = AppPath + '\\' + LangageValuesDict['BookmarksMenuName']  + '\\'
-        #shaderFolderPath = os.path.normpath(shaderFolderPath)
-
-    else:
-        shaderFolderPath = AppPath + LangageValuesDict['BookmarksMenuName'] + "/"
-
-
+    shaderFolderPath = os.path.join(AppPath, LangageValuesDict['BookmarksMenuName'])
     #I verify Shader tempory File is correcly created:
     if os.path.exists(shaderFolderPath) == False :
         os.mkdir(shaderFolderPath)
@@ -8531,8 +8311,8 @@ if os.path.exists(BookmarksPathSystem) == True:
 
         bookmarkspathfile.close()
 
-        if os.path.exists(AppPath + "first") == False:
-            firstFile = open(AppPath + "first",'w')
+        if os.path.exists(os.path.join(AppPath, "first")) == False:
+            firstFile = open(os.path.join(AppPath, "first"),'w')
             firstFile.close()
 
 
@@ -8544,10 +8324,10 @@ if os.path.exists(shaderFolderPath) == True:
     files = os.listdir(shaderFolderPath)
     for f in files:
         if not os.path.isdir(f) and ".jpg" in f:
-            os.remove(shaderFolderPath+f)
+            os.remove(os.path.join(shaderFolderPath, f))
 
         else:
-            os.remove(shaderFolderPath+f)
+            os.remove(os.path.join(shaderFolderPath, f))
 
 
 
