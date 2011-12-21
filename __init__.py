@@ -51,11 +51,8 @@ import platform
 import locale
 import shutil
 import zipfile
-import zlib
-import threading
 import time
 import sys
-from decimal import *
 
 
 # ************************************************************************************
