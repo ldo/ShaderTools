@@ -209,13 +209,13 @@ history.close()
 
 
 # ************************************************************************************
-# *                                     LANGAGE PARAMETERS                           *
+# *                                     LANGUAGE PARAMETERS                           *
 # ************************************************************************************
 
 
-def LangageValues(langageUser, langageDict):
+def LanguageValues(languageUser, languageDict):
 
-    #I open langage file:
+    #I open language file:
     readValue = ""
     readValueList = ""
     categoryConfig = '[Panel]'
@@ -224,24 +224,17 @@ def LangageValues(langageUser, langageDict):
     sectionValue = ''
     value=""
 
+    languageFile = open(os.path.join(AppPath, "lang", languageUser),'r')
 
-    langageFile = open(os.path.join(AppPath, "lang", langageUser),'r')
-
-    for readValue in langageFile:
+    for readValue in languageFile:
 
         c = 0
         for value in readValue.split('=', 1):
-
             if c == 0:
                 section = value
-
             else:
                 sectionValue = value
-
-
             c = c + 1
-
-
 
         if readValue == '*!-*':
             saveCategoryConfig == ''
@@ -253,7 +246,7 @@ def LangageValues(langageUser, langageDict):
         if section == '[Panel]' or saveCategoryConfig == '[Panel]':
 
             if section == 'Name':
-                langageDict['PanelName'] = sectionValue
+                languageDict['PanelName'] = sectionValue
 
             saveCategoryConfig = '[Panel]'
 
@@ -262,634 +255,573 @@ def LangageValues(langageUser, langageDict):
         if section == '[FindImageMenu]' or saveCategoryConfig == '[FindImageMenu]':
 
             if section == 'Name':
-                langageDict['FindImageMenuName'] = sectionValue
+                languageDict['FindImageMenuName'] = sectionValue
 
             saveCategoryConfig = '[FindImageMenu]'
-
-
 
         #Buttons Values :
         if section == '[Buttons]' or saveCategoryConfig == '[Buttons]':
 
             if section == 'Open':
-                langageDict['ButtonsOpen'] = sectionValue
+                languageDict['ButtonsOpen'] = sectionValue
 
             if section == 'Save':
-                langageDict['ButtonsSave'] = sectionValue
+                languageDict['ButtonsSave'] = sectionValue
 
             if section == 'Configuration':
-                langageDict['ButtonsConfiguration'] = sectionValue
+                languageDict['ButtonsConfiguration'] = sectionValue
 
             if section == 'Export':
-                langageDict['ButtonsExport'] = sectionValue
+                languageDict['ButtonsExport'] = sectionValue
 
             if section == 'Import':
-                langageDict['ButtonsImport'] = sectionValue
+                languageDict['ButtonsImport'] = sectionValue
 
             if section == 'Help':
-                langageDict['ButtonsHelp'] = sectionValue
+                languageDict['ButtonsHelp'] = sectionValue
 
             if section == 'Informations':
-                langageDict['ButtonsInformations'] = sectionValue
+                languageDict['ButtonsInformations'] = sectionValue
 
 
             if section == 'Create':
-                langageDict['ButtonsCreate'] = sectionValue
-
-
+                languageDict['ButtonsCreate'] = sectionValue
 
             saveCategoryConfig = '[Buttons]'
-
-
 
         #OpenMenu Values :
         if section == '[OpenMenu]' or saveCategoryConfig == '[OpenMenu]':
 
             if section == 'Title':
-                langageDict['OpenMenuTitle'] = sectionValue
+                languageDict['OpenMenuTitle'] = sectionValue
 
             if section == 'Label01':
-                langageDict['OpenMenuLabel01'] = sectionValue
+                languageDict['OpenMenuLabel01'] = sectionValue
 
             if section == 'Label02':
-                langageDict['OpenMenuLabel02'] = sectionValue
+                languageDict['OpenMenuLabel02'] = sectionValue
 
             if section == 'Label03':
-                langageDict['OpenMenuLabel03'] = sectionValue
+                languageDict['OpenMenuLabel03'] = sectionValue
 
             if section == 'Label04':
-                langageDict['OpenMenuLabel04'] = sectionValue
+                languageDict['OpenMenuLabel04'] = sectionValue
 
             if section == 'Label05':
-                langageDict['OpenMenuLabel05'] = sectionValue
+                languageDict['OpenMenuLabel05'] = sectionValue
 
             if section == 'Label06':
-                langageDict['OpenMenuLabel06'] = sectionValue
+                languageDict['OpenMenuLabel06'] = sectionValue
 
             if section == 'Label07':
-                langageDict['OpenMenuLabel07'] = sectionValue
+                languageDict['OpenMenuLabel07'] = sectionValue
 
             if section == 'Label08':
-                langageDict['OpenMenuLabel08'] = sectionValue
-
+                languageDict['OpenMenuLabel08'] = sectionValue
 
             if section == 'Label09':
-                langageDict['OpenMenuLabel09'] = sectionValue
-
-
-
+                languageDict['OpenMenuLabel09'] = sectionValue
 
             saveCategoryConfig = '[OpenMenu]'
-
-
 
         #BookmarksMenu Values :
         if section == '[BookmarksMenu]' or saveCategoryConfig == '[BookmarksMenu]':
 
             if section == 'Name':
-                langageDict['BookmarksMenuName'] = sectionValue
+                languageDict['BookmarksMenuName'] = sectionValue
 
             saveCategoryConfig = '[BookmarksMenu]'
-
-
 
         #BookmarksMenu Values :
         if section == '[ErrorsMenu]' or saveCategoryConfig == '[ErrorsMenu]':
 
             if section == 'Error001':
-                langageDict['ErrorsMenuError001'] = sectionValue
+                languageDict['ErrorsMenuError001'] = sectionValue
 
             if section == 'Error002':
-                langageDict['ErrorsMenuError002'] = sectionValue
+                languageDict['ErrorsMenuError002'] = sectionValue
 
             if section == 'Error003':
-                langageDict['ErrorsMenuError003'] = sectionValue
+                languageDict['ErrorsMenuError003'] = sectionValue
 
             if section == 'Error004':
-                langageDict['ErrorsMenuError004'] = sectionValue
+                languageDict['ErrorsMenuError004'] = sectionValue
 
             if section == 'Error005':
-                langageDict['ErrorsMenuError005'] = sectionValue
+                languageDict['ErrorsMenuError005'] = sectionValue
 
             if section == 'Error006':
-                langageDict['ErrorsMenuError006'] = sectionValue
+                languageDict['ErrorsMenuError006'] = sectionValue
 
             if section == 'Error007':
-                langageDict['ErrorsMenuError007'] = sectionValue
+                languageDict['ErrorsMenuError007'] = sectionValue
 
             if section == 'Error008':
-                langageDict['ErrorsMenuError008'] = sectionValue
+                languageDict['ErrorsMenuError008'] = sectionValue
 
             if section == 'Error009':
-                langageDict['ErrorsMenuError009'] = sectionValue
+                languageDict['ErrorsMenuError009'] = sectionValue
 
             if section == 'Error010':
-                langageDict['ErrorsMenuError010'] = sectionValue
+                languageDict['ErrorsMenuError010'] = sectionValue
 
             if section == 'Error011':
-                langageDict['ErrorsMenuError011'] = sectionValue
+                languageDict['ErrorsMenuError011'] = sectionValue
 
             if section == 'Error012':
-                langageDict['ErrorsMenuError012'] = sectionValue
+                languageDict['ErrorsMenuError012'] = sectionValue
 
             if section == 'Error013':
-                langageDict['ErrorsMenuError013'] = sectionValue
-
+                languageDict['ErrorsMenuError013'] = sectionValue
 
             if section == 'Error014':
-                langageDict['ErrorsMenuError014'] = sectionValue
+                languageDict['ErrorsMenuError014'] = sectionValue
 
             if section == 'Error015':
-                langageDict['ErrorsMenuError015'] = sectionValue
+                languageDict['ErrorsMenuError015'] = sectionValue
 
             if section == 'Error016':
-                langageDict['ErrorsMenuError016'] = sectionValue
+                languageDict['ErrorsMenuError016'] = sectionValue
 
             if section == 'Error017':
-                langageDict['ErrorsMenuError017'] = sectionValue
+                languageDict['ErrorsMenuError017'] = sectionValue
 
             if section == 'Error018':
-                langageDict['ErrorsMenuError018'] = sectionValue
+                languageDict['ErrorsMenuError018'] = sectionValue
 
             if section == 'Error019':
-                langageDict['ErrorsMenuError019'] = sectionValue
+                languageDict['ErrorsMenuError019'] = sectionValue
 
             if section == 'Error020':
-                langageDict['ErrorsMenuError020'] = sectionValue
-
-
+                languageDict['ErrorsMenuError020'] = sectionValue
 
             saveCategoryConfig = '[ErrorsMenu]'
-
-
 
         #InformationsMenu Values :
         if section == '[InformationsMenu]' or saveCategoryConfig == '[InformationsMenu]':
 
             if section == 'Title':
-                langageDict['InformationsMenuTitle'] = sectionValue
-
+                languageDict['InformationsMenuTitle'] = sectionValue
 
             if section == 'LabelName':
-                langageDict['InformationsMenuLabelName'] = sectionValue
-
+                languageDict['InformationsMenuLabelName'] = sectionValue
 
             if section == 'Name':
-                langageDict['InformationsMenuName'] = sectionValue
-
+                languageDict['InformationsMenuName'] = sectionValue
 
             if section == 'LabelCreator':
-                langageDict['InformationsMenuLabelCreator'] = sectionValue
-
+                languageDict['InformationsMenuLabelCreator'] = sectionValue
 
             if section == 'Creator':
-                langageDict['InformationsMenuCreator'] = sectionValue
-
+                languageDict['InformationsMenuCreator'] = sectionValue
 
             if section == 'LabelCategory':
-                langageDict['InformationsMenuLabelCategory'] = sectionValue
-
+                languageDict['InformationsMenuLabelCategory'] = sectionValue
 
             if section == 'Category':
-                langageDict['InformationsMenuCategory'] = sectionValue
-
+                languageDict['InformationsMenuCategory'] = sectionValue
 
             if section == 'LabelDescription':
-                langageDict['InformationsMenuLabelDescription'] = sectionValue
-
+                languageDict['InformationsMenuLabelDescription'] = sectionValue
 
             if section == 'Description':
-                langageDict['InformationsMenuDescription'] = sectionValue
-
+                languageDict['InformationsMenuDescription'] = sectionValue
 
             if section == 'LabelWebLink':
-                langageDict['InformationsMenuLabelWebLink'] = sectionValue
-
+                languageDict['InformationsMenuLabelWebLink'] = sectionValue
 
             if section == 'WebLink':
-                langageDict['InformationsMenuWebLink'] = sectionValue
-
+                languageDict['InformationsMenuWebLink'] = sectionValue
 
             if section == 'LabelEmail':
-                langageDict['InformationsMenuLabelEmail'] = sectionValue
-
+                languageDict['InformationsMenuLabelEmail'] = sectionValue
 
             if section == 'Email':
-                langageDict['InformationsMenuEmail'] = sectionValue
-
+                languageDict['InformationsMenuEmail'] = sectionValue
 
             saveCategoryConfig = '[InformationsMenu]'
-
-
-
-
-
 
         #WarningWin Values :
         if section == '[WarningWin]' or saveCategoryConfig == '[WarningWin]':
 
             if section == 'Title':
-                langageDict['WarningWinTitle'] = sectionValue
-
+                languageDict['WarningWinTitle'] = sectionValue
 
             if section == 'Label01':
-                langageDict['WarningWinLabel01'] = sectionValue
+                languageDict['WarningWinLabel01'] = sectionValue
 
             if section == 'Label02':
-                langageDict['WarningWinLabel02'] = sectionValue
+                languageDict['WarningWinLabel02'] = sectionValue
 
             if section == 'Label03':
-                langageDict['WarningWinLabel03'] = sectionValue
+                languageDict['WarningWinLabel03'] = sectionValue
 
             if section == 'Label04':
-                langageDict['WarningWinLabel04'] = sectionValue
+                languageDict['WarningWinLabel04'] = sectionValue
 
             if section == 'Label05':
-                langageDict['WarningWinLabel05'] = sectionValue
+                languageDict['WarningWinLabel05'] = sectionValue
 
             if section == 'Label06':
-                langageDict['WarningWinLabel06'] = sectionValue
+                languageDict['WarningWinLabel06'] = sectionValue
 
             if section == 'Label07':
-                langageDict['WarningWinLabel07'] = sectionValue
+                languageDict['WarningWinLabel07'] = sectionValue
 
             if section == 'Label08':
-                langageDict['WarningWinLabel08'] = sectionValue
+                languageDict['WarningWinLabel08'] = sectionValue
 
             if section == 'Label09':
-                langageDict['WarningWinLabel09'] = sectionValue
+                languageDict['WarningWinLabel09'] = sectionValue
 
             if section == 'Label10':
-                langageDict['WarningWinLabel10'] = sectionValue
-
+                languageDict['WarningWinLabel10'] = sectionValue
 
             saveCategoryConfig = '[WarningWin]'
-
-
-
 
         #SaveMenu Values :
         if section == '[SaveMenu]' or saveCategoryConfig == '[SaveMenu]':
 
             if section == 'Title':
-                langageDict['SaveMenuTitle'] = sectionValue
-
+                languageDict['SaveMenuTitle'] = sectionValue
 
             if section == 'Label01':
-                langageDict['SaveMenuLabel01'] = sectionValue
+                languageDict['SaveMenuLabel01'] = sectionValue
 
             if section == 'Name':
-                langageDict['SaveMenuName'] = sectionValue
+                languageDict['SaveMenuName'] = sectionValue
 
             if section == 'Creator':
-                langageDict['SaveMenuCreator'] = sectionValue
+                languageDict['SaveMenuCreator'] = sectionValue
 
             if section == 'CreatorValue':
-                langageDict['SaveMenuCreatorValue'] = sectionValue
+                languageDict['SaveMenuCreatorValue'] = sectionValue
 
             if section == 'CategoryDefault':
-                langageDict['SaveMenuCategoryDefault'] = sectionValue
+                languageDict['SaveMenuCategoryDefault'] = sectionValue
 
             if section == 'DescriptionLabel':
-                langageDict['SaveMenuDescriptionLabel'] = sectionValue
-
+                languageDict['SaveMenuDescriptionLabel'] = sectionValue
 
             if section == 'Description':
-                langageDict['SaveMenuDescription'] = sectionValue
+                languageDict['SaveMenuDescription'] = sectionValue
 
             if section == 'WebLinkLabel':
-                langageDict['SaveMenuWebLinkLabel'] = sectionValue
+                languageDict['SaveMenuWebLinkLabel'] = sectionValue
 
             if section == 'WebLink':
-                langageDict['SaveMenuWebLink'] = sectionValue
+                languageDict['SaveMenuWebLink'] = sectionValue
 
             if section == 'EmailLabel':
-                langageDict['SaveMenuEmailLabel'] = sectionValue
+                languageDict['SaveMenuEmailLabel'] = sectionValue
 
             if section == 'Email':
-                langageDict['SaveMenuEmail'] = sectionValue
+                languageDict['SaveMenuEmail'] = sectionValue
 
             if section == 'Warning01':
-                langageDict['SaveMenuWarning01'] = sectionValue
+                languageDict['SaveMenuWarning01'] = sectionValue
 
             if section == 'Warning02':
-                langageDict['SaveMenuWarning02'] = sectionValue
+                languageDict['SaveMenuWarning02'] = sectionValue
 
             if section == 'Warning03':
-                langageDict['SaveMenuWarning03'] = sectionValue
+                languageDict['SaveMenuWarning03'] = sectionValue
 
             if section == 'Warning04':
-                langageDict['SaveMenuWarning04'] = sectionValue
+                languageDict['SaveMenuWarning04'] = sectionValue
 
             if section == 'Warning05':
-                langageDict['SaveMenuWarning05'] = sectionValue
-
+                languageDict['SaveMenuWarning05'] = sectionValue
 
             saveCategoryConfig = '[SaveMenu]'
-
 
         #SaveCategory Values :
         if section == '[SaveCategory]' or saveCategoryConfig == '[SaveCategory]':
 
             if section == 'Title':
-                langageDict['SaveCategoryTitle'] = sectionValue
+                languageDict['SaveCategoryTitle'] = sectionValue
 
             if section == 'CategoryTitle':
-                langageDict['SaveCategoryCategoryTitle'] = sectionValue
+                languageDict['SaveCategoryCategoryTitle'] = sectionValue
 
             if section == 'CarPaint':
-                langageDict['SaveCategoryCarPaint'] = sectionValue
+                languageDict['SaveCategoryCarPaint'] = sectionValue
 
             if section == 'Dirt':
-                langageDict['SaveCategoryDirt'] = sectionValue
+                languageDict['SaveCategoryDirt'] = sectionValue
 
             if section == 'FabricClothes':
-                langageDict['SaveCategoryFabricClothes'] = sectionValue
+                languageDict['SaveCategoryFabricClothes'] = sectionValue
 
             if section == 'Fancy':
-                langageDict['SaveCategoryFancy'] = sectionValue
+                languageDict['SaveCategoryFancy'] = sectionValue
 
             if section == 'FibreFur':
-                langageDict['SaveCategoryFibreFur'] = sectionValue
+                languageDict['SaveCategoryFibreFur'] = sectionValue
 
             if section == 'Glass':
-                langageDict['SaveCategoryGlass'] = sectionValue
+                languageDict['SaveCategoryGlass'] = sectionValue
 
             if section == 'Halo':
-                langageDict['SaveCategoryHalo'] = sectionValue
+                languageDict['SaveCategoryHalo'] = sectionValue
 
             if section == 'Liquids':
-                langageDict['SaveCategoryLiquids'] = sectionValue
+                languageDict['SaveCategoryLiquids'] = sectionValue
 
             if section == 'Metal':
-                langageDict['SaveCategoryMetal'] = sectionValue
+                languageDict['SaveCategoryMetal'] = sectionValue
 
             if section == 'Misc':
-                langageDict['SaveCategoryMisc'] = sectionValue
+                languageDict['SaveCategoryMisc'] = sectionValue
 
             if section == 'Nature':
-                langageDict['SaveCategoryNature'] = sectionValue
+                languageDict['SaveCategoryNature'] = sectionValue
 
             if section == 'Organic':
-                langageDict['SaveCategoryOrganic'] = sectionValue
+                languageDict['SaveCategoryOrganic'] = sectionValue
 
             if section == 'Personal':
-                langageDict['SaveCategoryPersonal'] = sectionValue
+                languageDict['SaveCategoryPersonal'] = sectionValue
 
             if section == 'Plastic':
-                langageDict['SaveCategoryPlastic'] = sectionValue
+                languageDict['SaveCategoryPlastic'] = sectionValue
 
             if section == 'Sky':
-                langageDict['SaveCategorySky'] = sectionValue
+                languageDict['SaveCategorySky'] = sectionValue
 
             if section == 'Space':
-                langageDict['SaveCategorySpace'] = sectionValue
+                languageDict['SaveCategorySpace'] = sectionValue
 
             if section == 'Stone':
-                langageDict['SaveCategoryStone'] = sectionValue
+                languageDict['SaveCategoryStone'] = sectionValue
 
             if section == 'Toon':
-                langageDict['SaveCategoryToon'] = sectionValue
+                languageDict['SaveCategoryToon'] = sectionValue
 
             if section == 'Wall':
-                langageDict['SaveCategoryWall'] = sectionValue
+                languageDict['SaveCategoryWall'] = sectionValue
 
             if section == 'Water':
-                langageDict['SaveCategoryWater'] = sectionValue
+                languageDict['SaveCategoryWater'] = sectionValue
 
             if section == 'Wood':
-                langageDict['SaveCategoryWood'] = sectionValue
+                languageDict['SaveCategoryWood'] = sectionValue
 
             saveCategoryConfig = '[SaveCategory]'
-
 
         #ConfigurationMenu Values :
         if section == '[ConfigurationMenu]' or saveCategoryConfig == '[ConfigurationMenu]':
 
             if section == 'Title':
-                langageDict['ConfigurationMenuTitle'] = sectionValue
+                languageDict['ConfigurationMenuTitle'] = sectionValue
 
             if section == 'Label01':
-                langageDict['ConfigurationMenuLabel01'] = sectionValue
+                languageDict['ConfigurationMenuLabel01'] = sectionValue
 
             if section == 'ExportPath':
-                langageDict['ConfigurationMenuExportPath'] = sectionValue
+                languageDict['ConfigurationMenuExportPath'] = sectionValue
 
             if section == 'Label02':
-                langageDict['ConfigurationMenuLabel02'] = sectionValue
+                languageDict['ConfigurationMenuLabel02'] = sectionValue
 
             if section == 'Label03':
-                langageDict['ConfigurationMenuLabel03'] = sectionValue
+                languageDict['ConfigurationMenuLabel03'] = sectionValue
 
             if section == 'ResolutionPreviewX':
-                langageDict['ConfigurationMenuResolutionPreviewX'] = sectionValue
+                languageDict['ConfigurationMenuResolutionPreviewX'] = sectionValue
 
             if section == 'ResolutionPreviewY':
-                langageDict['ConfigurationMenuResolutionPreviewY'] = sectionValue
+                languageDict['ConfigurationMenuResolutionPreviewY'] = sectionValue
 
             if section == 'DataBasePath':
-                langageDict['ConfigurationMenuDataBasePath'] = sectionValue
+                languageDict['ConfigurationMenuDataBasePath'] = sectionValue
 
             if section == 'Warning01':
-                langageDict['ConfigurationMenuWarning01'] = sectionValue
+                languageDict['ConfigurationMenuWarning01'] = sectionValue
 
             if section == 'Warning02':
-                langageDict['ConfigurationMenuWarning02'] = sectionValue
+                languageDict['ConfigurationMenuWarning02'] = sectionValue
 
             if section == 'Warning03':
-                langageDict['ConfigurationMenuWarning03'] = sectionValue
+                languageDict['ConfigurationMenuWarning03'] = sectionValue
 
             if section == 'Warning04':
-                langageDict['ConfigurationMenuWarning04'] = sectionValue
+                languageDict['ConfigurationMenuWarning04'] = sectionValue
 
             if section == 'Warning05':
-                langageDict['ConfigurationMenuWarning05'] = sectionValue
+                languageDict['ConfigurationMenuWarning05'] = sectionValue
 
             saveCategoryConfig = '[ConfigurationMenu]'
-
 
         #ExportMenu Values :
         if section == '[ExportMenu]' or saveCategoryConfig == '[ExportMenu]':
 
             if section == 'Title':
-                langageDict['ExportMenuTitle'] = sectionValue
+                languageDict['ExportMenuTitle'] = sectionValue
 
             if section == 'Label01':
-                langageDict['ExportMenuLabel01'] = sectionValue
+                languageDict['ExportMenuLabel01'] = sectionValue
 
             if section == 'Name':
-                langageDict['ExportMenuName'] = sectionValue
+                languageDict['ExportMenuName'] = sectionValue
 
             if section == 'Creator':
-                langageDict['ExportMenuCreator'] = sectionValue
+                languageDict['ExportMenuCreator'] = sectionValue
 
             if section == 'CreatorDefault':
-                langageDict['ExportMenuCreatorDefault'] = sectionValue
+                languageDict['ExportMenuCreatorDefault'] = sectionValue
 
             if section == 'TakePreview':
-                langageDict['ExportMenuTakePreview'] = sectionValue
+                languageDict['ExportMenuTakePreview'] = sectionValue
 
             saveCategoryConfig = '[ExportMenu]'
-
 
         #ImportMenu Values :
         if section == '[ImportMenu]' or saveCategoryConfig == '[ImportMenu]':
 
             if section == 'Title':
-                langageDict['ImportMenuTitle'] = sectionValue
-
+                languageDict['ImportMenuTitle'] = sectionValue
 
             saveCategoryConfig = '[ImportMenu]'
-
-
-
-
 
         #HelpMenu Values :
         if section == '[HelpMenu]' or saveCategoryConfig == '[HelpMenu]':
 
             if section == 'Title':
-                langageDict['HelpMenuTitle'] = sectionValue
+                languageDict['HelpMenuTitle'] = sectionValue
 
             if section == 'Label01':
-                langageDict['HelpMenuLabel01'] = sectionValue
+                languageDict['HelpMenuLabel01'] = sectionValue
 
             if section == 'Label02':
-                langageDict['HelpMenuLabel02'] = sectionValue
+                languageDict['HelpMenuLabel02'] = sectionValue
 
             if section == 'Label03':
-                langageDict['HelpMenuLabel03'] = sectionValue
+                languageDict['HelpMenuLabel03'] = sectionValue
 
             if section == 'Label04':
-                langageDict['HelpMenuLabel04'] = sectionValue
+                languageDict['HelpMenuLabel04'] = sectionValue
 
             if section == 'Label05':
-                langageDict['HelpMenuLabel05'] = sectionValue
+                languageDict['HelpMenuLabel05'] = sectionValue
 
             if section == 'Label06':
-                langageDict['HelpMenuLabel06'] = sectionValue
+                languageDict['HelpMenuLabel06'] = sectionValue
 
             if section == 'Label07':
-                langageDict['HelpMenuLabel07'] = sectionValue
+                languageDict['HelpMenuLabel07'] = sectionValue
 
             if section == 'Label08':
-                langageDict['HelpMenuLabel08'] = sectionValue
+                languageDict['HelpMenuLabel08'] = sectionValue
 
             if section == 'Label09':
-                langageDict['HelpMenuLabel09'] = sectionValue
+                languageDict['HelpMenuLabel09'] = sectionValue
 
             if section == 'Label10':
-                langageDict['HelpMenuLabel10'] = sectionValue
+                languageDict['HelpMenuLabel10'] = sectionValue
 
             if section == 'Label11':
-                langageDict['HelpMenuLabel11'] = sectionValue
+                languageDict['HelpMenuLabel11'] = sectionValue
 
             if section == 'Label12':
-                langageDict['HelpMenuLabel12'] = sectionValue
+                languageDict['HelpMenuLabel12'] = sectionValue
 
             if section == 'Label13':
-                langageDict['HelpMenuLabel13'] = sectionValue
+                languageDict['HelpMenuLabel13'] = sectionValue
 
             if section == 'Label14':
-                langageDict['HelpMenuLabel14'] = sectionValue
+                languageDict['HelpMenuLabel14'] = sectionValue
 
             if section == 'Label15':
-                langageDict['HelpMenuLabel15'] = sectionValue
+                languageDict['HelpMenuLabel15'] = sectionValue
 
             if section == 'Label16':
-                langageDict['HelpMenuLabel16'] = sectionValue
+                languageDict['HelpMenuLabel16'] = sectionValue
 
             if section == 'Label17':
-                langageDict['HelpMenuLabel17'] = sectionValue
+                languageDict['HelpMenuLabel17'] = sectionValue
 
             if section == 'Label18':
-                langageDict['HelpMenuLabel18'] = sectionValue
+                languageDict['HelpMenuLabel18'] = sectionValue
 
             if section == 'Label19':
-                langageDict['HelpMenuLabel19'] = sectionValue
+                languageDict['HelpMenuLabel19'] = sectionValue
 
             if section == 'Label20':
-                langageDict['HelpMenuLabel20'] = sectionValue
+                languageDict['HelpMenuLabel20'] = sectionValue
 
             if section == 'Label21':
-                langageDict['HelpMenuLabel21'] = sectionValue
+                languageDict['HelpMenuLabel21'] = sectionValue
 
             if section == 'Label22':
-                langageDict['HelpMenuLabel22'] = sectionValue
+                languageDict['HelpMenuLabel22'] = sectionValue
 
             if section == 'Label23':
-                langageDict['HelpMenuLabel23'] = sectionValue
+                languageDict['HelpMenuLabel23'] = sectionValue
 
             if section == 'Label24':
-                langageDict['HelpMenuLabel24'] = sectionValue
+                languageDict['HelpMenuLabel24'] = sectionValue
 
             if section == 'Label25':
-                langageDict['HelpMenuLabel25'] = sectionValue
+                languageDict['HelpMenuLabel25'] = sectionValue
 
             if section == 'Label26':
-                langageDict['HelpMenuLabel26'] = sectionValue
+                languageDict['HelpMenuLabel26'] = sectionValue
 
             if section == 'Label27':
-                langageDict['HelpMenuLabel27'] = sectionValue
+                languageDict['HelpMenuLabel27'] = sectionValue
 
             if section == 'Label28':
-                langageDict['HelpMenuLabel28'] = sectionValue
+                languageDict['HelpMenuLabel28'] = sectionValue
 
             if section == 'Label29':
-                langageDict['HelpMenuLabel29'] = sectionValue
-
+                languageDict['HelpMenuLabel29'] = sectionValue
 
             if section == 'Label30':
-                langageDict['HelpMenuLabel30'] = sectionValue
+                languageDict['HelpMenuLabel30'] = sectionValue
 
             if section == 'Label31':
-                langageDict['HelpMenuLabel31'] = sectionValue
+                languageDict['HelpMenuLabel31'] = sectionValue
 
             if section == 'Label32':
-                langageDict['HelpMenuLabel32'] = sectionValue
+                languageDict['HelpMenuLabel32'] = sectionValue
 
             if section == 'Label33':
-                langageDict['HelpMenuLabel33'] = sectionValue
+                languageDict['HelpMenuLabel33'] = sectionValue
 
             if section == 'Label34':
-                langageDict['HelpMenuLabel34'] = sectionValue
+                languageDict['HelpMenuLabel34'] = sectionValue
 
             if section == 'Label35':
-                langageDict['HelpMenuLabel35'] = sectionValue
+                languageDict['HelpMenuLabel35'] = sectionValue
 
             if section == 'Label36':
-                langageDict['HelpMenuLabel36'] = sectionValue
+                languageDict['HelpMenuLabel36'] = sectionValue
 
             if section == 'Label37':
-                langageDict['HelpMenuLabel37'] = sectionValue
+                languageDict['HelpMenuLabel37'] = sectionValue
 
             if section == 'Label38':
-                langageDict['HelpMenuLabel38'] = sectionValue
+                languageDict['HelpMenuLabel38'] = sectionValue
 
             if section == 'Label39':
-                langageDict['HelpMenuLabel39'] = sectionValue
+                languageDict['HelpMenuLabel39'] = sectionValue
 
             if section == 'Label40':
-                langageDict['HelpMenuLabel40'] = sectionValue
+                languageDict['HelpMenuLabel40'] = sectionValue
 
             saveCategoryConfig = '[HelpMenu]'
 
-
-    langageFile.close()
-    return langageDict
-
+    languageFile.close()
+    return languageDict
 
 
 
-
-
-
-
-#Open langage file:
+#Open language file:
 c = 0
 value =""
-langage = ""
-LangageValuesDict = {'PanelName':'',
+language = ""
+LanguageValuesDict = {'PanelName':'',
 
     'ButtonsOpen':'',
     'ButtonsSave':'',
@@ -1073,16 +1005,16 @@ LangageValuesDict = {'PanelName':'',
 
 for value in locale.getdefaultlocale():
     if c == 0:
-        langage = value
+        language = value
 
     c = c +1
 
 
-if os.path.exists(os.path.join(AppPath, "lang", langage)) :
-    LangageValuesDict = LangageValues(langage, LangageValuesDict)
+if os.path.exists(os.path.join(AppPath, "lang", language)) :
+    LanguageValuesDict = LanguageValues(language, LanguageValuesDict)
 
 else:
-    LangageValuesDict = LangageValues('en_US', LangageValuesDict)
+    LanguageValuesDict = LanguageValues('en_US', LanguageValuesDict)
 
 
 
@@ -2243,8 +2175,8 @@ def ImporterSQL(Mat_Name):
 
     #I copy all images files in ShaderToolsImport folder:
     print("*******************************************************")
-    print(LangageValuesDict['ErrorsMenuError001'])
-    print(LangageValuesDict['ErrorsMenuError006'])
+    print(LanguageValuesDict['ErrorsMenuError001'])
+    print(LanguageValuesDict['ErrorsMenuError006'])
 
     if Render_exists : #I verify if an image exists
         CopyBlendFolder = os.path.join(BlendPath, "ShaderToolsImport", Mat_Name)
@@ -3910,9 +3842,9 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
 
 
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'IMAGE':
-                print(LangageValuesDict['ErrorsMenuError001'])
-                print(LangageValuesDict['ErrorsMenuError002'])
-                print(LangageValuesDict['ErrorsMenuError003'])
+                print(LanguageValuesDict['ErrorsMenuError001'])
+                print(LanguageValuesDict['ErrorsMenuError002'])
+                print(LanguageValuesDict['ErrorsMenuError003'])
 
 
                 if tex.texture_slots[textureNumbers].texture.image.source == 'FILE':
@@ -3928,7 +3860,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                         shutil.copy2(ErrorsPathJpg, os.path.join(AppPath, 'error_save.jpg'))
                         IMAGE_FILEPATH = os.path.join(AppPath, 'error_save.jpg')
                         IMAGE_FILENAME = 'error_save.jpg'
-                        print(LangageValuesDict['ErrorsMenuError013'])
+                        print(LanguageValuesDict['ErrorsMenuError013'])
                         #print("*******************************************************************************")
 
 
@@ -3951,7 +3883,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
 
                     #I copy images :
                     shutil.copy2(IMAGE_FILEPATH, save_path + "_" + IMAGE_FILENAME)
-                    print(LangageValuesDict['ErrorsMenuError005'])
+                    print(LanguageValuesDict['ErrorsMenuError005'])
 
                     print("*******************************************************************************")
 
@@ -3986,7 +3918,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                     bpy.data.images[obj.active_material.texture_slots[textureNumbers].texture.image.name].save_render(filepath=save_path)
                     Tex_ima_filepath = save_path
 
-                    print(LangageValuesDict['ErrorsMenuError005'])
+                    print(LanguageValuesDict['ErrorsMenuError005'])
                     print("*******************************************************************************")
 
 
@@ -4545,10 +4477,10 @@ def Raw_Image_Path(Image_Path):
 
     if not os.path.exists(Image_Path) :
         SaveOriginalName = SaveOriginalName.replace("'", "")
-        print(LangageValuesDict['ErrorsMenuError009'] + '"' + SaveOriginalName + '"')
-        print(LangageValuesDict['ErrorsMenuError010'])
-        print(LangageValuesDict['ErrorsMenuError011'])
-        print(LangageValuesDict['ErrorsMenuError012'])
+        print(LanguageValuesDict['ErrorsMenuError009'] + '"' + SaveOriginalName + '"')
+        print(LanguageValuesDict['ErrorsMenuError010'])
+        print(LanguageValuesDict['ErrorsMenuError011'])
+        print(LanguageValuesDict['ErrorsMenuError012'])
         Image_Path = "*Error*"
 
     return Image_Path
@@ -5091,9 +5023,9 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
             Tex_image_blob = "''"
             if tex.texture_slots[textureNumbers].texture.type == 'IMAGE':
                 #CLASSIC IMAGE FILE :
-                print(LangageValuesDict['ErrorsMenuError001'])
-                print(LangageValuesDict['ErrorsMenuError002'])
-                print(LangageValuesDict['ErrorsMenuError003'])
+                print(LanguageValuesDict['ErrorsMenuError001'])
+                print(LanguageValuesDict['ErrorsMenuError002'])
+                print(LanguageValuesDict['ErrorsMenuError003'])
                 if tex.texture_slots[textureNumbers].texture.image.source == 'FILE':
                     #I must found Image File Name
                     Tex_ima_filepath = "'" + tex.texture_slots[textureNumbers].texture.image.filepath + "'"
@@ -5105,7 +5037,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                         shutil.copy2(ErrorsPathJpg, os.path.join(AppPath, 'error_save.jpg'))
                         IMAGE_FILEPATH = os.path.join(AppPath, 'error_save.jpg')
                         IMAGE_FILENAME = 'error_save.jpg'
-                        print(LangageValuesDict['ErrorsMenuError013'])
+                        print(LanguageValuesDict['ErrorsMenuError013'])
                         #print("************************************************************")
 
                     else:
@@ -5250,7 +5182,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 if os.path.exists(Tex_ima_filepath) :
                    os.remove(Tex_ima_filepath)
 
-                print(LangageValuesDict['ErrorsMenuError004'])
+                print(LanguageValuesDict['ErrorsMenuError004'])
                 print("*******************************************************************************")
                 # *****************************************************************************************
 
@@ -7042,7 +6974,7 @@ def SearchShadersEnum(self, context):
 # ************************************************************************************
 class OpenShaders(bpy.types.Operator):
     bl_idname = "object.openshaders"
-    bl_label = LangageValuesDict['OpenMenuTitle']
+    bl_label = LanguageValuesDict['OpenMenuTitle']
     bl_options = {'REGISTER', 'UNDO'}
 
 
@@ -7061,7 +6993,7 @@ class OpenShaders(bpy.types.Operator):
                                      name='',
                                      update=SearchShadersEnum,
                                      items=(('', "---- " +
-                                             LangageValuesDict['OpenMenuLabel09'] + " ----", ""),
+                                             LanguageValuesDict['OpenMenuLabel09'] + " ----", ""),
                                             (HISTORY_FILE[0], HISTORY_FILE[0], ""),
                                             (HISTORY_FILE[1], HISTORY_FILE[1], ""),
                                             (HISTORY_FILE[2], HISTORY_FILE[2], ""),
@@ -7099,7 +7031,7 @@ class OpenShaders(bpy.types.Operator):
 
 
         row = layout.row(align=True)
-        row.label(icon ='NEWFOLDER' ,text=" " + LangageValuesDict['OpenMenuLabel08'] + " : ")
+        row.label(icon ='NEWFOLDER' ,text=" " + LanguageValuesDict['OpenMenuLabel08'] + " : ")
         row = layout.row(align=True)
         row.prop(self, 'Search')
 
@@ -7108,7 +7040,7 @@ class OpenShaders(bpy.types.Operator):
 
         row = layout.row(align=True)
 
-        row.label(icon ='MATERIAL', text=LangageValuesDict['OpenMenuLabel09'] + " :")
+        row.label(icon ='MATERIAL', text=LanguageValuesDict['OpenMenuLabel09'] + " :")
         row = layout.row(align=True)
         row.prop(self, 'History', text ='')
         row = layout.row(align=True)
@@ -7361,7 +7293,7 @@ class Credits(bpy.types.Operator):
 # ************************************************************************************
 class Help(bpy.types.Operator):
     bl_idname = "object.help"
-    bl_label = LangageValuesDict['HelpMenuTitle']
+    bl_label = LanguageValuesDict['HelpMenuTitle']
 
 
     @classmethod
@@ -7373,85 +7305,85 @@ class Help(bpy.types.Operator):
     def draw(self, context):
         layout = self.layout
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel01'], icon='HELP')
+        row.label(LanguageValuesDict['HelpMenuLabel01'], icon='HELP')
         #row = layout.row(align=True)
-        #row.label(LangageValuesDict['HelpMenuLabel02'])
+        #row.label(LanguageValuesDict['HelpMenuLabel02'])
         #row = layout.row(align=True)
-        #row.label(LangageValuesDict['HelpMenuLabel03'])
+        #row.label(LanguageValuesDict['HelpMenuLabel03'])
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel04'], icon='NEWFOLDER')
+        row.label(LanguageValuesDict['HelpMenuLabel04'], icon='NEWFOLDER')
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel05'])
+        row.label(LanguageValuesDict['HelpMenuLabel05'])
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel06'])
+        row.label(LanguageValuesDict['HelpMenuLabel06'])
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel07'])
+        row.label(LanguageValuesDict['HelpMenuLabel07'])
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel08'])
+        row.label(LanguageValuesDict['HelpMenuLabel08'])
         row = layout.row(align=True)
-        #row.label(LangageValuesDict['HelpMenuLabel09'])
+        #row.label(LanguageValuesDict['HelpMenuLabel09'])
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel10'])
+        row.label(LanguageValuesDict['HelpMenuLabel10'])
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel11'], icon='MATERIAL')
+        row.label(LanguageValuesDict['HelpMenuLabel11'], icon='MATERIAL')
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel12'])
+        row.label(LanguageValuesDict['HelpMenuLabel12'])
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel13'])
+        row.label(LanguageValuesDict['HelpMenuLabel13'])
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel14'])
+        row.label(LanguageValuesDict['HelpMenuLabel14'])
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel15'], icon='SCRIPTWIN')
+        row.label(LanguageValuesDict['HelpMenuLabel15'], icon='SCRIPTWIN')
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel16'])
+        row.label(LanguageValuesDict['HelpMenuLabel16'])
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel17'])
+        row.label(LanguageValuesDict['HelpMenuLabel17'])
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel18'])
+        row.label(LanguageValuesDict['HelpMenuLabel18'])
         row = layout.row(align=True)
-        #row.label(LangageValuesDict['HelpMenuLabel19'])
+        #row.label(LanguageValuesDict['HelpMenuLabel19'])
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel20'])
+        row.label(LanguageValuesDict['HelpMenuLabel20'])
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel21'], icon='BLENDER')
+        row.label(LanguageValuesDict['HelpMenuLabel21'], icon='BLENDER')
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel22'])
+        row.label(LanguageValuesDict['HelpMenuLabel22'])
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel23'])
+        row.label(LanguageValuesDict['HelpMenuLabel23'])
         row = layout.row(align=True)
-        #row.label(LangageValuesDict['HelpMenuLabel24'])
+        #row.label(LanguageValuesDict['HelpMenuLabel24'])
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel25'])
+        row.label(LanguageValuesDict['HelpMenuLabel25'])
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel26'], icon='TEXT')
+        row.label(LanguageValuesDict['HelpMenuLabel26'], icon='TEXT')
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel27'])
+        row.label(LanguageValuesDict['HelpMenuLabel27'])
         row = layout.row(align=True)
-        #row.label(LangageValuesDict['HelpMenuLabel28'])
+        #row.label(LanguageValuesDict['HelpMenuLabel28'])
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel29'])
+        row.label(LanguageValuesDict['HelpMenuLabel29'])
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel30'], icon='QUESTION')
+        row.label(LanguageValuesDict['HelpMenuLabel30'], icon='QUESTION')
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel31'])
+        row.label(LanguageValuesDict['HelpMenuLabel31'])
         row = layout.row(align=True)
-        row.label(LangageValuesDict['HelpMenuLabel32'])
+        row.label(LanguageValuesDict['HelpMenuLabel32'])
         row = layout.row(align=True)
-        #row.label(LangageValuesDict['HelpMenuLabel33'])
+        #row.label(LanguageValuesDict['HelpMenuLabel33'])
         #row = layout.row(align=True)
-        #row.label(LangageValuesDict['HelpMenuLabel34'])
+        #row.label(LanguageValuesDict['HelpMenuLabel34'])
         #row = layout.row(align=True)
-        #row.label(LangageValuesDict['HelpMenuLabel35'])
+        #row.label(LanguageValuesDict['HelpMenuLabel35'])
         #row = layout.row(align=True)
-        #row.label(LangageValuesDict['HelpMenuLabel36'])
+        #row.label(LanguageValuesDict['HelpMenuLabel36'])
         #row = layout.row(align=True)
-        #row.label(LangageValuesDict['HelpMenuLabel37'])
+        #row.label(LanguageValuesDict['HelpMenuLabel37'])
         #row = layout.row(align=True)
-        #row.label(LangageValuesDict['HelpMenuLabel38'])
+        #row.label(LanguageValuesDict['HelpMenuLabel38'])
         #row = layout.row(align=True)
-        #row.label(LangageValuesDict['HelpMenuLabel39'])
+        #row.label(LanguageValuesDict['HelpMenuLabel39'])
         #row = layout.row(align=True)
-        #row.label(LangageValuesDict['HelpMenuLabel40'])
+        #row.label(LanguageValuesDict['HelpMenuLabel40'])
         #row = layout.row(align=True)
 
 
@@ -7476,8 +7408,8 @@ def Importer(File_Path, Mat_Name):
 
     #Blend file must be saved before import a file :
     print("*******************************************************")
-    print(LangageValuesDict['ErrorsMenuError001'])
-    print(LangageValuesDict['ErrorsMenuError006'])
+    print(LanguageValuesDict['ErrorsMenuError001'])
+    print(LanguageValuesDict['ErrorsMenuError006'])
 
     #Here I verify if Zip Folder exists:
     if not os.path.exists(ZipPath) :
@@ -7552,7 +7484,7 @@ def Importer(File_Path, Mat_Name):
 
 
     if script_name == '':
-        print(LangageValuesDict['ErrorsMenuError008'])
+        print(LanguageValuesDict['ErrorsMenuError008'])
 
     else:
 
@@ -7590,7 +7522,7 @@ def Importer(File_Path, Mat_Name):
 
 
 
-    print(LangageValuesDict['ErrorsMenuError007'])
+    print(LanguageValuesDict['ErrorsMenuError007'])
     print("*******************************************************")
 
 
@@ -7599,7 +7531,7 @@ def Importer(File_Path, Mat_Name):
 # ************************************************************************************
 class FindImage(bpy.types.Operator):
     bl_idname = "object.findimage"
-    bl_label = LangageValuesDict['FindImageMenuName']
+    bl_label = LanguageValuesDict['FindImageMenuName']
 
 
     filepath = bpy.props.StringProperty(subtype="FILE_PATH")
@@ -7624,7 +7556,7 @@ class FindImage(bpy.types.Operator):
 # ************************************************************************************
 class Import(bpy.types.Operator):
     bl_idname = "object.import"
-    bl_label = LangageValuesDict['ImportMenuTitle']
+    bl_label = LanguageValuesDict['ImportMenuTitle']
 
 
     filename = bpy.props.StringProperty(subtype="FILENAME")
@@ -7650,7 +7582,7 @@ class Import(bpy.types.Operator):
 # ************************************************************************************
 class Export(bpy.types.Operator):
     bl_idname = "object.export"
-    bl_label = LangageValuesDict['ExportMenuTitle']
+    bl_label = LanguageValuesDict['ExportMenuTitle']
 
 
     DefaultCreator = DefaultCreator.replace('\n', '')
@@ -7659,8 +7591,8 @@ class Export(bpy.types.Operator):
     filepath = bpy.props.StringProperty(subtype="FILE_PATH")
 
     #I prepare the window :
-    Inf_Creator = bpy.props.StringProperty(name=LangageValuesDict['ExportMenuCreator'], default=DefaultCreator)
-    Take_a_preview = BoolProperty(name=LangageValuesDict['ExportMenuTakePreview'], default=False)
+    Inf_Creator = bpy.props.StringProperty(name=LanguageValuesDict['ExportMenuCreator'], default=DefaultCreator)
+    Take_a_preview = BoolProperty(name=LanguageValuesDict['ExportMenuTakePreview'], default=False)
 
 
 
@@ -7668,7 +7600,7 @@ class Export(bpy.types.Operator):
     def draw(self, context):
         layout = self.layout
         row = layout.row(align=True)
-        row.label(LangageValuesDict['ExportMenuLabel01'] + ":")
+        row.label(LanguageValuesDict['ExportMenuLabel01'] + ":")
         row = layout.row(align=True)
         row.prop(self, "Inf_Creator")
         row = layout.row(align=True)
@@ -7698,7 +7630,7 @@ class Export(bpy.types.Operator):
 # ************************************************************************************
 class SaveCurrentConfiguration(bpy.types.Operator):
     bl_idname = "object.saveconfiguration"
-    bl_label = LangageValuesDict['SaveMenuTitle']
+    bl_label = LanguageValuesDict['SaveMenuTitle']
 
     #I normalize values:
     DefaultCreator = DefaultCreator.replace('\n', '')
@@ -7709,46 +7641,46 @@ class SaveCurrentConfiguration(bpy.types.Operator):
     DefaultEmail = DefaultEmail.replace('\n', '')
 
     #I prepare the window :
-    Inf_Creator = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuCreator'], default=DefaultCreator)
+    Inf_Creator = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuCreator'], default=DefaultCreator)
     Inf_Category = bpy.props.EnumProperty(
 
-                                          name=LangageValuesDict['SaveCategoryTitle'],
-                                          items=(('', "---- " + LangageValuesDict['SaveCategoryCategoryTitle'] + " ----", ""),
-                                                 ('CarPaint', LangageValuesDict['SaveCategoryCarPaint'], ""),
-                                                 ('Dirt', LangageValuesDict['SaveCategoryDirt'], ""),
-                                                 ('FabricClothes', LangageValuesDict['SaveCategoryFabricClothes'], ""),
-                                                 ('Fancy', LangageValuesDict['SaveCategoryFancy'], ""),
-                                                 ('FibreFur', LangageValuesDict['SaveCategoryFibreFur'], ""),
-                                                 ('Glass', LangageValuesDict['SaveCategoryGlass'], ""),
-                                                 ('Halo', LangageValuesDict['SaveCategoryHalo'], ""),
-                                                 ('Liquids', LangageValuesDict['SaveCategoryLiquids'], ""),
-                                                 ('Metal', LangageValuesDict['SaveCategoryMetal'], ""),
-                                                 ('Misc', LangageValuesDict['SaveCategoryMisc'], ""),
-                                                 ('Nature', LangageValuesDict['SaveCategoryNature'], ""),
-                                                 ('Organic', LangageValuesDict['SaveCategoryOrganic'], ""),
-                                                 ('Personal', LangageValuesDict['SaveCategoryPersonal'], ""),
-                                                 ('Plastic', LangageValuesDict['SaveCategoryPlastic'], ""),
-                                                 ('Sky', LangageValuesDict['SaveCategorySky'], ""),
-                                                 ('Space', LangageValuesDict['SaveCategorySpace'], ""),
-                                                 ('Stone', LangageValuesDict['SaveCategoryStone'], ""),
-                                                 ('Toon', LangageValuesDict['SaveCategoryToon'], ""),
-                                                 ('Wall', LangageValuesDict['SaveCategoryWall'], ""),
-                                                 ('Water', LangageValuesDict['SaveCategoryWater'], ""),
-                                                 ('Wood', LangageValuesDict['SaveCategoryWood'], ""),
+                                          name=LanguageValuesDict['SaveCategoryTitle'],
+                                          items=(('', "---- " + LanguageValuesDict['SaveCategoryCategoryTitle'] + " ----", ""),
+                                                 ('CarPaint', LanguageValuesDict['SaveCategoryCarPaint'], ""),
+                                                 ('Dirt', LanguageValuesDict['SaveCategoryDirt'], ""),
+                                                 ('FabricClothes', LanguageValuesDict['SaveCategoryFabricClothes'], ""),
+                                                 ('Fancy', LanguageValuesDict['SaveCategoryFancy'], ""),
+                                                 ('FibreFur', LanguageValuesDict['SaveCategoryFibreFur'], ""),
+                                                 ('Glass', LanguageValuesDict['SaveCategoryGlass'], ""),
+                                                 ('Halo', LanguageValuesDict['SaveCategoryHalo'], ""),
+                                                 ('Liquids', LanguageValuesDict['SaveCategoryLiquids'], ""),
+                                                 ('Metal', LanguageValuesDict['SaveCategoryMetal'], ""),
+                                                 ('Misc', LanguageValuesDict['SaveCategoryMisc'], ""),
+                                                 ('Nature', LanguageValuesDict['SaveCategoryNature'], ""),
+                                                 ('Organic', LanguageValuesDict['SaveCategoryOrganic'], ""),
+                                                 ('Personal', LanguageValuesDict['SaveCategoryPersonal'], ""),
+                                                 ('Plastic', LanguageValuesDict['SaveCategoryPlastic'], ""),
+                                                 ('Sky', LanguageValuesDict['SaveCategorySky'], ""),
+                                                 ('Space', LanguageValuesDict['SaveCategorySpace'], ""),
+                                                 ('Stone', LanguageValuesDict['SaveCategoryStone'], ""),
+                                                 ('Toon', LanguageValuesDict['SaveCategoryToon'], ""),
+                                                 ('Wall', LanguageValuesDict['SaveCategoryWall'], ""),
+                                                 ('Water', LanguageValuesDict['SaveCategoryWater'], ""),
+                                                 ('Wood', LanguageValuesDict['SaveCategoryWood'], ""),
                                                  ),
                                           default= DefaultCategory
                                           )
 
 
-    Inf_Description = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuDescriptionLabel'], default=DefaultDescription)
-    Inf_Weblink = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuWebLinkLabel'], default=DefaultWeblink)
-    Inf_Email = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuEmailLabel'], default=DefaultEmail)
+    Inf_Description = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuDescriptionLabel'], default=DefaultDescription)
+    Inf_Weblink = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuWebLinkLabel'], default=DefaultWeblink)
+    Inf_Email = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuEmailLabel'], default=DefaultEmail)
 
     if NAME_ACTIVE_MATERIAL :
-        Mat_Name = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuName'], default=bpy.context.object.active_material.name)
+        Mat_Name = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuName'], default=bpy.context.object.active_material.name)
 
     else:
-        Mat_Name = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuName'], default=DefaultMaterialName)
+        Mat_Name = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuName'], default=DefaultMaterialName)
 
 
 
@@ -7759,7 +7691,7 @@ class SaveCurrentConfiguration(bpy.types.Operator):
         layout = self.layout
         row = layout.row(align=True)
         row = layout.row(align=True)
-        row.label(LangageValuesDict['SaveMenuLabel01'] + ":")
+        row.label(LanguageValuesDict['SaveMenuLabel01'] + ":")
         row = layout.row(align=True)
         row.prop(self, "Mat_Name")
         row = layout.row(align=True)
@@ -7839,7 +7771,7 @@ def UpdateConfigurationsInformations(DataBasePathFile, Inf_Creator, Inf_Category
 # ************************************************************************************
 class UpdateWarning(bpy.types.Operator):
     bl_idname = "object.warning"
-    bl_label = LangageValuesDict['WarningWinTitle']
+    bl_label = LanguageValuesDict['WarningWinTitle']
 
 
 
@@ -7847,11 +7779,11 @@ class UpdateWarning(bpy.types.Operator):
     def draw(self, context):
         layout = self.layout
         row = layout.row(align=True)
-        row.label(LangageValuesDict['WarningWinLabel01'], icon='RADIO')
+        row.label(LanguageValuesDict['WarningWinLabel01'], icon='RADIO')
         row = layout.row(align=True)
-        row.label(LangageValuesDict['WarningWinLabel02'])
+        row.label(LanguageValuesDict['WarningWinLabel02'])
         row = layout.row(align=True)
-        row.label(LangageValuesDict['WarningWinLabel03'])
+        row.label(LanguageValuesDict['WarningWinLabel03'])
         row = layout.row(align=True)
 
 
@@ -7871,7 +7803,7 @@ class UpdateWarning(bpy.types.Operator):
 # ************************************************************************************
 class Configuration(bpy.types.Operator):
     bl_idname = "object.configuration"
-    bl_label = LangageValuesDict['ConfigurationMenuTitle']
+    bl_label = LanguageValuesDict['ConfigurationMenuTitle']
 
     #I normalize values:
     DefaultCreator = DefaultCreator.replace('\n', '')
@@ -7889,63 +7821,63 @@ class Configuration(bpy.types.Operator):
 
 
     #I prepare the window :
-    DataBasePathFile = bpy.props.StringProperty(name=LangageValuesDict['ConfigurationMenuDataBasePath'], default=DataBasePath)
-    Inf_Creator = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuCreator'], default=DefaultCreator)
+    DataBasePathFile = bpy.props.StringProperty(name=LanguageValuesDict['ConfigurationMenuDataBasePath'], default=DataBasePath)
+    Inf_Creator = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuCreator'], default=DefaultCreator)
 
     Inf_Category = bpy.props.EnumProperty(
 
-                                          name=LangageValuesDict['SaveCategoryTitle'],
-                                          items=(('', "---- " + LangageValuesDict['SaveCategoryCategoryTitle'] + " ----", ""),
-                                                 ('CarPaint', LangageValuesDict['SaveCategoryCarPaint'], ""),
-                                                 ('Dirt', LangageValuesDict['SaveCategoryDirt'], ""),
-                                                 ('FabricClothes', LangageValuesDict['SaveCategoryFabricClothes'], ""),
-                                                 ('Fancy', LangageValuesDict['SaveCategoryFancy'], ""),
-                                                 ('FibreFur', LangageValuesDict['SaveCategoryFibreFur'], ""),
-                                                 ('Glass', LangageValuesDict['SaveCategoryGlass'], ""),
-                                                 ('Halo', LangageValuesDict['SaveCategoryHalo'], ""),
-                                                 ('Liquids', LangageValuesDict['SaveCategoryLiquids'], ""),
-                                                 ('Metal', LangageValuesDict['SaveCategoryMetal'], ""),
-                                                 ('Misc', LangageValuesDict['SaveCategoryMisc'], ""),
-                                                 ('Nature', LangageValuesDict['SaveCategoryNature'], ""),
-                                                 ('Organic', LangageValuesDict['SaveCategoryOrganic'], ""),
-                                                 ('Personal', LangageValuesDict['SaveCategoryPersonal'], ""),
-                                                 ('Plastic', LangageValuesDict['SaveCategoryPlastic'], ""),
-                                                 ('Sky', LangageValuesDict['SaveCategorySky'], ""),
-                                                 ('Space', LangageValuesDict['SaveCategorySpace'], ""),
-                                                 ('Stone', LangageValuesDict['SaveCategoryStone'], ""),
-                                                 ('Toon', LangageValuesDict['SaveCategoryToon'], ""),
-                                                 ('Wall', LangageValuesDict['SaveCategoryWall'], ""),
-                                                 ('Water', LangageValuesDict['SaveCategoryWater'], ""),
-                                                 ('Wood', LangageValuesDict['SaveCategoryWood'], ""),
+                                          name=LanguageValuesDict['SaveCategoryTitle'],
+                                          items=(('', "---- " + LanguageValuesDict['SaveCategoryCategoryTitle'] + " ----", ""),
+                                                 ('CarPaint', LanguageValuesDict['SaveCategoryCarPaint'], ""),
+                                                 ('Dirt', LanguageValuesDict['SaveCategoryDirt'], ""),
+                                                 ('FabricClothes', LanguageValuesDict['SaveCategoryFabricClothes'], ""),
+                                                 ('Fancy', LanguageValuesDict['SaveCategoryFancy'], ""),
+                                                 ('FibreFur', LanguageValuesDict['SaveCategoryFibreFur'], ""),
+                                                 ('Glass', LanguageValuesDict['SaveCategoryGlass'], ""),
+                                                 ('Halo', LanguageValuesDict['SaveCategoryHalo'], ""),
+                                                 ('Liquids', LanguageValuesDict['SaveCategoryLiquids'], ""),
+                                                 ('Metal', LanguageValuesDict['SaveCategoryMetal'], ""),
+                                                 ('Misc', LanguageValuesDict['SaveCategoryMisc'], ""),
+                                                 ('Nature', LanguageValuesDict['SaveCategoryNature'], ""),
+                                                 ('Organic', LanguageValuesDict['SaveCategoryOrganic'], ""),
+                                                 ('Personal', LanguageValuesDict['SaveCategoryPersonal'], ""),
+                                                 ('Plastic', LanguageValuesDict['SaveCategoryPlastic'], ""),
+                                                 ('Sky', LanguageValuesDict['SaveCategorySky'], ""),
+                                                 ('Space', LanguageValuesDict['SaveCategorySpace'], ""),
+                                                 ('Stone', LanguageValuesDict['SaveCategoryStone'], ""),
+                                                 ('Toon', LanguageValuesDict['SaveCategoryToon'], ""),
+                                                 ('Wall', LanguageValuesDict['SaveCategoryWall'], ""),
+                                                 ('Water', LanguageValuesDict['SaveCategoryWater'], ""),
+                                                 ('Wood', LanguageValuesDict['SaveCategoryWood'], ""),
                                                  ),
                                           default= DefaultCategory
                                           )
 
 
-    Inf_Description = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuDescriptionLabel'], default=DefaultDescription)
-    Inf_Weblink = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuWebLinkLabel'], default=DefaultWeblink)
-    Inf_Email = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuEmailLabel'], default=DefaultEmail)
+    Inf_Description = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuDescriptionLabel'], default=DefaultDescription)
+    Inf_Weblink = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuWebLinkLabel'], default=DefaultWeblink)
+    Inf_Email = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuEmailLabel'], default=DefaultEmail)
 
     if NAME_ACTIVE_MATERIAL :
-        Mat_Name = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuName'], default=bpy.context.object.active_material.name)
+        Mat_Name = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuName'], default=bpy.context.object.active_material.name)
 
     else:
-        Mat_Name = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuName'], default=DefaultMaterialName)
+        Mat_Name = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuName'], default=DefaultMaterialName)
 
 
-    Inf_ResolutionX = bpy.props.StringProperty(name=LangageValuesDict['ConfigurationMenuResolutionPreviewX'], default=Resolution_X)
-    Inf_ResolutionY = bpy.props.StringProperty(name=LangageValuesDict['ConfigurationMenuResolutionPreviewY'], default=Resolution_Y)
+    Inf_ResolutionX = bpy.props.StringProperty(name=LanguageValuesDict['ConfigurationMenuResolutionPreviewX'], default=Resolution_X)
+    Inf_ResolutionY = bpy.props.StringProperty(name=LanguageValuesDict['ConfigurationMenuResolutionPreviewY'], default=Resolution_Y)
 
     def draw(self, context):
         layout = self.layout
         row = layout.row(align=True)
-        row.label(LangageValuesDict['ConfigurationMenuLabel02'] + ":")
+        row.label(LanguageValuesDict['ConfigurationMenuLabel02'] + ":")
         row = layout.row(align=True)
         row.prop(self, "DataBasePathFile")
         row = layout.row(align=True)
         row = layout.row(align=True)
         row = layout.row(align=True)
-        row.label(LangageValuesDict['SaveMenuLabel01'] + ":")
+        row.label(LanguageValuesDict['SaveMenuLabel01'] + ":")
         row = layout.row(align=True)
         row.prop(self, "Mat_Name")
         row = layout.row(align=True)
@@ -7961,7 +7893,7 @@ class Configuration(bpy.types.Operator):
         row = layout.row(align=True)
         row = layout.row(align=True)
         row = layout.row(align=True)
-        row.label(LangageValuesDict['ConfigurationMenuLabel03'] + ":")
+        row.label(LanguageValuesDict['ConfigurationMenuLabel03'] + ":")
         row = layout.row(align=True)
         row.prop(self, "Inf_ResolutionX")
         row = layout.row(align=True)
@@ -8047,7 +7979,7 @@ class CreateNew(bpy.types.Operator):
 # *                                           MAIN                                   *
 # ************************************************************************************
 class PreconfiguredShadersPanel(bpy.types.Panel):
-    bl_label = LangageValuesDict['PanelName']
+    bl_label = LanguageValuesDict['PanelName']
     bl_idname = "OBJECT_PT_shaders"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
@@ -8059,15 +7991,15 @@ class PreconfiguredShadersPanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         row = layout.row()
-        row.operator("object.openshaders", text=LangageValuesDict['ButtonsOpen'], icon="NEWFOLDER" )
-        row.operator("object.saveconfiguration", text=LangageValuesDict['ButtonsSave'], icon="MATERIAL" )
-        row.operator("object.export", text=LangageValuesDict['ButtonsExport'], icon="SCRIPTWIN" )
-        row.operator("object.import", text=LangageValuesDict['ButtonsImport'], icon="SCRIPTWIN" )
+        row.operator("object.openshaders", text=LanguageValuesDict['ButtonsOpen'], icon="NEWFOLDER" )
+        row.operator("object.saveconfiguration", text=LanguageValuesDict['ButtonsSave'], icon="MATERIAL" )
+        row.operator("object.export", text=LanguageValuesDict['ButtonsExport'], icon="SCRIPTWIN" )
+        row.operator("object.import", text=LanguageValuesDict['ButtonsImport'], icon="SCRIPTWIN" )
 
         row = layout.row()
-        row.operator("object.createnew", text=LangageValuesDict['ButtonsCreate'], icon="BLENDER" )
-        row.operator("object.configuration", text=LangageValuesDict['ButtonsConfiguration'], icon="TEXT" )
-        row.operator("object.help", text=LangageValuesDict['ButtonsHelp'], icon="HELP")
+        row.operator("object.createnew", text=LanguageValuesDict['ButtonsCreate'], icon="BLENDER" )
+        row.operator("object.configuration", text=LanguageValuesDict['ButtonsConfiguration'], icon="TEXT" )
+        row.operator("object.help", text=LanguageValuesDict['ButtonsHelp'], icon="HELP")
         row.operator("object.credits", text="Credits", icon="QUESTION")
         row = layout.row()
 
@@ -8122,7 +8054,7 @@ if os.path.exists(BookmarksPathUser) :
     MY_BOOKMARKS_FILE = []
 
 
-    shaderFolderPath = os.path.join(AppPath, LangageValuesDict['BookmarksMenuName'])
+    shaderFolderPath = os.path.join(AppPath, LanguageValuesDict['BookmarksMenuName'])
     #I verify Shader tempory File is correcly created:
     if not os.path.exists(shaderFolderPath) :
         os.mkdir(shaderFolderPath)
@@ -8187,7 +8119,7 @@ if os.path.exists(BookmarksPathSystem) :
     MY_BOOKMARKS_FILE = []
 
 
-    shaderFolderPath = os.path.join(AppPath, LangageValuesDict['BookmarksMenuName'])
+    shaderFolderPath = os.path.join(AppPath, LanguageValuesDict['BookmarksMenuName'])
     #I verify Shader tempory File is correcly created:
     if not os.path.exists(shaderFolderPath) :
         os.mkdir(shaderFolderPath)
@@ -8238,9 +8170,6 @@ if os.path.exists(BookmarksPathSystem) :
             firstFile.close()
 
 
-
-
-
 #Delete Bookmark Preview Jpg:
 if os.path.exists(shaderFolderPath) :
     files = os.listdir(shaderFolderPath)
@@ -8250,17 +8179,6 @@ if os.path.exists(shaderFolderPath) :
 
         else:
             os.remove(os.path.join(shaderFolderPath, f))
-
-
-
-
-
-
-
-
-
-
-
 
 if __name__ == "__main__":
     register()
