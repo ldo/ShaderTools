@@ -123,7 +123,7 @@ if os.path.exists(os.path.join(AppPath, "config")) :
 
 
 else:
-    config = open(AppPath + "config",'w')
+    config = open(os.path.join(AppPath, "config"),'w')
     config.writelines(AppPath + '\n')
     config.writelines(ExportPath + '\n')
     config.writelines(DataBasePath + '\n')
@@ -185,7 +185,7 @@ if os.path.exists(os.path.join(AppPath, "history")) :
 
 
 else:
-    history = open(os.path.join(AppPath + "history"),'w')
+    history = open(os.path.join(AppPath, "history"),'w')
     history.writelines('[HISTORY]\n')
     x = 1
     while x <= 20:
@@ -7167,7 +7167,7 @@ class OpenShaders(bpy.types.Operator):
         else:
 
             if selectedFile is not '' and selectedFile is not '\n':
-                history = open(AppPath + "history",'w')
+                history = open(os.path.join(AppPath, "history"),'w')
                 history.writelines('[HISTORY]\n')
                 history.writelines('History1=' + selectedFile + '\n')
                 x = 2
@@ -8034,7 +8034,7 @@ class CreateNew(bpy.types.Operator):
             os.remove(os.path.join(AppPath, "env_base_save.blend"))
 
         if os.path.exists(os.path.join(AppPath, "env_base_save")) :
-            shutil.copy2(os.path.join(AppPath, "env_base_save"), os.path.join(AppPath + "env_base_save.blend"))
+            shutil.copy2(os.path.join(AppPath, "env_base_save"), os.path.join(AppPath, "env_base_save.blend"))
 
 
         #I open modele file:
