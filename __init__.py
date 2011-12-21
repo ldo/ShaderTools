@@ -16,6 +16,7 @@
 #
 #======================= END GPL LICENSE BLOCK ========================
 
+
 bl_info = {
 	"name": "Shader Tools",
 	"author": "Please press Credits Button for more details", 
@@ -342,685 +343,609 @@ history.close()
 
 
 
-
-
-
 # ************************************************************************************
-# *                                     LANGAGE PARAMETERS                           *
+# *                                          LANGAGES                                *
 # ************************************************************************************
-
-
-def LangageValues(langageUser, langageDict):
-    
-    #I open langage file:
-    readValue = ""
-    readValueList = ""
-    categoryConfig = '[Panel]'
-    saveCategoryConfig = ""
-    section = ''
-    sectionValue = ''
-    value=""
+def Langage_en_US(langageDict):
     
     
-    if platform.system() == 'Windows':
-        langagePath = os.path.normpath(AppPath + "\\lang\\" + langageUser) 
-        langageFile = open(langagePath,'r')
+    #Panel Values :
+    langageDict['PanelName'] = "Material pre-defined" 
     
-    else:
-        langageFile = open(AppPath + "lang/" + langageUser,'r')
+    langageDict['FindImageMenuName'] = "Search image" 
     
-    
-    
-    for readValue in langageFile:        
+    langageDict['ButtonsOpen'] = "Open..." 
+    langageDict['ButtonsSave'] = "Save" 
+    langageDict['ButtonsConfiguration'] = "Configuration" 
+    langageDict['ButtonsExport'] = "Export" 
+    langageDict['ButtonsImport'] = "Import" 
+    langageDict['ButtonsHelp'] = "Help" 
+    langageDict['ButtonsInformations'] = "Informations" 
+    langageDict['ButtonsCreate'] = "New" 
         
-        c = 0    
-        for value in readValue.split('=', 1):        
-            
-            if c == 0:
-                section = value   
-            
-            else:
-                sectionValue = value
-            
-            
-            c = c + 1        
+    #OpenMenu Values :
+    langageDict['OpenMenuTitle'] = "Validate the choice of the material"             
+    langageDict['OpenMenuLabel01'] = "INFORMATIONS ON THE MATERIAL" 
+    langageDict['OpenMenuLabel02'] = "Material" 
+    langageDict['OpenMenuLabel03'] = "Creator" 
+    langageDict['OpenMenuLabel04'] = "Category" 
+    langageDict['OpenMenuLabel05'] = "Descritpion" 
+    langageDict['OpenMenuLabel06'] = "Internet Link" 
+    langageDict['OpenMenuLabel07'] = "Email" 
+    langageDict['OpenMenuLabel08'] = "SEARCH" 
+    langageDict['OpenMenuLabel09'] = "HISTORY" 
+     
+    #BookmarksMenu Values :
+    langageDict['BookmarksMenuName'] = "Materials Database" 
         
+    #BookmarksMenu Values :
+    langageDict['ErrorsMenuError001'] = "Important information(s) : If you have an error, please verify :" 
+    langageDict['ErrorsMenuError002'] = "1/ You have create or open an image," 
+    langageDict['ErrorsMenuError003'] = "2/ Raw image path." 
+    langageDict['ErrorsMenuError004'] = "No error : material has correctly saved." 
+    langageDict['ErrorsMenuError005'] = "No error : material has correctly exported." 
+    langageDict['ErrorsMenuError006'] = " --> Please verify your project is correctly saved." 
+    langageDict['ErrorsMenuError007'] = "Import is correctly." 
+    langageDict['ErrorsMenuError008'] = "No found the script '*.blex'. Archive is corrupted." 
+    langageDict['ErrorsMenuError009'] = "Error : Image not found :" 
+    langageDict['ErrorsMenuError010'] = "Solution : Please verify image path :" 
+    langageDict['ErrorsMenuError011'] = "Consulting : Prefer an Absolue address or raw the address by removing the " 
+    langageDict['ErrorsMenuError012'] = "characters '..', '/..', '\', '\\', '//../'" 
+    langageDict['ErrorsMenuError013'] = "CAUTION: The image will thus not be added at the time of export or the save." 
+    langageDict['ErrorsMenuError014'] = "INFORMATION: An image of substitution was added to avoid an error." 
+    langageDict['ErrorsMenuError015'] = " " 
+    langageDict['ErrorsMenuError016'] = " " 
+    langageDict['ErrorsMenuError017'] = " " 
+    langageDict['ErrorsMenuError018'] = " " 
+    langageDict['ErrorsMenuError019'] = " " 
+    langageDict['ErrorsMenuError020'] = " " 
+
+    #InformationsMenu Values :
+    langageDict['InformationsMenuTitle'] = "Informations about the material"
+    langageDict['InformationsMenuLabelName'] = "Material"
+    langageDict['InformationsMenuName'] = "None"
+    langageDict['InformationsMenuLabelCreator'] = "Creator"
+    langageDict['InformationsMenuCreator'] = "None"
+    langageDict['InformationsMenuLabelCategory'] = "Category"
+    langageDict['InformationsMenuCategory'] = "None"
+    langageDict['InformationsMenuLabelDescription'] = "Description"
+    langageDict['InformationsMenuDescription'] = "None"
+    langageDict['InformationsMenuLabelWebLink'] = "Internet Link"
+    langageDict['InformationsMenuWebLink'] = "None"
+    langageDict['InformationsMenuLabelEmail'] = "Email"
+    langageDict['InformationsMenuEmail'] = "None"
+
+    #WarningWin Values :
+    langageDict['WarningWinTitle'] = "Important information(s)" 
+    langageDict['WarningWinLabel01'] = "An update of  your parameters had just been effectued" 
+    langageDict['WarningWinLabel02'] = "Thank you for relaunching Blender so that the modifications are taken into account." 
+    langageDict['WarningWinLabel03'] = " " 
+    langageDict['WarningWinLabel04'] = " " 
+    langageDict['WarningWinLabel05'] = " " 
+    langageDict['WarningWinLabel06'] = " " 
+    langageDict['WarningWinLabel07'] = " " 
+    langageDict['WarningWinLabel08'] = " " 
+    langageDict['WarningWinLabel09'] = " " 
+    langageDict['WarningWinLabel10'] = " " 
         
+    #SaveMenu Values :
+    langageDict['SaveMenuTitle'] = "Save the selected material" 
+    langageDict['SaveMenuLabel01'] = "Please seize the informations" 
+    langageDict['SaveMenuName'] = "Name of the material" 
+    langageDict['SaveMenuCreator'] = "Name of the creator" 
+    langageDict['SaveMenuCreatorValue'] = "You" 
+    langageDict['SaveMenuCategoryDefault'] = "Personal" 
+    langageDict['SaveMenuDescriptionLabel'] = "Description" 
+    langageDict['SaveMenuDescription'] = "A description of the material" 
+    langageDict['SaveMenuWebLinkLabel'] = "Internet link" 
+    langageDict['SaveMenuWebLink'] = "http://" 
+    langageDict['SaveMenuEmailLabel'] = "Email address" 
+    langageDict['SaveMenuEmail'] = "mon_email@company.com" 
+    langageDict['SaveMenuWarning01'] = "Be carful you have to validate correctly the fields at the risk of seeing Blender planting" 
+    langageDict['SaveMenuWarning02'] = "The bug was not corrected yet and the API Blender does not gives information about this kind" 
+    langageDict['SaveMenuWarning03'] = "Thank you for your understanding and for your patience" 
+    langageDict['SaveMenuWarning04'] = " " 
+    langageDict['SaveMenuWarning05'] = " " 
         
-        if readValue == '*!-*':
-            saveCategoryConfig == ''
+    #SaveCategory Values :
+    langageDict['SaveCategoryTitle'] = "Select a category" 
+    langageDict['SaveCategoryCategoryTitle'] = "Category" 
+    langageDict['SaveCategoryCarPaint'] = "Car Paint" 
+    langageDict['SaveCategoryDirt'] = "Dirt" 
+    langageDict['SaveCategoryFabricClothes'] = "Fabric Clothes" 
+    langageDict['SaveCategoryFancy'] = "Fancy" 
+    langageDict['SaveCategoryFibreFur'] = "Fibre Fur" 
+    langageDict['SaveCategoryGlass'] = "Glass" 
+    langageDict['SaveCategoryHalo'] = "Halo" 
+    langageDict['SaveCategoryLiquids'] = "Liquids" 
+    langageDict['SaveCategoryMetal'] = "Metal" 
+    langageDict['SaveCategoryMisc'] = "Misc" 
+    langageDict['SaveCategoryNature'] = "Nature" 
+    langageDict['SaveCategoryOrganic'] = "Organic" 
+    langageDict['SaveCategoryPersonal'] = "Personal" 
+    langageDict['SaveCategoryPlastic'] = "Plastic" 
+    langageDict['SaveCategorySky'] = "Sky" 
+    langageDict['SaveCategorySpace'] = "Space" 
+    langageDict['SaveCategoryStone'] = "Stone" 
+    langageDict['SaveCategoryToon'] = "Toon" 
+    langageDict['SaveCategoryWall'] = "Wall" 
+    langageDict['SaveCategoryWater'] = "Water" 
+    langageDict['SaveCategoryWood'] = "Wood" 
         
-        section = section.replace('\n','')
-        sectionValue = sectionValue.replace('\n','')
+    #ConfigurationMenu Values :
+    langageDict['ConfigurationMenuTitle'] = "Create a confiuguration" 
+    langageDict['ConfigurationMenuLabel01'] = "Parameters of export" 
+    langageDict['ConfigurationMenuExportPath'] = "Path export" 
+    langageDict['ConfigurationMenuLabel02'] = "Parameters of the Database" 
+    langageDict['ConfigurationMenuLabel03'] = "Preview parameters" 
+    langageDict['ConfigurationMenuResolutionPreviewX'] = "Resolution X"
+    langageDict['ConfigurationMenuResolutionPreviewY'] = "Resolution Y"
+    langageDict['ConfigurationMenuDataBasePath'] = "Path of Database" 
+    langageDict['ConfigurationMenuWarning01'] = " " 
+    langageDict['ConfigurationMenuWarning02'] = " " 
+    langageDict['ConfigurationMenuWarning03'] = " " 
+    langageDict['ConfigurationMenuWarning04'] = " " 
+    langageDict['ConfigurationMenuWarning05'] = " " 
         
-        #Panel Values :
-        if section == '[Panel]' or saveCategoryConfig == '[Panel]':
-            
-            if section == 'Name':
-                langageDict['PanelName'] = sectionValue 
-            
-            saveCategoryConfig = '[Panel]'
-        
-        
-        #Find Image Values :
-        if section == '[FindImageMenu]' or saveCategoryConfig == '[FindImageMenu]':
-            
-            if section == 'Name':
-                langageDict['FindImageMenuName'] = sectionValue 
-            
-            saveCategoryConfig = '[FindImageMenu]'
-        
-        
-        
-        #Buttons Values :
-        if section == '[Buttons]' or saveCategoryConfig == '[Buttons]':
-            
-            if section == 'Open':
-                langageDict['ButtonsOpen'] = sectionValue 
-            
-            if section == 'Save':
-                langageDict['ButtonsSave'] = sectionValue 
-            
-            if section == 'Configuration':
-                langageDict['ButtonsConfiguration'] = sectionValue 
-            
-            if section == 'Export':
-                langageDict['ButtonsExport'] = sectionValue 
-
-            if section == 'Import':
-                langageDict['ButtonsImport'] = sectionValue 
-            
-            if section == 'Help':
-                langageDict['ButtonsHelp'] = sectionValue 
-            
-            if section == 'Informations':
-                langageDict['ButtonsInformations'] = sectionValue 
-            
-
-            if section == 'Create':
-                langageDict['ButtonsCreate'] = sectionValue 
-            
-            
-            
-            saveCategoryConfig = '[Buttons]'
-        
-        
-        
-        #OpenMenu Values :
-        if section == '[OpenMenu]' or saveCategoryConfig == '[OpenMenu]':
-            
-            if section == 'Title':
-                langageDict['OpenMenuTitle'] = sectionValue             
-            
-            if section == 'Label01':
-                langageDict['OpenMenuLabel01'] = sectionValue 
-            
-            if section == 'Label02':
-                langageDict['OpenMenuLabel02'] = sectionValue 
-            
-            if section == 'Label03':
-                langageDict['OpenMenuLabel03'] = sectionValue 
-            
-            if section == 'Label04':
-                langageDict['OpenMenuLabel04'] = sectionValue 
-            
-            if section == 'Label05':
-                langageDict['OpenMenuLabel05'] = sectionValue 
-            
-            if section == 'Label06':
-                langageDict['OpenMenuLabel06'] = sectionValue 
-            
-            if section == 'Label07':
-                langageDict['OpenMenuLabel07'] = sectionValue 
-            
-            if section == 'Label08':
-                langageDict['OpenMenuLabel08'] = sectionValue 
-            
-            
-            if section == 'Label09':
-                langageDict['OpenMenuLabel09'] = sectionValue 
-            
-            
-            
-            
-            saveCategoryConfig = '[OpenMenu]'
-        
-        
-        
-        #BookmarksMenu Values :
-        if section == '[BookmarksMenu]' or saveCategoryConfig == '[BookmarksMenu]':
-            
-            if section == 'Name':
-                langageDict['BookmarksMenuName'] = sectionValue 
-            
-            saveCategoryConfig = '[BookmarksMenu]'
-        
-   
-        
-        #BookmarksMenu Values :
-        if section == '[ErrorsMenu]' or saveCategoryConfig == '[ErrorsMenu]':
-            
-            if section == 'Error001':
-                langageDict['ErrorsMenuError001'] = sectionValue 
-
-            if section == 'Error002':
-                langageDict['ErrorsMenuError002'] = sectionValue 
-
-            if section == 'Error003':
-                langageDict['ErrorsMenuError003'] = sectionValue 
-
-            if section == 'Error004':
-                langageDict['ErrorsMenuError004'] = sectionValue 
-
-            if section == 'Error005':
-                langageDict['ErrorsMenuError005'] = sectionValue 
-
-            if section == 'Error006':
-                langageDict['ErrorsMenuError006'] = sectionValue 
-
-            if section == 'Error007':
-                langageDict['ErrorsMenuError007'] = sectionValue 
-
-            if section == 'Error008':
-                langageDict['ErrorsMenuError008'] = sectionValue 
-
-            if section == 'Error009':
-                langageDict['ErrorsMenuError009'] = sectionValue 
-
-            if section == 'Error010':
-                langageDict['ErrorsMenuError010'] = sectionValue 
-
-            if section == 'Error011':
-                langageDict['ErrorsMenuError011'] = sectionValue 
-
-            if section == 'Error012':
-                langageDict['ErrorsMenuError012'] = sectionValue 
-
-            if section == 'Error013':
-                langageDict['ErrorsMenuError013'] = sectionValue 
-
-
-            if section == 'Error014':
-                langageDict['ErrorsMenuError014'] = sectionValue 
-
-            if section == 'Error015':
-                langageDict['ErrorsMenuError015'] = sectionValue 
-
-            if section == 'Error016':
-                langageDict['ErrorsMenuError016'] = sectionValue 
-
-            if section == 'Error017':
-                langageDict['ErrorsMenuError017'] = sectionValue 
-
-            if section == 'Error018':
-                langageDict['ErrorsMenuError018'] = sectionValue 
-
-            if section == 'Error019':
-                langageDict['ErrorsMenuError019'] = sectionValue 
-
-            if section == 'Error020':
-                langageDict['ErrorsMenuError020'] = sectionValue 
-
-
-            
-            saveCategoryConfig = '[ErrorsMenu]'
-        
-        
-
-        #InformationsMenu Values :
-        if section == '[InformationsMenu]' or saveCategoryConfig == '[InformationsMenu]':
-            
-            if section == 'Title':
-                langageDict['InformationsMenuTitle'] = sectionValue
-                
-                 
-            if section == 'LabelName':
-                langageDict['InformationsMenuLabelName'] = sectionValue
-
-
-            if section == 'Name':
-                langageDict['InformationsMenuName'] = sectionValue
-                
-
-            if section == 'LabelCreator':
-                langageDict['InformationsMenuLabelCreator'] = sectionValue
-                
-                 
-            if section == 'Creator':
-                langageDict['InformationsMenuCreator'] = sectionValue
-                
-
-            if section == 'LabelCategory':
-                langageDict['InformationsMenuLabelCategory'] = sectionValue
-                
-                 
-            if section == 'Category':
-                langageDict['InformationsMenuCategory'] = sectionValue
-                
+    #ExportMenu Values :
+    langageDict['ExportMenuTitle'] = "Export material pre-defined" 
+    langageDict['ExportMenuLabel01'] = "Please complete the informations" 
+    langageDict['ExportMenuName'] = "Name of the material" 
+    langageDict['ExportMenuCreator'] = "Name of the creator" 
+    langageDict['ExportMenuCreatorDefault'] = "You" 
+    langageDict['ExportMenuTakePreview'] = "Create a preview" 
  
-            if section == 'LabelDescription':
-                langageDict['InformationsMenuLabelDescription'] = sectionValue
-                
-                 
-            if section == 'Description':
-                langageDict['InformationsMenuDescription'] = sectionValue
-                
-                 
-            if section == 'LabelWebLink':
-                langageDict['InformationsMenuLabelWebLink'] = sectionValue
-                
-                 
-            if section == 'WebLink':
-                langageDict['InformationsMenuWebLink'] = sectionValue
-                
-                                 
-            if section == 'LabelEmail':
-                langageDict['InformationsMenuLabelEmail'] = sectionValue
-                    
+    #ImportMenu Values :
+    langageDict['ImportMenuTitle'] = "Import a material" 
+        
+    #HelpMenu Values :
+    langageDict['HelpMenuTitle'] = "Help menu" 
+    langageDict['HelpMenuLabel01'] = "How to use modules" 
+    langageDict['HelpMenuLabel02'] = " " 
+    langageDict['HelpMenuLabel03'] = "- Frequent asked questions" 
+    langageDict['HelpMenuLabel04'] = "Open - How does it work ?" 
+    langageDict['HelpMenuLabel05'] = "This module allows you to obtain your files of materials. Once to have to click the module you will have to click Bookmarks, recently create 'Material Database '. You" 
+    langageDict['HelpMenuLabel06'] = "can activate the ìmode iconsî to see the contents of the  icons form. The button 'ICONS' allows you to make a search(research) in the data/file. To show/see everything ..." 
+    langageDict['HelpMenuLabel07'] = "after searched materials, take an empty value in the module of search and validate. The historic module will allow you to reach the last 20 materials use." 
+    langageDict['HelpMenuLabel08'] = "Once your choice makes double click the material to allow you of the importer on your active object." 
+    langageDict['HelpMenuLabel09'] = " " 
+    langageDict['HelpMenuLabel10'] = " " 
+    langageDict['HelpMenuLabel11'] = "Save - What is it?" 
+    langageDict['HelpMenuLabel12'] = "This module allows you to protect the active material directly in the base. It is enough to you to use him(it) to complete fields (partially or totally) and to validate by" 
+    langageDict['HelpMenuLabel13'] = "the button 'OK'. You can re-use this material by way of the module 'Open'." 
+    langageDict['HelpMenuLabel14'] = " " 
+    langageDict['HelpMenuLabel15'] = "Export - Why?" 
+    langageDict['HelpMenuLabel16'] = "This module allows you to export a material in the form of feasible file by any other Blender. For Exporter you just have to click the module then of" 
+    langageDict['HelpMenuLabel17'] = "the directory, the name of the file as well as the name of the creator (it is has to say YOU), then to validate. To execute this file you will just have to open 'Texteditor'," 
+    langageDict['HelpMenuLabel18'] = " " 
+    langageDict['HelpMenuLabel19'] = "then 'Open text block'and to ask the file to export. Will not stay in you more than has to click the button 'Run Script' of 'Text editor'." 
+    langageDict['HelpMenuLabel20'] = " " 
+    langageDict['HelpMenuLabel21'] = "New - To what that is of use ?" 
+    langageDict['HelpMenuLabel22'] = "This module is going to allow you to load(charge) a model of material. You can juggle between the first four copies as you need a looking like base has" 
+    langageDict['HelpMenuLabel23'] = "Sphere Sphere/Cube/Plan/Suzanne Sphere/Cube/Plan/Suzanne Sphere/Cube/Plan/Suzanne Sph. This modele is the one to use to post(show) the previews of the base of materials. He(it) is practical for the creation of a material new." 
+    langageDict['HelpMenuLabel24'] = " " 
+    langageDict['HelpMenuLabel25'] = "I have to get(touch) it?" 
+    langageDict['HelpMenuLabel26'] = "This module allows to parameter the place where is situated the database of materials. Practice for the desirous persons to modify the place of the base." 
+    langageDict['HelpMenuLabel27'] = " " 
+    langageDict['HelpMenuLabel28'] = " " 
+    langageDict['HelpMenuLabel29'] = " " 
+    langageDict['HelpMenuLabel30'] = "Credits - It is what all names bizarre?" 
+    langageDict['HelpMenuLabel31'] = "It is about all the persons having to contribute has the creation of this addon and also thank once again for their precious help." 
+    langageDict['HelpMenuLabel32'] = " " 
+    langageDict['HelpMenuLabel33'] = " " 
+    langageDict['HelpMenuLabel34'] = " " 
+    langageDict['HelpMenuLabel35'] = " " 
+    langageDict['HelpMenuLabel36'] = " " 
+    langageDict['HelpMenuLabel37'] = " " 
+    langageDict['HelpMenuLabel38'] = " " 
+    langageDict['HelpMenuLabel39'] = " " 
+    langageDict['HelpMenuLabel40'] = " " 
 
-            if section == 'Email':
-                langageDict['InformationsMenuEmail'] = sectionValue
-                
-            
-            saveCategoryConfig = '[InformationsMenu]'
-        
-        
-
-
-
-
-        #WarningWin Values :
-        if section == '[WarningWin]' or saveCategoryConfig == '[WarningWin]':
-            
-            if section == 'Title':
-                langageDict['WarningWinTitle'] = sectionValue 
-            
-            
-            if section == 'Label01':
-                langageDict['WarningWinLabel01'] = sectionValue 
-            
-            if section == 'Label02':
-                langageDict['WarningWinLabel02'] = sectionValue 
-            
-            if section == 'Label03':
-                langageDict['WarningWinLabel03'] = sectionValue 
-            
-            if section == 'Label04':
-                langageDict['WarningWinLabel04'] = sectionValue 
-            
-            if section == 'Label05':
-                langageDict['WarningWinLabel05'] = sectionValue 
-            
-            if section == 'Label06':
-                langageDict['WarningWinLabel06'] = sectionValue 
-            
-            if section == 'Label07':
-                langageDict['WarningWinLabel07'] = sectionValue 
-            
-            if section == 'Label08':
-                langageDict['WarningWinLabel08'] = sectionValue 
-            
-            if section == 'Label09':
-                langageDict['WarningWinLabel09'] = sectionValue 
-            
-            if section == 'Label10':
-                langageDict['WarningWinLabel10'] = sectionValue 
-            
-            
-            saveCategoryConfig = '[WarningWin]'
-        
-        
-        
-        
-        #SaveMenu Values :
-        if section == '[SaveMenu]' or saveCategoryConfig == '[SaveMenu]':
-            
-            if section == 'Title':
-                langageDict['SaveMenuTitle'] = sectionValue 
-            
-            
-            if section == 'Label01':
-                langageDict['SaveMenuLabel01'] = sectionValue 
-            
-            if section == 'Name':
-                langageDict['SaveMenuName'] = sectionValue 
-            
-            if section == 'Creator':
-                langageDict['SaveMenuCreator'] = sectionValue 
-            
-            if section == 'CreatorValue':
-                langageDict['SaveMenuCreatorValue'] = sectionValue 
-            
-            if section == 'CategoryDefault':
-                langageDict['SaveMenuCategoryDefault'] = sectionValue 
-            
-            if section == 'DescriptionLabel':
-                langageDict['SaveMenuDescriptionLabel'] = sectionValue 
-            
-            
-            if section == 'Description':
-                langageDict['SaveMenuDescription'] = sectionValue 
-            
-            if section == 'WebLinkLabel':
-                langageDict['SaveMenuWebLinkLabel'] = sectionValue 
-            
-            if section == 'WebLink':
-                langageDict['SaveMenuWebLink'] = sectionValue 
-            
-            if section == 'EmailLabel':
-                langageDict['SaveMenuEmailLabel'] = sectionValue 
-            
-            if section == 'Email':
-                langageDict['SaveMenuEmail'] = sectionValue 
-            
-            if section == 'Warning01':
-                langageDict['SaveMenuWarning01'] = sectionValue 
-            
-            if section == 'Warning02':
-                langageDict['SaveMenuWarning02'] = sectionValue 
-            
-            if section == 'Warning03':
-                langageDict['SaveMenuWarning03'] = sectionValue 
-            
-            if section == 'Warning04':
-                langageDict['SaveMenuWarning04'] = sectionValue 
-            
-            if section == 'Warning05':
-                langageDict['SaveMenuWarning05'] = sectionValue 
-            
-            
-            saveCategoryConfig = '[SaveMenu]'
-        
-        
-        #SaveCategory Values :
-        if section == '[SaveCategory]' or saveCategoryConfig == '[SaveCategory]':
-            
-            if section == 'Title':
-                langageDict['SaveCategoryTitle'] = sectionValue 
-            
-            if section == 'CategoryTitle':
-                langageDict['SaveCategoryCategoryTitle'] = sectionValue 
-            
-            if section == 'CarPaint':
-                langageDict['SaveCategoryCarPaint'] = sectionValue 
-            
-            if section == 'Dirt':
-                langageDict['SaveCategoryDirt'] = sectionValue 
-            
-            if section == 'FabricClothes':
-                langageDict['SaveCategoryFabricClothes'] = sectionValue 
-            
-            if section == 'Fancy':
-                langageDict['SaveCategoryFancy'] = sectionValue 
-            
-            if section == 'FibreFur':
-                langageDict['SaveCategoryFibreFur'] = sectionValue 
-            
-            if section == 'Glass':
-                langageDict['SaveCategoryGlass'] = sectionValue 
-            
-            if section == 'Halo':
-                langageDict['SaveCategoryHalo'] = sectionValue 
-            
-            if section == 'Liquids':
-                langageDict['SaveCategoryLiquids'] = sectionValue 
-            
-            if section == 'Metal':
-                langageDict['SaveCategoryMetal'] = sectionValue 
-            
-            if section == 'Misc':
-                langageDict['SaveCategoryMisc'] = sectionValue 
-            
-            if section == 'Nature':
-                langageDict['SaveCategoryNature'] = sectionValue 
-            
-            if section == 'Organic':
-                langageDict['SaveCategoryOrganic'] = sectionValue 
-            
-            if section == 'Personal':
-                langageDict['SaveCategoryPersonal'] = sectionValue 
-            
-            if section == 'Plastic':
-                langageDict['SaveCategoryPlastic'] = sectionValue 
-            
-            if section == 'Sky':
-                langageDict['SaveCategorySky'] = sectionValue 
-            
-            if section == 'Space':
-                langageDict['SaveCategorySpace'] = sectionValue 
-            
-            if section == 'Stone':
-                langageDict['SaveCategoryStone'] = sectionValue 
-            
-            if section == 'Toon':
-                langageDict['SaveCategoryToon'] = sectionValue 
-            
-            if section == 'Wall':
-                langageDict['SaveCategoryWall'] = sectionValue 
-            
-            if section == 'Water':
-                langageDict['SaveCategoryWater'] = sectionValue 
-            
-            if section == 'Wood':
-                langageDict['SaveCategoryWood'] = sectionValue 
-            
-            saveCategoryConfig = '[SaveCategory]'
-        
-        
-        #ConfigurationMenu Values :
-        if section == '[ConfigurationMenu]' or saveCategoryConfig == '[ConfigurationMenu]':
-            
-            if section == 'Title':
-                langageDict['ConfigurationMenuTitle'] = sectionValue 
-            
-            if section == 'Label01':
-                langageDict['ConfigurationMenuLabel01'] = sectionValue 
-            
-            if section == 'ExportPath':
-                langageDict['ConfigurationMenuExportPath'] = sectionValue 
-            
-            if section == 'Label02':
-                langageDict['ConfigurationMenuLabel02'] = sectionValue 
-            
-            if section == 'Label03':
-                langageDict['ConfigurationMenuLabel03'] = sectionValue 
-            
-            if section == 'ResolutionPreviewX':
-                langageDict['ConfigurationMenuResolutionPreviewX'] = sectionValue 
-            
-            if section == 'ResolutionPreviewY':
-                langageDict['ConfigurationMenuResolutionPreviewY'] = sectionValue 
-            
-            if section == 'DataBasePath':
-                langageDict['ConfigurationMenuDataBasePath'] = sectionValue 
-            
-            if section == 'Warning01':
-                langageDict['ConfigurationMenuWarning01'] = sectionValue 
-            
-            if section == 'Warning02':
-                langageDict['ConfigurationMenuWarning02'] = sectionValue 
-            
-            if section == 'Warning03':
-                langageDict['ConfigurationMenuWarning03'] = sectionValue 
-            
-            if section == 'Warning04':
-                langageDict['ConfigurationMenuWarning04'] = sectionValue 
-            
-            if section == 'Warning05':
-                langageDict['ConfigurationMenuWarning05'] = sectionValue 
-            
-            saveCategoryConfig = '[ConfigurationMenu]'
-        
-        
-        #ExportMenu Values :
-        if section == '[ExportMenu]' or saveCategoryConfig == '[ExportMenu]':
-            
-            if section == 'Title':
-                langageDict['ExportMenuTitle'] = sectionValue 
-            
-            if section == 'Label01':
-                langageDict['ExportMenuLabel01'] = sectionValue 
-            
-            if section == 'Name':
-                langageDict['ExportMenuName'] = sectionValue 
-            
-            if section == 'Creator':
-                langageDict['ExportMenuCreator'] = sectionValue 
-            
-            if section == 'CreatorDefault':
-                langageDict['ExportMenuCreatorDefault'] = sectionValue 
-
-            if section == 'TakePreview':
-                langageDict['ExportMenuTakePreview'] = sectionValue 
-            
-            saveCategoryConfig = '[ExportMenu]'
-        
- 
-        #ImportMenu Values :
-        if section == '[ImportMenu]' or saveCategoryConfig == '[ImportMenu]':
-            
-            if section == 'Title':
-                langageDict['ImportMenuTitle'] = sectionValue 
-                       
-            
-            saveCategoryConfig = '[ImportMenu]'
-        
- 
- 
- 
-        
-        #HelpMenu Values :
-        if section == '[HelpMenu]' or saveCategoryConfig == '[HelpMenu]':
-            
-            if section == 'Title':
-                langageDict['HelpMenuTitle'] = sectionValue 
-            
-            if section == 'Label01':
-                langageDict['HelpMenuLabel01'] = sectionValue 
-            
-            if section == 'Label02':
-                langageDict['HelpMenuLabel02'] = sectionValue 
-            
-            if section == 'Label03':
-                langageDict['HelpMenuLabel03'] = sectionValue 
-            
-            if section == 'Label04':
-                langageDict['HelpMenuLabel04'] = sectionValue 
-            
-            if section == 'Label05':
-                langageDict['HelpMenuLabel05'] = sectionValue 
-            
-            if section == 'Label06':
-                langageDict['HelpMenuLabel06'] = sectionValue 
-            
-            if section == 'Label07':
-                langageDict['HelpMenuLabel07'] = sectionValue 
-            
-            if section == 'Label08':
-                langageDict['HelpMenuLabel08'] = sectionValue 
-            
-            if section == 'Label09':
-                langageDict['HelpMenuLabel09'] = sectionValue 
-            
-            if section == 'Label10':
-                langageDict['HelpMenuLabel10'] = sectionValue 
-            
-            if section == 'Label11':
-                langageDict['HelpMenuLabel11'] = sectionValue 
-            
-            if section == 'Label12':
-                langageDict['HelpMenuLabel12'] = sectionValue 
-            
-            if section == 'Label13':
-                langageDict['HelpMenuLabel13'] = sectionValue 
-            
-            if section == 'Label14':
-                langageDict['HelpMenuLabel14'] = sectionValue 
-            
-            if section == 'Label15':
-                langageDict['HelpMenuLabel15'] = sectionValue 
-            
-            if section == 'Label16':
-                langageDict['HelpMenuLabel16'] = sectionValue 
-            
-            if section == 'Label17':
-                langageDict['HelpMenuLabel17'] = sectionValue 
-            
-            if section == 'Label18':
-                langageDict['HelpMenuLabel18'] = sectionValue 
-            
-            if section == 'Label19':
-                langageDict['HelpMenuLabel19'] = sectionValue 
-            
-            if section == 'Label20':
-                langageDict['HelpMenuLabel20'] = sectionValue 
-            
-            if section == 'Label21':
-                langageDict['HelpMenuLabel21'] = sectionValue 
-            
-            if section == 'Label22':
-                langageDict['HelpMenuLabel22'] = sectionValue 
-            
-            if section == 'Label23':
-                langageDict['HelpMenuLabel23'] = sectionValue 
-            
-            if section == 'Label24':
-                langageDict['HelpMenuLabel24'] = sectionValue 
-            
-            if section == 'Label25':
-                langageDict['HelpMenuLabel25'] = sectionValue 
-            
-            if section == 'Label26':
-                langageDict['HelpMenuLabel26'] = sectionValue 
-            
-            if section == 'Label27':
-                langageDict['HelpMenuLabel27'] = sectionValue 
-            
-            if section == 'Label28':
-                langageDict['HelpMenuLabel28'] = sectionValue 
-            
-            if section == 'Label29':
-                langageDict['HelpMenuLabel29'] = sectionValue 
-            
-            
-            if section == 'Label30':
-                langageDict['HelpMenuLabel30'] = sectionValue 
-            
-            if section == 'Label31':
-                langageDict['HelpMenuLabel31'] = sectionValue 
-            
-            if section == 'Label32':
-                langageDict['HelpMenuLabel32'] = sectionValue 
-            
-            if section == 'Label33':
-                langageDict['HelpMenuLabel33'] = sectionValue 
-            
-            if section == 'Label34':
-                langageDict['HelpMenuLabel34'] = sectionValue 
-            
-            if section == 'Label35':
-                langageDict['HelpMenuLabel35'] = sectionValue 
-            
-            if section == 'Label36':
-                langageDict['HelpMenuLabel36'] = sectionValue 
-            
-            if section == 'Label37':
-                langageDict['HelpMenuLabel37'] = sectionValue 
-            
-            if section == 'Label38':
-                langageDict['HelpMenuLabel38'] = sectionValue 
-            
-            if section == 'Label39':
-                langageDict['HelpMenuLabel39'] = sectionValue 
-            
-            if section == 'Label40':
-                langageDict['HelpMenuLabel40'] = sectionValue 
-            
-            saveCategoryConfig = '[HelpMenu]'
     
-    
-    langageFile.close()
     return langageDict
+
+
+
+
+
+def Langage_fr_FR(langageDict):
+    
+    #Panel Values :
+    langageDict['PanelName'] = "Materiaux Pre-configures" 
+    langageDict['FindImageMenuName'] = "Rechercher un image" 
+    langageDict['ButtonsOpen'] = "Ouvrir..." 
+    langageDict['ButtonsSave'] = "Sauvegarder" 
+    langageDict['ButtonsConfiguration'] = "Configuration" 
+    langageDict['ButtonsExport'] = "Exporter" 
+    langageDict['ButtonsImport'] = "Importer" 
+    langageDict['ButtonsHelp'] = "Aide" 
+    langageDict['ButtonsInformations'] = "Informations" 
+    langageDict['ButtonsCreate'] = "Nouveau" 
+        
+    #OpenMenu Values :
+    langageDict['OpenMenuTitle'] = "Valider le choix du materiau"             
+    langageDict['OpenMenuLabel01'] = "INFORMATIONS SUR LE MATERIAU" 
+    langageDict['OpenMenuLabel02'] = "Materiau" 
+    langageDict['OpenMenuLabel03'] = "Createur" 
+    langageDict['OpenMenuLabel04'] = "Categorie" 
+    langageDict['OpenMenuLabel05'] = "Descritpion" 
+    langageDict['OpenMenuLabel06'] = "Lien Internet" 
+    langageDict['OpenMenuLabel07'] = "Email" 
+    langageDict['OpenMenuLabel08'] = "RECHERCHER" 
+    langageDict['OpenMenuLabel09'] = "HISTORIQUE" 
+     
+    #BookmarksMenu Values :
+    langageDict['BookmarksMenuName'] = "Base Materiaux" 
+        
+    #BookmarksMenu Values :
+    langageDict['ErrorsMenuError001'] = "Informations importantes : Si vous rencontrez une erreur ci-dessous, verifiez :" 
+    langageDict['ErrorsMenuError002'] = "1/ Que vous avez bien creer ou ouvert une image," 
+    langageDict['ErrorsMenuError003'] = "2/ Le chemin de l'image est correctement saisie." 
+    langageDict['ErrorsMenuError004'] = "Pas d'erreur : le materiau a ete correctement sauvegarder." 
+    langageDict['ErrorsMenuError005'] = "Pas d'erreur : l'image a ete correctement exporter." 
+    langageDict['ErrorsMenuError006'] = " --> Que votre projet est sauvegarde. " 
+    langageDict['ErrorsMenuError007'] = "L'import c'est effectue correctement." 
+    langageDict['ErrorsMenuError008'] = "Impossible de trouver le script dans le fichier '*.blex'. L'archive est corrompue." 
+    langageDict['ErrorsMenuError009'] = "Erreur : Impossible de trouver l'image :" 
+    langageDict['ErrorsMenuError010'] = "Solution : Veuillez changer l'adresse de l'image dans les proprietes de textures de Blender." 
+    langageDict['ErrorsMenuError011'] = "Conseil : Preferez une adresse Absolue ou epurez l'adresse en supprimant les caracteres '..', '/..', '\', '\\', '//../'" 
+    langageDict['ErrorsMenuError012'] = "ATTENTION : L'image ne sera donc pas ajoutee lors de l'exportation ou de la sauvegarde." 
+    langageDict['ErrorsMenuError013'] = "INFORMATION : Une image de substitution a ete ajoutee pour eviter une erreur. " 
+    langageDict['ErrorsMenuError014'] = " " 
+    langageDict['ErrorsMenuError015'] = " " 
+    langageDict['ErrorsMenuError016'] = " " 
+    langageDict['ErrorsMenuError017'] = " " 
+    langageDict['ErrorsMenuError018'] = " " 
+    langageDict['ErrorsMenuError019'] = " " 
+    langageDict['ErrorsMenuError020'] = " " 
+
+    #InformationsMenu Values :
+    langageDict['InformationsMenuTitle'] = "Informations sur le materiau"
+    langageDict['InformationsMenuLabelName'] = "Materiau"
+    langageDict['InformationsMenuName'] = "Aucun"
+    langageDict['InformationsMenuLabelCreator'] = "Createur"
+    langageDict['InformationsMenuCreator'] = "Aucun"
+    langageDict['InformationsMenuLabelCategory'] = "Categorie"
+    langageDict['InformationsMenuCategory'] = "Aucune"
+    langageDict['InformationsMenuLabelDescription'] = "Description"
+    langageDict['InformationsMenuDescription'] = "Aucune"
+    langageDict['InformationsMenuLabelWebLink'] = "Lien Internet"
+    langageDict['InformationsMenuWebLink'] = "Aucun"
+    langageDict['InformationsMenuLabelEmail'] = "Email"
+    langageDict['InformationsMenuEmail'] = "Aucune"
+
+    #WarningWin Values :
+    langageDict['WarningWinTitle'] = "Information(s) importante(s)" 
+    langageDict['WarningWinLabel01'] = "Une mise a jour de vos parametres vient d'être effectuee." 
+    langageDict['WarningWinLabel02'] = "Merci de relancer Blender pour que les modifications soient prises en compte." 
+    langageDict['WarningWinLabel03'] = " " 
+    langageDict['WarningWinLabel04'] = " " 
+    langageDict['WarningWinLabel05'] = " " 
+    langageDict['WarningWinLabel06'] = " " 
+    langageDict['WarningWinLabel07'] = " " 
+    langageDict['WarningWinLabel08'] = " " 
+    langageDict['WarningWinLabel09'] = " " 
+    langageDict['WarningWinLabel10'] = " " 
+        
+    #SaveMenu Values :
+    langageDict['SaveMenuTitle'] = "Sauvegarder le materiau selectionne" 
+    langageDict['SaveMenuLabel01'] = "Veuillez saisir les informations" 
+    langageDict['SaveMenuName'] = "Nom du materiau" 
+    langageDict['SaveMenuCreator'] = "Nom du createur" 
+    langageDict['SaveMenuCreatorValue'] = "Vous" 
+    langageDict['SaveMenuCategoryDefault'] = "Personnelle" 
+    langageDict['SaveMenuDescriptionLabel'] = "Description" 
+    langageDict['SaveMenuDescription'] = "Une description du materiau" 
+    langageDict['SaveMenuWebLinkLabel'] = "Lien Internet" 
+    langageDict['SaveMenuWebLink'] = "http://" 
+    langageDict['SaveMenuEmailLabel'] = "Adresse email" 
+    langageDict['SaveMenuEmail'] = "mon_email@fai.fr" 
+    langageDict['SaveMenuWarning01'] = "Attention vous devez correctement valider les champs sous peine de voir Blender planter." 
+    langageDict['SaveMenuWarning02'] = "Le bug n'a pas encore ete corrige et l'API Blender ne donne aucune information sur ce genre" 
+    langageDict['SaveMenuWarning03'] = "de problemes. Merci de votre comprehension et de votre patience. :-)" 
+    langageDict['SaveMenuWarning04'] = " " 
+    langageDict['SaveMenuWarning05'] = " " 
+        
+    #SaveCategory Values :
+    langageDict['SaveCategoryTitle'] = "Selectionnez une categorie" 
+    langageDict['SaveCategoryCategoryTitle'] = "Categories" 
+    langageDict['SaveCategoryCarPaint'] = "Peinture de voiture" 
+    langageDict['SaveCategoryDirt'] = "Salete" 
+    langageDict['SaveCategoryFabricClothes'] = "Tissu" 
+    langageDict['SaveCategoryFancy'] = "Fantaisie" 
+    langageDict['SaveCategoryFibreFur'] = "Fourrure" 
+    langageDict['SaveCategoryGlass'] = "Verre" 
+    langageDict['SaveCategoryHalo'] = "Halo" 
+    langageDict['SaveCategoryLiquids'] = "Liquide" 
+    langageDict['SaveCategoryMetal'] = "Metal" 
+    langageDict['SaveCategoryMisc'] = "Divers" 
+    langageDict['SaveCategoryNature'] = "Nature" 
+    langageDict['SaveCategoryOrganic'] = "Organique" 
+    langageDict['SaveCategoryPersonal'] = "Personnel" 
+    langageDict['SaveCategoryPlastic'] = "Plastique" 
+    langageDict['SaveCategorySky'] = "Ciel" 
+    langageDict['SaveCategorySpace'] = "Espace" 
+    langageDict['SaveCategoryStone'] = "Pierre" 
+    langageDict['SaveCategoryToon'] = "Toon" 
+    langageDict['SaveCategoryWall'] = "Mur" 
+    langageDict['SaveCategoryWater'] = "Eau" 
+    langageDict['SaveCategoryWood'] = "Bois" 
+        
+    #ConfigurationMenu Values :
+    langageDict['ConfigurationMenuTitle'] = "Creer une configuration" 
+    langageDict['ConfigurationMenuLabel01'] = "Parametres d'export" 
+    langageDict['ConfigurationMenuExportPath'] = "Chemin d'export" 
+    langageDict['ConfigurationMenuLabel02'] = "Parametres de la Base de Donnees" 
+    langageDict['ConfigurationMenuLabel03'] = "Parametres de preview" 
+    langageDict['ConfigurationMenuResolutionPreviewX'] = "Resolution X" 
+    langageDict['ConfigurationMenuResolutionPreviewY'] = "Resolution Y" 
+    langageDict['ConfigurationMenuDataBasePath'] = "Chemin de la base" 
+    langageDict['ConfigurationMenuWarning01'] = "Les valeurs de configuration ne se rafraichissent pas automatiquement mais les modifications" 
+    langageDict['ConfigurationMenuWarning02'] = "sont correctement sauvegardees dans le fichier de configuration 'config' (qui se situe dans le" 
+    langageDict['ConfigurationMenuWarning03'] = "repertoire de l'add-on). Ne vous inquietez pas. Vous pouvez aussi redemarrer Blender pour que les" 
+    langageDict['ConfigurationMenuWarning04'] = "modifications soient prises en compte. Merci de votre comprehension :-)." 
+    langageDict['ConfigurationMenuWarning05'] = " " 
+        
+    #ExportMenu Values :
+    langageDict['ExportMenuTitle'] = "Exporter les materiaux pre-configures" 
+    langageDict['ExportMenuLabel01'] = "Veuillez completer les informations" 
+    langageDict['ExportMenuName'] = "Nom du materiau" 
+    langageDict['ExportMenuCreator'] = "Nom du createur" 
+    langageDict['ExportMenuCreatorDefault'] = "Vous" 
+    langageDict['ExportMenuTakePreview'] = "Creer une preview" 
+ 
+    #ImportMenu Values :
+    langageDict['ImportMenuTitle'] = "Importer un materiau" 
+        
+    #HelpMenu Values :
+    langageDict['HelpMenuTitle'] = "Menu d'aide" 
+    langageDict['HelpMenuLabel01'] = "Aide a l'utilisation du module" 
+    langageDict['HelpMenuLabel02'] = " " 
+    langageDict['HelpMenuLabel03'] = "- Foire aux questions :" 
+    langageDict['HelpMenuLabel04'] = "Ouvrir… - Comment ça marche ?" 
+    langageDict['HelpMenuLabel05'] = "Ce module vous permet d'acceder a votre base de materiaux. Une fois avoir cliquer sur le module vous devrez cliquer sur le Bookmarks nouvellement cree 'Base Materiaux'. Vous" 
+    langageDict['HelpMenuLabel06'] = "pouvez activer le mode icones pour voir le contenu sous forme d'icones. Le bouton 'RECHERCHER' vous permet d'effectuer une recherche dans la base. Pour afficher tout les" 
+    langageDict['HelpMenuLabel07'] = "materiaux apres une recherche saisissez une valeur vide dans la module de recherche et valider. Le module historique vous permettra d'acceder aux 20 derniers materiaux utilises." 
+    langageDict['HelpMenuLabel08'] = " " 
+    langageDict['HelpMenuLabel09'] = " " 
+    langageDict['HelpMenuLabel10'] = "Une fois votre choix effectue double cliquez sur le materiau pour vous permettre de l'importer sur votre object actif." 
+    langageDict['HelpMenuLabel11'] = "Sauvegarder - C'est quoi ?" 
+    langageDict['HelpMenuLabel12'] = "Ce module vous permet de sauvegarder le materiau actif directement dans la base. Il vous suffit pour l'utiliser de completer les champs (en partie ou totallement) et de valider par " 
+    langageDict['HelpMenuLabel13'] = "le bouton 'OK'. Vous pourrez reutiliser ce materiau en passant par le module 'Ouvrir...'." 
+    langageDict['HelpMenuLabel14'] = " " 
+    langageDict['HelpMenuLabel15'] = "Exporter - Pour quelle raison ?" 
+    langageDict['HelpMenuLabel16'] = "Ce module vous permet d'exporter un materiau sous forme de fichier executable par n'importe quel autre Blender. Pour Exporter il vous suffit de cliquer sur le module puis de" 
+    langageDict['HelpMenuLabel17'] = "selectionner le repertoire, le nom du fichier ainsi que le nom du createur (c'est a dire VOUS), puis de valider. Pour executer ce fichier il vous suffira d'ouvrir le 'Texteditor'," 
+    langageDict['HelpMenuLabel18'] = "puis d'aller sur le menu 'Text' puis 'Open text block' et de charger le fichier exporter. Ne vous restera plus qu'a cliquer sur le bouton 'Run Script' du 'Text editor'." 
+    langageDict['HelpMenuLabel19'] = " " 
+    langageDict['HelpMenuLabel20'] = " " 
+    langageDict['HelpMenuLabel21'] = "Nouveau - A quoi ça sert ?" 
+    langageDict['HelpMenuLabel22'] = "Ce module va vous permettre de charger un modele de materiau. Vous pourrez jongler entre les quatres premiers calques suivant que vous ayez besoin d'une base ressemblant a" 
+    langageDict['HelpMenuLabel23'] = "une Sphere/Cube/Plan/Suzanne. Ce modele est celui utiliser pour afficher les previews de la base de materiaux. Il est pratique pour la creation d'un nouveau materiau." 
+    langageDict['HelpMenuLabel24'] = " " 
+    langageDict['HelpMenuLabel25'] = " " 
+    langageDict['HelpMenuLabel26'] = "Configuration - Je dois y toucher ?" 
+    langageDict['HelpMenuLabel27'] = "Ce module permet de parametrer l'endroit où se situe la base de donnees de materiau. Pratique pour les personnes desireuses de modifier l'emplacement de la base." 
+    langageDict['HelpMenuLabel28'] = " " 
+    langageDict['HelpMenuLabel29'] = " " 
+    langageDict['HelpMenuLabel30'] = "Credits - C'est quoi tout ces noms bizarre ?" 
+    langageDict['HelpMenuLabel31'] = "Il s'agit de toutes les personnes ayant contribuer a la creation de cet addon et que je remercie encore une fois pour leur aide precieuse." 
+    langageDict['HelpMenuLabel32'] = " " 
+    langageDict['HelpMenuLabel33'] = " " 
+    langageDict['HelpMenuLabel34'] = " " 
+    langageDict['HelpMenuLabel35'] = " " 
+    langageDict['HelpMenuLabel36'] = " " 
+    langageDict['HelpMenuLabel37'] = " " 
+    langageDict['HelpMenuLabel38'] = " " 
+    langageDict['HelpMenuLabel39'] = " " 
+    langageDict['HelpMenuLabel40'] = " " 
+
+    return langageDict
+
+
+
+ 
+
+def Langage_de_DE(langageDict):
+    
+    #Panel Values :
+    langageDict['PanelName'] = "vorkonfigurierten material speichern" 
+    langageDict['FindImageMenuName'] = "" 
+    langageDict['ButtonsOpen'] = "Offnen..." 
+    langageDict['ButtonsSave'] = "Speichern" 
+    langageDict['ButtonsConfiguration'] = "Konfiguration" 
+    langageDict['ButtonsExport'] = "Export" 
+    langageDict['ButtonsImport'] = "Import" 
+    langageDict['ButtonsHelp'] = "Hilfe" 
+    langageDict['ButtonsInformations'] = "Information" 
+    langageDict['ButtonsCreate'] = "Neu" 
+        
+    #OpenMenu Values :
+    langageDict['OpenMenuTitle'] = "Suche nach bestimmten Materialien"             
+    langageDict['OpenMenuLabel01'] = "Informationen über das Material" 
+    langageDict['OpenMenuLabel02'] = "Material" 
+    langageDict['OpenMenuLabel03'] = "Autor" 
+    langageDict['OpenMenuLabel04'] = "Kategorie" 
+    langageDict['OpenMenuLabel05'] = "Beschreibung" 
+    langageDict['OpenMenuLabel06'] = "Internet Link" 
+    langageDict['OpenMenuLabel07'] = "Email" 
+    langageDict['OpenMenuLabel08'] = "Suchen" 
+    langageDict['OpenMenuLabel09'] = "Geschichte" 
+     
+    #BookmarksMenu Values :
+    langageDict['BookmarksMenuName'] = "Basis Material" 
+        
+    #BookmarksMenu Values :
+    langageDict['ErrorsMenuError001'] = "Important information(s) : If you have an error, please verify :" 
+    langageDict['ErrorsMenuError002'] = "1/ You have create or open an image," 
+    langageDict['ErrorsMenuError003'] = "2/ Raw image path." 
+    langageDict['ErrorsMenuError004'] = "No error : material has correctly saved." 
+    langageDict['ErrorsMenuError005'] = "No error : material has correctly exported." 
+    langageDict['ErrorsMenuError006'] = " --> Please verify your project is correctly saved." 
+    langageDict['ErrorsMenuError007'] = "Import is correctly." 
+    langageDict['ErrorsMenuError008'] = "No found the script '*.blex'. Archive is corrupted." 
+    langageDict['ErrorsMenuError009'] = "Error : Image not found :" 
+    langageDict['ErrorsMenuError010'] = "Solution : Please verify image path :" 
+    langageDict['ErrorsMenuError011'] = "Consulting : Prefer an Absolue address or raw the address by removing the characters '..', '/..', '\', '\\', '//../' " 
+    langageDict['ErrorsMenuError012'] = "CAUTION: The image will thus not be added at the time of export or the save." 
+    langageDict['ErrorsMenuError013'] = "INFORMATION: An image of substitution was added to avoid an error." 
+    langageDict['ErrorsMenuError014'] = " " 
+    langageDict['ErrorsMenuError015'] = " " 
+    langageDict['ErrorsMenuError016'] = " " 
+    langageDict['ErrorsMenuError017'] = " " 
+    langageDict['ErrorsMenuError018'] = " " 
+    langageDict['ErrorsMenuError019'] = " " 
+    langageDict['ErrorsMenuError020'] = " " 
+
+    #InformationsMenu Values :
+    langageDict['InformationsMenuTitle'] = "Material Informationen"
+    langageDict['InformationsMenuLabelName'] = "Material"
+    langageDict['InformationsMenuName'] = "Kein"
+    langageDict['InformationsMenuLabelCreator'] = "Autor"
+    langageDict['InformationsMenuCreator'] = "kein"
+    langageDict['InformationsMenuLabelCategory'] = "Kategorie"
+    langageDict['InformationsMenuCategory'] = "Kein"
+    langageDict['InformationsMenuLabelDescription'] = "Beschreibung"
+    langageDict['InformationsMenuDescription'] = "Kein"
+    langageDict['InformationsMenuLabelWebLink'] = "Internet link"
+    langageDict['InformationsMenuWebLink'] = "kein"
+    langageDict['InformationsMenuLabelEmail'] = "Email"
+    langageDict['InformationsMenuEmail'] = "Kein"
+
+    #WarningWin Values :
+    langageDict['WarningWinTitle'] = "Wichtige Information" 
+    langageDict['WarningWinLabel01'] = "Ein Update Ihre Einstellungen wurde soeben abgeschlossen." 
+    langageDict['WarningWinLabel02'] = "Bitte starten Sie Blender neu zum Übernehmen der Einstellungen." 
+    langageDict['WarningWinLabel03'] = " " 
+    langageDict['WarningWinLabel04'] = " " 
+    langageDict['WarningWinLabel05'] = " " 
+    langageDict['WarningWinLabel06'] = " " 
+    langageDict['WarningWinLabel07'] = " " 
+    langageDict['WarningWinLabel08'] = " " 
+    langageDict['WarningWinLabel09'] = " " 
+    langageDict['WarningWinLabel10'] = " " 
+        
+    #SaveMenu Values :
+    langageDict['SaveMenuTitle'] = "Speichern Sie das aktuelle Material" 
+    langageDict['SaveMenuLabel01'] = "Bitte geben Sie die Informationen an" 
+    langageDict['SaveMenuName'] = "Material Name" 
+    langageDict['SaveMenuCreator'] = "Autor Name" 
+    langageDict['SaveMenuCreatorValue'] = "Sie" 
+    langageDict['SaveMenuCategoryDefault'] = "personlich" 
+    langageDict['SaveMenuDescriptionLabel'] = "Beschreibung" 
+    langageDict['SaveMenuDescription'] = "Material Beschreibung" 
+    langageDict['SaveMenuWebLinkLabel'] = "Internet link" 
+    langageDict['SaveMenuWebLink'] = "http://" 
+    langageDict['SaveMenuEmailLabel'] = "EMail-Adresse" 
+    langageDict['SaveMenuEmail'] = "meine_email@fai.de" 
+    langageDict['SaveMenuWarning01'] = "Achtung: Sie müssen die Felder korrekt befüllen oder Blender kann absturzen." 
+    langageDict['SaveMenuWarning02'] = "Der Fehler wurde nicht behoben und die Blender-API bietet keine Informationenuber " 
+    langageDict['SaveMenuWarning03'] = "das Problem. Danke fur Ihr Verstandnis und ihre Gedult. :-)" 
+    langageDict['SaveMenuWarning04'] = " " 
+    langageDict['SaveMenuWarning05'] = " " 
+        
+    #SaveCategory Values :
+    langageDict['SaveCategoryTitle'] = "Wahlen Sie eine Kategorie" 
+    langageDict['SaveCategoryCategoryTitle'] = "Kategorie" 
+    langageDict['SaveCategoryCarPaint'] = "Autofarben" 
+    langageDict['SaveCategoryDirt'] = "Schmutz" 
+    langageDict['SaveCategoryFabricClothes'] = "Stoff" 
+    langageDict['SaveCategoryFancy'] = "Phantasie" 
+    langageDict['SaveCategoryFibreFur'] = "Fell" 
+    langageDict['SaveCategoryGlass'] = "Glas" 
+    langageDict['SaveCategoryHalo'] = "Halo" 
+    langageDict['SaveCategoryLiquids'] = "Flussigkeit" 
+    langageDict['SaveCategoryMetal'] = "Metall" 
+    langageDict['SaveCategoryMisc'] = "Divers" 
+    langageDict['SaveCategoryNature'] = "Natur" 
+    langageDict['SaveCategoryOrganic'] = "Organisch" 
+    langageDict['SaveCategoryPersonal'] = "Personlich" 
+    langageDict['SaveCategoryPlastic'] = "Plastik" 
+    langageDict['SaveCategorySky'] = "Himmel" 
+    langageDict['SaveCategorySpace'] = "Weltraum" 
+    langageDict['SaveCategoryStone'] = "Stein" 
+    langageDict['SaveCategoryToon'] = "Zeichentrick" 
+    langageDict['SaveCategoryWall'] = "Mauer" 
+    langageDict['SaveCategoryWater'] = "Wasser" 
+    langageDict['SaveCategoryWood'] = "Holz" 
+        
+    #ConfigurationMenu Values :
+    langageDict['ConfigurationMenuTitle'] = "Konfiguration erstellen" 
+    langageDict['ConfigurationMenuLabel01'] = "Export Parameter" 
+    langageDict['ConfigurationMenuExportPath'] = "Export Verzeichnis" 
+    langageDict['ConfigurationMenuLabel02'] = "Datenbank Parameter" 
+    langageDict['ConfigurationMenuLabel03'] = "Vorschau Parameter" 
+    langageDict['ConfigurationMenuResolutionPreviewX'] = "Auflosung X" 
+    langageDict['ConfigurationMenuResolutionPreviewY'] = "Auflosung Y" 
+    langageDict['ConfigurationMenuDataBasePath'] = "Datenbank Verzeichnis" 
+    langageDict['ConfigurationMenuWarning01'] = "Die Kofiguration konnte leider nicht automatisch aktualisiert werden." 
+    langageDict['ConfigurationMenuWarning02'] = "Die Einstellungen wurden aber in der Konfig-Datei gespeichert." 
+    langageDict['ConfigurationMenuWarning03'] = "Sie konnen die Einstellungen durch einen Neustart von" 
+    langageDict['ConfigurationMenuWarning04'] = "Blender ubernehmen. Danke fur ihre Verstandnis :-)." 
+    langageDict['ConfigurationMenuWarning05'] = " " 
+        
+    #ExportMenu Values :
+    langageDict['ExportMenuTitle'] = "Vorkonfiguriertes Material exportieren" 
+    langageDict['ExportMenuLabel01'] = "Bitte geben Sie die Informationen an" 
+    langageDict['ExportMenuName'] = "Material Name" 
+    langageDict['ExportMenuCreator'] = "Autor Name" 
+    langageDict['ExportMenuCreatorDefault'] = "Sie" 
+    langageDict['ExportMenuTakePreview'] = "Vorschau erstellen" 
+ 
+    #ImportMenu Values :
+    langageDict['ImportMenuTitle'] = "Import" 
+        
+    #HelpMenu Values :
+    langageDict['HelpMenuTitle'] = "Hilfe Menu" 
+    langageDict['HelpMenuLabel01'] = "#Nicht benutzen diese Label." 
+    langageDict['HelpMenuLabel02'] = "Benutzer Hilfe" 
+    langageDict['HelpMenuLabel03'] = "Bald bereit." 
+    langageDict['HelpMenuLabel04'] = "Danke fur ihre Gedult. :-)" 
+    langageDict['HelpMenuLabel05'] = ":-)" 
+    langageDict['HelpMenuLabel06'] = " " 
+    langageDict['HelpMenuLabel07'] = " " 
+    langageDict['HelpMenuLabel08'] = " " 
+    langageDict['HelpMenuLabel09'] = " " 
+    langageDict['HelpMenuLabel10'] = " " 
+    langageDict['HelpMenuLabel11'] = " " 
+    langageDict['HelpMenuLabel12'] = " " 
+    langageDict['HelpMenuLabel13'] = " " 
+    langageDict['HelpMenuLabel14'] = " " 
+    langageDict['HelpMenuLabel15'] = " " 
+    langageDict['HelpMenuLabel16'] = " " 
+    langageDict['HelpMenuLabel17'] = " " 
+    langageDict['HelpMenuLabel18'] = " " 
+    langageDict['HelpMenuLabel19'] = " " 
+    langageDict['HelpMenuLabel20'] = " " 
+    langageDict['HelpMenuLabel21'] = " " 
+    langageDict['HelpMenuLabel22'] = " " 
+    langageDict['HelpMenuLabel23'] = " " 
+    langageDict['HelpMenuLabel24'] = " " 
+    langageDict['HelpMenuLabel25'] = " " 
+    langageDict['HelpMenuLabel26'] = " " 
+    langageDict['HelpMenuLabel27'] = " " 
+    langageDict['HelpMenuLabel28'] = " " 
+    langageDict['HelpMenuLabel29'] = " " 
+    langageDict['HelpMenuLabel30'] = " " 
+    langageDict['HelpMenuLabel31'] = " " 
+    langageDict['HelpMenuLabel32'] = " " 
+    langageDict['HelpMenuLabel33'] = " " 
+    langageDict['HelpMenuLabel34'] = " " 
+    langageDict['HelpMenuLabel35'] = " " 
+    langageDict['HelpMenuLabel36'] = " " 
+    langageDict['HelpMenuLabel37'] = " " 
+    langageDict['HelpMenuLabel38'] = " " 
+    langageDict['HelpMenuLabel39'] = " " 
+    langageDict['HelpMenuLabel40'] = " " 
+
+    return langageDict
+
+
+
+ 
+
+
+
 
 
 
@@ -1215,6 +1140,7 @@ LangageValuesDict = {'PanelName':'',
     'ErrorsMenuError020':''
     }
 
+verify = False
 for value in locale.getdefaultlocale():
     if c == 0:
         langage = value
@@ -1222,25 +1148,17 @@ for value in locale.getdefaultlocale():
     c = c +1
 
 
-
-if platform.system() == 'Windows':
-    langageUserPath = AppPath + "\\lang\\" + langage
-    langageUserPath = os.path.normpath(langageUserPath)
+if langage == 'fr_FR':
+    LangageValuesDict = Langage_fr_FR(LangageValuesDict)   
+    verify = True
     
-    if os.path.exists(langageUserPath) == True:
-        LangageValuesDict = LangageValues(langage, LangageValuesDict)
-    
-    else:
-        LangageValuesDict = LangageValues('en_US', LangageValuesDict)
+if langage == 'de_DE':
+    LangageValuesDict = Langage_de_DE(LangageValuesDict)    
+    verify = True
 
 
-
-else:
-    if os.path.exists(AppPath + "lang/" + langage) == True:
-        LangageValuesDict = LangageValues(langage, LangageValuesDict)
-    
-    else:
-        LangageValuesDict = LangageValues('en_US', LangageValuesDict)
+if verify == False:
+    LangageValuesDict = Langage_en_US(LangageValuesDict)    
 
 
 
