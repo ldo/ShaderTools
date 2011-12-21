@@ -71,16 +71,6 @@ NAME_ACTIVE_MATERIAL = False
 # ************************************************************************************
 # *                                     HERE I UPDATE PATH                           *
 # ************************************************************************************
-value = ""
-DataBasePath = ""
-AppPath = ""
-ExportPath = os.path.dirname(bpy.data.filepath) + "/" # not used anywhere
-ImportPath = os.path.dirname(bpy.data.filepath) # redundant
-ErrorsPath = os.path.dirname(bpy.data.filepath) # redundant
-OutPath = os.path.dirname(bpy.data.filepath) + "/" # redundant
-BlendPath = os.path.dirname(bpy.data.filepath)
-ZipPath = os.path.join(AppPath, 'zip') # redundant
-BlenderPath = bpy.app.binary_path # not used anywhere
 DefaultCreator = "You"
 DefaultDescription = "material description"
 DefaultWeblink = "http://"
@@ -90,45 +80,12 @@ DefaultEmail = "my_email@company.com"
 Resolution_X = 120
 Resolution_Y = 120
 
-
-c = 0
-
-
-
-
-#Blender Path:
-version = bpy.app.version
-majorVersion = 0
-minorVersion = 0
-subVersion = 0
-v = 0
-
-for values in version:
-    if v==0:
-       majorVersion = values
-
-    if v==1:
-        minorVersion = values
-
-    if v==2:
-        subVersion = values
-
-    v = v + 1
-
-
-
-blender_directory = bpy.utils.resource_path('LOCAL', major=majorVersion, minor=minorVersion)
-BlenderPath = blender_directory.replace(str(majorVersion) + "." + str(minorVersion) + "/", 'blender')
-BlenderPath = '"' + BlenderPath + '"'
-
-
+BlendPath = os.path.dirname(bpy.data.filepath)
 AppPath = os.path.join(bpy.utils.script_paths()[0], "addons", "shader_tools")
 ExportPath = os.path.dirname(bpy.data.filepath) # not used anywhere
 ImportPath = os.path.dirname(bpy.data.filepath)
 ErrorsPath = os.path.join(AppPath, "erro")
 OutPath = os.path.join(AppPath, "out")
-
-
 DataBasePath = os.path.join(AppPath, "ShaderToolsDatabase.sqlite")
 ZipPath = os.path.join(AppPath, "zip")
 
