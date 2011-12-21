@@ -81,7 +81,7 @@ Resolution_X = 120
 Resolution_Y = 120
 
 BlendPath = os.path.dirname(bpy.data.filepath)
-AppPath = os.path.join(bpy.utils.script_paths()[0], "addons", "shader_tools")
+AppPath = os.path.join(bpy.utils.user_resource("SCRIPTS"), "addons", "shader_tools")
 ExportPath = os.path.dirname(bpy.data.filepath) # not used anywhere
 ImportPath = os.path.dirname(bpy.data.filepath)
 ErrorsPath = os.path.join(AppPath, "erro")
