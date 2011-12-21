@@ -137,7 +137,7 @@ ZipPath = os.path.join(AppPath, "zip")
 
 
 #Config Path :
-if os.path.exists(os.path.join(AppPath, "config")) == True:
+if os.path.exists(os.path.join(AppPath, "config")) :
     config = open(os.path.join(AppPath, "config"), 'r')
     AppPath = config.readline()
     ExportPath = config.readline()
@@ -196,7 +196,7 @@ BookmarksPathSystem = os.path.join(bpy.utils.resource_path('SYSTEM', major=bpy.a
 
 
 TempPath = os.path.join(AppPath, "temp")
-if os.path.exists(TempPath) == True:
+if os.path.exists(TempPath) :
     files = os.listdir(TempPath)
     for f in files:
         if not os.path.isdir(f) and ".jpg" in f:
@@ -218,7 +218,7 @@ else:
 # ************************************************************************************
 HISTORY_FILE = []
 
-if os.path.exists(os.path.join(AppPath, "history")) == True:
+if os.path.exists(os.path.join(AppPath, "history")) :
     history = open(os.path.join(AppPath, "history"),'r')
     x = 0
     for values in history:
@@ -1130,7 +1130,7 @@ for value in locale.getdefaultlocale():
     c = c +1
 
 
-if os.path.exists(os.path.join(AppPath, "lang", langage)) == True:
+if os.path.exists(os.path.join(AppPath, "lang", langage)) :
     LangageValuesDict = LangageValues(langage, LangageValuesDict)
 
 else:
@@ -2210,7 +2210,7 @@ def ImporterSQL(Mat_Name):
     #I create a new folder contains all textures:
     CopyBlendFolder = ""
     Render_exists = False
-    if os.path.exists(OutPath) == True:
+    if os.path.exists(OutPath) :
         #Here I remove all files in this folder:
         files = os.listdir(OutPath)
         for f in files:
@@ -2298,27 +2298,27 @@ def ImporterSQL(Mat_Name):
     print(LangageValuesDict['ErrorsMenuError001'])
     print(LangageValuesDict['ErrorsMenuError006'])
 
-    if Render_exists == True: #I verify if an image exists
+    if Render_exists : #I verify if an image exists
         CopyBlendFolder = os.path.join(BlendPath, "ShaderToolsImport", Mat_Name)
 
-        if os.path.exists(CopyBlendFolder) == False:
+        if not os.path.exists(CopyBlendFolder) :
             os.makedirs(CopyBlendFolder)
         else:
             c = 1
-            while os.path.exists(CopyBlendFolder) == True:
+            while os.path.exists(CopyBlendFolder) :
                 CopyBlendFolder = os.path.join(BlendPath, "ShaderToolsImport", Mat_Name + "_" + str(c))
                 c = c + 1
 
             os.makedirs(CopyBlendFolder)
 
         #Debug
-        if os.path.exists(CopyBlendFolder) == False:
+        if not os.path.exists(CopyBlendFolder) :
             CopyBlendFolder = os.path.join(AppPath, "ShaderToolsImport")
-            if os.path.exists(CopyBlendFolder) == False:
+            if not os.path.exists(CopyBlendFolder) :
                 os.makedirs(CopyBlendFolder)
 
             CopyBlendFolder = os.path.join(AppPath, "ShaderToolsImport", Mat_Name)
-            if os.path.exists(CopyBlendFolder) == False:
+            if not os.path.exists(CopyBlendFolder) :
                 os.makedirs(CopyBlendFolder)
 
 
@@ -3751,9 +3751,8 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
     tex = bpy.context.active_object.active_material
 
     #Here I verify if Zip Folder exists:
-    if os.path.exists(ZipPath) == False:
+    if not os.path.exists(ZipPath) :
         os.mkdir(ZipPath)
-
 
     #Here I remove all files in Zip Folder:
     files = os.listdir(ZipPath)
@@ -3920,7 +3919,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
             TEX_VALUES_FOR_RAMPS.append(textureNumbers)
 
 
-        if textureName == True:
+        if textureName :
             mytex = ""
             MY_EXPORT_INFORMATIONS.append('\n')
             MY_EXPORT_INFORMATIONS.append('#Create texture : ' + obj.active_material.texture_slots[textureNumbers].name + '.\n')
@@ -4033,7 +4032,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                     #I copy images :
                     save_path = save_path + "_" + str(obj.active_material.texture_slots[textureNumbers].texture.image.name) + ".png"
 
-                    if os.path.exists(save_path) == True:
+                    if os.path.exists(save_path) :
                         os.remove(save_path)
 
                     bpy.data.images[obj.active_material.texture_slots[textureNumbers].texture.image.name].save_render(filepath=save_path)
@@ -4214,7 +4213,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
     MY_EXPORT_INFORMATIONS.append('RAMP_MAX_POSITION = 1.0\n\n')
 
     #Here my diffuse ramp :
-    if ramp.use_diffuse_ramp == True:
+    if ramp.use_diffuse_ramp :
 
         counter = 0
         loop = 0
@@ -4277,7 +4276,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
 
 
     #Here my specular ramp :
-    if ramp.use_specular_ramp == True:
+    if ramp.use_specular_ramp :
 
         counter = 0
         loop = 0
@@ -4352,17 +4351,11 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
         textureNumbers = textureNumbers + 1
         textureNumberSlot = textureNumberSlot + 1
 
-        if textureName == None:
-            texureName = False
-
-        else:
-            textureName = True
-
-        if textureName == True:
+        if textureName != None :
 
 
             #If my texture slot it's created and ramp color it's used do :
-            if ramp.texture_slots[textureNumbers].texture.use_color_ramp == True:
+            if ramp.texture_slots[textureNumbers].texture.use_color_ramp :
 
                 counter = 0
                 loop = 0
@@ -4446,13 +4439,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
         textureNumbers = textureNumbers + 1
         textureNumberSlot = textureNumberSlot + 1
 
-        if textureName == None:
-            texureName = False
-
-        else:
-            textureName = True
-
-        if textureName == True:
+        if textureName != None :
 
 
             #If my texture slot it's created and point density ramp it's used do :
@@ -4566,7 +4553,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
 
 
     #I create or the preview file:
-    if TakePreview == True:
+    if TakePreview :
         MyPreviewResult = TakePreviewRender(Inf_Creator, Mat_Name)
         PreviewFilePath = File_Path + "_" + Inf_Creator + ".jpg"
         imageFileJPG = open(PreviewFilePath,'wb')
@@ -4602,13 +4589,13 @@ def Raw_Image_Path(Image_Path):
 
     SaveOriginalPath = Image_Path
 
-    if os.path.exists(Image_Path) == False:
+    if not os.path.exists(Image_Path) :
         Image_Path = os.path.join(BlendPath, Image_Path)
 
-    if os.path.exists(Image_Path) == False:
+    if not os.path.exists(Image_Path) :
         Image_Path = '~' + SaveOriginalPath
 
-    if os.path.exists(Image_Path) == False:
+    if not os.path.exists(Image_Path) :
         SaveOriginalName = SaveOriginalName.replace("'", "")
         print(LangageValuesDict['ErrorsMenuError009'] + '"' + SaveOriginalName + '"')
         print(LangageValuesDict['ErrorsMenuError010'])
@@ -5014,7 +5001,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
     for values in MY_MATERIAL:
         if values == False or values == None:
             MY_MATERIAL[counter] = 0
-
         if values == True:
             MY_MATERIAL[counter] = 1
 
@@ -5066,13 +5052,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
     for textureName in tex.texture_slots.values():
         textureNumbers = textureNumbers + 1
 
-        if textureName == None:
-            texureName = False
-
-        else:
-            textureName = True
-
-        if textureName == True:
+        if textureName != None :
             MyPrimaryKeys = GetKeysDatabase()
             Tex_Index = MyPrimaryKeys[2]
             Mat_Idx = MyPrimaryKeys[1]-1
@@ -5211,7 +5191,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                     save_path = os.path.join(AppPath, save_name.replace('.', '') + ".png")
 
 
-                    if os.path.exists(save_path) == True:
+                    if os.path.exists(save_path) :
                         os.remove(save_path)
 
                     bpy.data.images[save_name].save_render(filepath=save_path)
@@ -5324,7 +5304,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
 
                 Tex_ima_filepath = Tex_ima_filepath.replace("'", "")
 
-                if os.path.exists(Tex_ima_filepath) == True:
+                if os.path.exists(Tex_ima_filepath) :
                    os.remove(Tex_ima_filepath)
 
                 print(LangageValuesDict['ErrorsMenuError004'])
@@ -5940,7 +5920,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
 
 
             #Here my color ramp :
-            if ramp.use_color_ramp == True:
+            if ramp.use_color_ramp :
 
                 counter = 0
                 loop = 0
@@ -6355,7 +6335,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
 
 
     #Here my diffuse ramp :
-    if ramp.use_diffuse_ramp == True:
+    if ramp.use_diffuse_ramp :
 
         counter = 0
         loop = 0
@@ -6563,7 +6543,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
 
 
     #Here my specular ramp :
-    if ramp.use_specular_ramp == True:
+    if ramp.use_specular_ramp :
 
         counter = 0
         loop = 0
@@ -6977,7 +6957,7 @@ def UpdateDatabase(Inf_Creator, Inf_Category, Inf_Description, Inf_Weblink, Inf_
 
     #I insert Render Preview in the base :
     value = 0
-    if bpy.context.scene.render.use_color_management == True:
+    if bpy.context.scene.render.use_color_management :
         value = 1
 
     PreviewImage = TakePreviewRender(Inf_Creator, Mat_Name)
@@ -7008,7 +6988,7 @@ def UpdateDatabase(Inf_Creator, Inf_Category, Inf_Description, Inf_Weblink, Inf_
 def SearchShaders(self, context):
 
     #I must verify if search file not exist :
-    if os.path.exists(os.path.join(TempPath, "searching")) == False:
+    if not os.path.exists(os.path.join(TempPath, "searching")) :
 
         #I create file until user do not cancel or valid choice :
         searchFile = open(os.path.join(TempPath, "searching"), 'w')
@@ -7016,7 +6996,7 @@ def SearchShaders(self, context):
 
 
         #Here I remove all files in the Tempory Folder:
-        if os.path.exists(TempPath) == True:
+        if os.path.exists(TempPath) :
             files = os.listdir(TempPath)
             for f in files:
                 if not os.path.isdir(f) and ".jpg" in f:
@@ -7061,7 +7041,7 @@ def SearchShaders(self, context):
 def SearchShadersEnum(self, context):
 
     #I must verify if search file not exist :
-    if os.path.exists(os.path.join(TempPath, "searching")) == False:
+    if not os.path.exists(os.path.join(TempPath, "searching")) :
 
         #I create file until user do not cancel or valid choice :
         searchFile = open(os.path.join(TempPath, "searching"), 'w')
@@ -7069,12 +7049,11 @@ def SearchShadersEnum(self, context):
 
 
         #Here I remove all files in the Tempory Folder:
-        if os.path.exists(TempPath) == True:
+        if os.path.exists(TempPath) :
             files = os.listdir(TempPath)
             for f in files:
                 if not os.path.isdir(f) and ".jpg" in f:
                     os.remove(os.path.join(TempPath, f))
-
         else:
             os.makedirs(TempPath)
 
@@ -7196,14 +7175,14 @@ class OpenShaders(bpy.types.Operator):
     def execute(self, context):
         selectedFile = self.filename.replace('.jpg', '')
 
-        if os.path.exists(os.path.join(TempPath, "searching")) == True:
+        if os.path.exists(os.path.join(TempPath, "searching")) :
             os.remove(os.path.join(TempPath, "searching"))
 
 
         #I update history file (in config file):
         #print(os.path.join(AppPath, "history"))
         History_save = []
-        if os.path.exists(os.path.join(AppPath, "history")) == True and selectedFile is not '' and selectedFile is not '\n':
+        if os.path.exists(os.path.join(AppPath, "history")) and selectedFile is not '' and selectedFile is not '\n':
             history = open(os.path.join(AppPath, "history"),'r')
             for l in history:
                 History_save.append(l)
@@ -7340,7 +7319,7 @@ class OpenShaders(bpy.types.Operator):
 
 
 
-        if os.path.exists(os.path.join(AppPath, "first")) == True:
+        if os.path.exists(os.path.join(AppPath, "first")) :
             bpy.ops.object.warning('INVOKE_DEFAULT')
             os.remove(os.path.join(AppPath, "first"))
             time.sleep(1)
@@ -7558,7 +7537,7 @@ def Importer(File_Path, Mat_Name):
     print(LangageValuesDict['ErrorsMenuError006'])
 
     #Here I verify if Zip Folder exists:
-    if os.path.exists(ZipPath) == False:
+    if not os.path.exists(ZipPath) :
         os.makedirs(ZipPath)
 
     #Here I remove all files in Zip Folder:
@@ -7593,7 +7572,7 @@ def Importer(File_Path, Mat_Name):
     CopyBlendFolder = os.path.join(ImportPath, "ShaderToolsImport")
 
 
-    if os.path.exists(CopyBlendFolder) == False:
+    if not os.path.exists(CopyBlendFolder) :
         os.makedirs(CopyBlendFolder)
 
 
@@ -7603,12 +7582,12 @@ def Importer(File_Path, Mat_Name):
     CopyMatFolder = CopyMatFolder.replace('.blex', '')
     Mat_Name_folder = Mat_Name.replace('.blex', '')
 
-    if os.path.exists(CopyMatFolder) == False:
+    if not os.path.exists(CopyMatFolder) :
         os.makedirs(CopyMatFolder)
 
     else:
         c = 1
-        while os.path.exists(CopyMatFolder) == True:
+        while os.path.exists(CopyMatFolder) :
             CopyMatFolder = os.path.join(ImportPath, "ShaderToolsImport", Mat_Name_folder + '_' + str(c))
             c = c + 1
 
@@ -7822,7 +7801,7 @@ class SaveCurrentConfiguration(bpy.types.Operator):
     Inf_Weblink = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuWebLinkLabel'], default=DefaultWeblink)
     Inf_Email = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuEmailLabel'], default=DefaultEmail)
 
-    if NAME_ACTIVE_MATERIAL == True:
+    if NAME_ACTIVE_MATERIAL :
         Mat_Name = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuName'], default=bpy.context.object.active_material.name)
 
     else:
@@ -8004,7 +7983,7 @@ class Configuration(bpy.types.Operator):
     Inf_Weblink = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuWebLinkLabel'], default=DefaultWeblink)
     Inf_Email = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuEmailLabel'], default=DefaultEmail)
 
-    if NAME_ACTIVE_MATERIAL == True:
+    if NAME_ACTIVE_MATERIAL :
         Mat_Name = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuName'], default=bpy.context.object.active_material.name)
 
     else:
@@ -8097,10 +8076,10 @@ class CreateNew(bpy.types.Operator):
     def execute(self, context):
 
         #I delete old modele and I copy new empty modele:
-        if os.path.exists(os.path.join(AppPath, "env_base_save.blend")) == True:
+        if os.path.exists(os.path.join(AppPath, "env_base_save.blend")) :
             os.remove(os.path.join(AppPath, "env_base_save.blend"))
 
-        if os.path.exists(os.path.join(AppPath, "env_base_save")) == True:
+        if os.path.exists(os.path.join(AppPath, "env_base_save")) :
             shutil.copy2(os.path.join(AppPath, "env_base_save"), os.path.join(AppPath + "env_base_save.blend"))
 
 
@@ -8191,7 +8170,7 @@ def unregister():
 
 #Create a new configuration file:
 #Bookmarks USER
-if os.path.exists(BookmarksPathUser) == True:
+if os.path.exists(BookmarksPathUser) :
 
     shutil.copy2(BookmarksPathUser, BookmarksPathUser+"_2")
     value = ""
@@ -8202,7 +8181,7 @@ if os.path.exists(BookmarksPathUser) == True:
 
     shaderFolderPath = os.path.join(AppPath, LangageValuesDict['BookmarksMenuName'])
     #I verify Shader tempory File is correcly created:
-    if os.path.exists(shaderFolderPath) == False :
+    if not os.path.exists(shaderFolderPath) :
         os.mkdir(shaderFolderPath)
 
 
@@ -8222,7 +8201,7 @@ if os.path.exists(BookmarksPathUser) == True:
             bookmarks_category = False
 
 
-        if bookmarks_category == True:
+        if bookmarks_category :
 
 
             if value in shaderFolderPath or value == shaderFolderPath + "\n":
@@ -8232,7 +8211,7 @@ if os.path.exists(BookmarksPathUser) == True:
     bookmarkspathfile.close()
 
     #I create new bookmarks file and I active windows warning:
-    if updateInformation == True:
+    if updateInformation :
         os.remove(BookmarksPathUser)
         bookmarkspathfile = open(BookmarksPathUser,'w')
         for value in MY_BOOKMARKS_FILE:
@@ -8247,7 +8226,7 @@ if os.path.exists(BookmarksPathUser) == True:
 
         bookmarkspathfile.close()
 
-        if os.path.exists(os.path.join(AppPath, "first")) == False:
+        if not os.path.exists(os.path.join(AppPath, "first")) :
             firstFile = open(os.path.join(AppPath, "first"),'w')
             firstFile.close()
 
@@ -8255,7 +8234,7 @@ if os.path.exists(BookmarksPathUser) == True:
 
 
 #Bookmarks SYSTEM
-if os.path.exists(BookmarksPathSystem) == True:
+if os.path.exists(BookmarksPathSystem) :
 
     shutil.copy2(BookmarksPathSystem, BookmarksPathSystem+"_2")
     value = ""
@@ -8267,7 +8246,7 @@ if os.path.exists(BookmarksPathSystem) == True:
 
     shaderFolderPath = os.path.join(AppPath, LangageValuesDict['BookmarksMenuName'])
     #I verify Shader tempory File is correcly created:
-    if os.path.exists(shaderFolderPath) == False :
+    if not os.path.exists(shaderFolderPath) :
         os.mkdir(shaderFolderPath)
 
 
@@ -8286,7 +8265,7 @@ if os.path.exists(BookmarksPathSystem) == True:
             bookmarks_category = False
 
 
-        if bookmarks_category == True:
+        if bookmarks_category :
 
 
             if value in shaderFolderPath or value == shaderFolderPath + "\n":
@@ -8296,7 +8275,7 @@ if os.path.exists(BookmarksPathSystem) == True:
     bookmarkspathfile.close()
 
     #I create new bookmarks file and I active windows warning:
-    if updateInformation == True:
+    if updateInformation :
         os.remove(BookmarksPathUser)
         bookmarkspathfile = open(BookmarksPathUser,'w')
         for value in MY_BOOKMARKS_FILE:
@@ -8311,7 +8290,7 @@ if os.path.exists(BookmarksPathSystem) == True:
 
         bookmarkspathfile.close()
 
-        if os.path.exists(os.path.join(AppPath, "first")) == False:
+        if not os.path.exists(os.path.join(AppPath, "first")) :
             firstFile = open(os.path.join(AppPath, "first"),'w')
             firstFile.close()
 
@@ -8320,7 +8299,7 @@ if os.path.exists(BookmarksPathSystem) == True:
 
 
 #Delete Bookmark Preview Jpg:
-if os.path.exists(shaderFolderPath) == True:
+if os.path.exists(shaderFolderPath) :
     files = os.listdir(shaderFolderPath)
     for f in files:
         if not os.path.isdir(f) and ".jpg" in f:
