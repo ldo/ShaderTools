@@ -299,11 +299,121 @@ if os.path.exists(os.path.join(AppPath, "lang", language)) :
 else:
     LoadLanguageValues('en_US', LanguageValuesDict)
 
+#+
+# Database stuff
+#-
+
+def SQLIter(Conn, Cmd, MapFn = lambda x : x) :
+    """executes cmd on a new cursor from connection Conn and yields
+    the results in turn."""
+    cu = Conn.cursor()
+    cu.execute(Cmd)
+    while True :
+        # yield MapFn(cu.next()) # pre Python 3
+        next = cu.fetchone() # Python 3
+        if next == None :
+            raise StopIteration
+        #end if
+        yield MapFn(next)
+    #end while
+#end SQLIter
+
+def SQLString(s) :
+    """returns an sqlite string literal that evalutes to s."""
+    if s != None :
+        q = "'" + str(s).replace("'", "''") + "'"
+    else :
+        q = "null"
+    #end if
+    return q
+#end SQLString
+
+def GetEachRecord(Conn, TableName, Fields, Condition = None, Values = None, Extra = None) :
+    """generator which does an SQL query which can return 0 or more
+    result rows, yielding each record in turn as a mapping from field
+    name to field value. Extra allows specification of order/group
+    clauses."""
+    Cmd = \
+      (
+            "select "
+        +
+            ", ".join(Fields)
+        +
+            " from "
+        +
+            TableName
+      )
+    if Condition != None :
+        if Values != None :
+            if type(Values) == dict :
+                Condition = \
+                    (
+                        Condition
+                    %
+                        dict
+                          (
+                            (FieldName, SQLString(Values[FieldName])) for FieldName in Values.keys()
+                          )
+                    )
+            else : # assume list or tuple
+                Condition = Condition % tuple(SQLString(Value) for Value in Values)
+            #end if
+        #end if
+        Cmd += " where " + Condition
+    #end if
+    if Extra != None :
+        Cmd += " " + Extra
+    #end if
+    return SQLIter \
+      (
+        Conn = Conn,
+        Cmd = Cmd,
+        MapFn = lambda Row : dict(zip(Fields, Row))
+      )
+#end GetEachRecord
+
+def GetRecords(Conn, TableName, Fields = None, Condition = None, Values = None, Extra = None, FieldDefs = None) :
+    if Fields == None :
+        Fields = FieldDefs.keys()
+    #end if
+    Result = list(GetEachRecord(Conn, TableName, Fields, Condition, Values, Extra))
+    if FieldDefs != None :
+        for record in Result :
+            for field in record :
+                if "convert" in FieldDefs[field] :
+                    record[field] = FieldDefs[field]["convert"](record[field])
+                #end if
+            #end for
+        #end for
+    #end if
+    return Result
+#end GetRecords
+
+image_uv_fields = \
+    (
+        "Ima_Index",
+        "Idx_Texture",
+        "Ima_Name",
+        "Ima_Source",
+        "Ima_Filepath",
+        "Ima_Fileformat",
+        "Ima_Fields",
+        "Ima_Premultiply",
+        "Ima_Fields_order",
+        "Ima_Generated_type",
+        "Ima_Generated_width",
+        "Ima_Generated_height",
+        "Ima_Float_buffer",
+        "Ima_Blob",
+    )
+
 
 # ************************************************************************************
 # *                                    IMPORTER SQL                                  *
 # ************************************************************************************
-def ImporterSQL(Mat_Name):
+def ImporterSQL(SearchName):
+    # imports the material with the specified name from the database, and attaches
+    # it to the current object (there must be one).
 
     print()
     print("                                        *****                         ")
@@ -312,1062 +422,587 @@ def ImporterSQL(Mat_Name):
     print("*                                IMPORT BASE MATERIAL                         *")
     print("*******************************************************************************")
 
+    tobool = lambda x : x == 1 # convertor for boolean-valued fields
+    material_fields = \
+        { # key is database field name, value is dict with following fields:
+          # "attr" : identifies Blender object attribute corresponding to this field value
+          # "convert" : optional type conversion function
+            "Mat_Index" : {},
+            "Mat_Name" : {},
+            "Mat_Type" : {},
+            # entries below with no "attr" keys in their dicts are unused!
+            "Mat_Preview_render_type" : {},
+            "Mat_diffuse_color_r" : {"attr" : ("diffuse_color", 0)},
+            "Mat_diffuse_color_g" : {"attr" : ("diffuse_color", 1)},
+            "Mat_diffuse_color_b" : {"attr" : ("diffuse_color", 2)},
+            "Mat_diffuse_color_a" : {},
+            "Mat_diffuse_shader" : {"attr" : ("diffuse_shader",)},
+            "Mat_diffuse_intensity" : {"attr" : ("diffuse_intensity",)},
+            "Mat_use_diffuse_ramp" : {},
+            "Mat_diffuse_roughness" : {"attr" : ("roughness",)},
+            "Mat_diffuse_toon_size" : {"attr" : ("diffuse_toon_size",)},
+            "Mat_diffuse_toon_smooth" : {"attr" : ("diffuse_toon_smooth",)},
+            "Mat_diffuse_darkness" : {"attr" : ("darkness",)},
+            "Mat_diffuse_fresnel" : {"attr" : ("diffuse_fresnel",)},
+            "Mat_diffuse_fresnel_factor" : {"attr" : ("diffuse_fresnel_factor",)},
+            "Mat_specular_color_r" : {"attr" : ("specular_color", 0)},
+            "Mat_specular_color_g" : {"attr" : ("specular_color", 1)},
+            "Mat_specular_color_b" : {"attr" : ("specular_color", 2)},
+            "Mat_specular_color_a" : {},
+            "Mat_specular_shader" : {"attr" : ("specular_shader",)},
+            "Mat_specular_intensity" : {"attr" : ("specular_intensity",)},
+            "Mat_specular_ramp" : {},
+            "Mat_specular_hardness" : {"attr" : ("specular_hardness",)},
+            "Mat_specular_ior" : {"attr" : ("specular_ior",)},
+            "Mat_specular_toon_size" : {"attr" : ("specular_toon_size",)},
+            "Mat_specular_toon_smooth" : {"attr" : ("specular_toon_smooth",)},
+            "Mat_shading_emit" : {"attr" : ("emit",)},
+            "Mat_shading_ambient" : {"attr" : ("ambient",)},
+            "Mat_shading_translucency" : {"attr" : ("translucency",)},
+            "Mat_shading_use_shadeless" : {"attr" : ("use_shadeless",)},
+            "Mat_shading_use_tangent_shading" : {"attr" : ("use_tangent_shading",)},
+            "Mat_shading_use_cubic" : {},
+            "Mat_transparency_use_transparency" : {"attr" : ("use_transparency",)},
+            "Mat_transparency_method" : {"attr" : ("transparency_method",)},
+            "Mat_transparency_alpha" : {"attr" : ("alpha",)},
+            "Mat_transparency_fresnel" : {"attr" : ("raytrace_transparency.fresnel",)},
+            "Mat_transparency_specular_alpha" : {"attr" : ("specular_alpha",)},
+            "Mat_transparency_fresnel_factor" : {"attr" : ("raytrace_transparency.fresnel_factor",)},
+            "Mat_transparency_ior" : {"attr" : ("raytrace_transparency.ior",)},
+            "Mat_transparency_filter" : {"attr" : ("raytrace_transparency.filter",)},
+            "Mat_transparency_falloff" : {"attr" : ("raytrace_transparency.falloff",)},
+            "Mat_transparency_depth_max" : {"attr" : ("raytrace_transparency.depth_max",)},
+            "Mat_transparency_depth" : {"attr" : ("raytrace_transparency.depth",)},
+            "Mat_transparency_gloss_factor" : {"attr" : ("raytrace_transparency.gloss_factor",)},
+            "Mat_transparency_gloss_threshold" : {"attr" : ("raytrace_transparency.gloss_threshold",)},
+            "Mat_transparency_gloss_samples" : {"attr" : ("raytrace_transparency.gloss_samples",)},
+            "Mat_raytracemirror_use" : {"attr" : ("raytrace_mirror.use",)},
+            "Mat_raytracemirror_reflect_factor" : {"attr" : ("raytrace_mirror.reflect_factor",)},
+            "Mat_raytracemirror_fresnel" : {"attr" : ("raytrace_mirror.fresnel",)},
+            "Mat_raytracemirror_color_r" : {"attr" : ("mirror_color", 0)},
+            "Mat_raytracemirror_color_g" : {"attr" : ("mirror_color", 1)},
+            "Mat_raytracemirror_color_b" : {"attr" : ("mirror_color", 2)},
+            "Mat_raytracemirror_color_a" : {},
+            "Mat_raytracemirror_fresnel_factor" : {"attr" : ("raytrace_mirror.fresnel_factor",)},
+            "Mat_raytracemirror_depth" : {"attr" : ("raytrace_mirror.depth",)},
+            "Mat_raytracemirror_distance" : {"attr" : ("raytrace_mirror.distance",)},
+            "Mat_raytracemirror_fade_to" : {"attr" : ("raytrace_mirror.fade_to",)},
+            "Mat_raytracemirror_gloss_factor" : {"attr" : ("raytrace_mirror.gloss_factor",)},
+            "Mat_raytracemirror_gloss_threshold" : {"attr" : ("raytrace_mirror.gloss_threshold",)},
+            "Mat_raytracemirror_gloss_samples" : {"attr" : ("raytrace_mirror.gloss_samples",)},
+            "Mat_raytracemirror_gloss_anisotropic" : {"attr" : ("raytrace_mirror.gloss_anisotropic",)},
+            "Mat_subsurfacescattering_use" : {"attr" : ("subsurface_scattering.use",)},
+            "Mat_subsurfacescattering_presets" : {},
+            "Mat_subsurfacescattering_ior" : {"attr" : ("subsurface_scattering.ior",)},
+            "Mat_subsurfacescattering_scale" : {"attr" : ("subsurface_scattering.scale",)},
+            "Mat_subsurfacescattering_color_r" : {"attr" : ("subsurface_scattering.color", 0)},
+            "Mat_subsurfacescattering_color_g" : {"attr" : ("subsurface_scattering.color", 1)},
+            "Mat_subsurfacescattering_color_b" : {"attr" : ("subsurface_scattering.color", 2)},
+            "Mat_subsurfacescattering_color_a" : {},
+            "Mat_subsurfacescattering_color_factor" : {"attr" : ("subsurface_scattering.color_factor",)},
+            "Mat_subsurfacescattering_texture_factor" : {"attr" : ("subsurface_scattering.texture_factor",)},
+            "Mat_subsurfacescattering_radius_one" : {"attr" : ("subsurface_scattering.radius", 0)},
+            "Mat_subsurfacescattering_radius_two" : {"attr" : ("subsurface_scattering.radius", 1)},
+            "Mat_subsurfacescattering_radius_three" : {"attr" : ("subsurface_scattering.radius", 2)},
+            "Mat_subsurfacescattering_front" : {"attr" : ("subsurface_scattering.front",)},
+            "Mat_subsurfacescattering_back" : {"attr" : ("subsurface_scattering.back",)},
+            "Mat_subsurfacescattering_error_threshold" : {"attr" : ("subsurface_scattering.error_threshold",)},
+            "Mat_strand_root_size" : {"attr" : ("strand.root_size",)},
+            "Mat_strand_tip_size" : {"attr" : ("strand.tip_size",)},
+            "Mat_strand_size_min" : {"attr" : ("strand.size_min",)},
+            "Mat_strand_blender_units" : {"attr" : ("strand.use_blender_units",)},
+            "Mat_strand_use_tangent_shading" : {"attr" : ("strand.use_tangent_shading",)},
+            "Mat_strand_shape" : {"attr" : ("strand.shape",)},
+            "Mat_strand_width_fade" : {"attr" : ("strand.width_fade",)},
+            "Mat_strand_blend_distance" : {"attr" : ("strand.blend_distance",)},
+            "Mat_options_use_raytrace" : {"attr" : ("use_raytrace",)},
+            "Mat_options_use_full_oversampling" : {"attr" : ("use_full_oversampling",)},
+            "Mat_options_use_sky" : {"attr" : ("use_sky",)},
+            "Mat_options_use_mist" : {"attr" : ("use_mist",)},
+            "Mat_options_invert_z" : {"attr" : ("invert_z",)},
+            "Mat_options_offset_z" : {"attr" : ("offset_z",)},
+            "Mat_options_use_face_texture" : {"attr" : ("use_face_texture",)},
+            "Mat_options_use_texture_alpha" : {"attr" : ("use_face_texture_alpha",)},
+            "Mat_options_use_vertex_color_paint" : {"attr" : ("use_vertex_color_paint",)},
+            "Mat_options_use_vertex_color_light" : {"attr" : ("use_vertex_color_light",)},
+            "Mat_options_use_object_color" : {"attr" : ("use_object_color",)},
+            "Mat_options_pass_index" : {"attr" : ("pass_index",)},
+            "Mat_shadow_use_shadows" : {"attr" : ("use_shadows",)},
+            "Mat_shadow_use_transparent_shadows" : {"attr" : ("use_transparent_shadows",)},
+            "Mat_shadow_use_cast_shadows_only" : {"attr" : ("use_cast_shadows_only",)},
+            "Mat_shadow_shadow_cast_alpha" : {"attr" : ("shadow_cast_alpha",)},
+            "Mat_shadow_use_only_shadow" : {"attr" : ("use_only_shadow",)},
+            "Mat_shadow_shadow_only_type" : {"attr" : ("shadow_only_type",)},
+            "Mat_shadow_use_cast_buffer_shadows" : {"attr" : ("use_cast_buffer_shadows",)},
+            "Mat_shadow_shadow_buffer_bias" : {"attr" : ("shadow_buffer_bias",)},
+            "Mat_shadow_use_ray_shadow_bias" : {"attr" : ("use_ray_shadow_bias",)},
+            "Mat_shadow_shadow_ray_bias" : {"attr" : ("shadow_ray_bias",)},
+            "Mat_shadow_use_cast_approximate" : {"attr" : ("use_cast_approximate",)},
+            "Idx_ramp_diffuse" : {},
+            "Idx_ramp_specular" : {},
+            "Idx_textures" : {},
+        }
+    for \
+        field \
+    in \
+        (
+            "Mat_use_diffuse_ramp",
+            "Mat_specular_ramp",
+            "Mat_shading_use_shadeless",
+            "Mat_shading_use_cubic",
+            "Mat_shading_use_tangent_shading",
+            "Mat_shading_use_cubic",
+            "Mat_transparency_use_transparency",
+            "Mat_raytracemirror_use",
+            "Mat_subsurfacescattering_use",
+            "Mat_strand_blender_units",
+            "Mat_strand_use_tangent_shading",
+            "Mat_options_use_raytrace",
+            "Mat_options_use_full_oversampling",
+            "Mat_options_use_sky",
+            "Mat_options_use_mist",
+            "Mat_options_invert_z",
+            "Mat_options_use_face_texture",
+            "Mat_options_use_texture_alpha",
+            "Mat_options_use_vertex_color_paint",
+            "Mat_options_use_vertex_color_light",
+            "Mat_options_use_object_color",
+            "Mat_shadow_use_shadows",
+            "Mat_shadow_use_transparent_shadows",
+            "Mat_shadow_use_cast_shadows_only",
+            "Mat_shadow_use_only_shadow",
+            "Mat_shadow_use_cast_buffer_shadows",
+        ) \
+    :
+        material_fields[field]["convert"] = tobool
+    #end for
 
+    texture_fields = \
+        { # key is database field name, value is dict with following fields:
+          # "attr" : identifies Blender object attribute corresponding to this field value
+          # "convert" : optional type conversion function
+          # "type": optional field indicating attribute is specific to a texture type
+            "Tex_Index" : {},
+            "Tex_Name" : {},
+            "Tex_Type" : {},
+            "Tex_Preview_type" : {},
+            "Tex_use_preview_alpha" : {"attr" : ("texture.use_preview_alpha",)},
+            "Tex_type_blend_progression" : {"attr" : ("texture.progression",)},
+            "Tex_type_blend_use_flip_axis" : {"attr" : ("texture.use_flip_axis",)},
+            "Tex_type_clouds_cloud_type" : {"attr" : ("texture.cloud_type",)},
+            "Tex_type_clouds_noise_type" : {"attr" : ("texture.noise_type",)},
+            "Tex_type_clouds_noise_basis" : {"attr" : ("texture.noise_basis",)},
+            "Tex_type_noise_distortion" : {},
+            "Tex_type_env_map_source" : {"attr" : ("texture.environment_map.source",)},
+            "Tex_type_env_map_mapping" : {"attr" : ("texture.environment_map.mapping",)},
+            "Tex_type_env_map_clip_start" : {"attr" : ("texture.environment_map.clip_start",)},
+            "Tex_type_env_map_clip_end" : {"attr" : ("texture.environment_map.clip_end",)},
+            "Tex_type_env_map_resolution" : {"attr" : ("texture.environment_map.resolution",)},
+            "Tex_type_env_map_depth" : {"attr" : ("texture.environment_map.depth",)},
+            "Tex_type_env_map_image_file" : {},
+            "Tex_type_env_map_zoom" : {"attr" : ("texture.environment_map.zoom",)},
+            "Tex_type_magic_depth" : {"attr" : ("texture.noise_depth",)},
+            "Tex_type_magic_turbulence" : {"attr" : ("texture.turbulence",)},
+            "Tex_type_marble_marble_type" : {"attr" : ("texture.marble_type",)},
+            "Tex_type_marble_noise_basis_2" : {"attr" : ("texture.noise_basis_2",)},
+            "Tex_type_marble_noise_type" : {"attr" : ("texture.noise_type",)},
+            "Tex_type_marble_noise_basis" : {"attr" : ("texture.noise_basis",)},
+            "Tex_type_marble_noise_scale" : {"attr" : ("texture.noise_scale",)},
+            "Tex_type_marble_noise_depth" : {"attr" : ("texture.noise_depth",)},
+            "Tex_type_marble_turbulence" : {"attr" : ("texture.turbulence",)},
+            "Tex_type_marble_nabla" : {"attr" : ("texture.nabla",)},
+            "Tex_type_musgrave_type" : {"attr" : ("texture.musgrave_type",)},
+            "Tex_type_musgrave_dimension_max" : {"attr" : ("texture.dimension_max",)},
+            "Tex_type_musgrave_lacunarity" : {"attr" : ("texture.lacunarity",)},
+            "Tex_type_musgrave_octaves" : {"attr" : ("texture.octaves",)},
+            "Tex_type_musgrave_noise_intensity" : {"attr" : ("texture.noise_intensity",)},
+            "Tex_type_musgrave_noise_basis" : {"attr" : ("texture.noise_basis",)},
+            "Tex_type_musgrave_noise_scale" : {"attr" : ("texture.noise_scale",)},
+            "Tex_type_musgrave_nabla" : {"attr" : ("texture.nabla",)},
+            "Tex_type_musgrave_offset" : {"attr" : ("texture.offset",)},
+            "Tex_type_musgrave_gain" : {"attr" : ("texture.gain",)},
+            "Tex_type_clouds_noise_scale" : {"attr" : ("texture.noise_scale",)},
+            "Tex_type_clouds_nabla" : {"attr" : ("texture.nabla",)},
+            "Tex_type_clouds_noise_depth" : {"attr" : ("texture.noise_depth",)},
+            "Tex_type_noise_distortion_distortion" : {"attr" : ("texture.distortion",)},
+            "Tex_type_noise_distortion_texture_distortion" : {},
+            "Tex_type_noise_distortion_nabla" : {"attr" : ("texture.nabla",)},
+            "Tex_type_noise_distortion_noise_scale" : {"attr" : ("texture.noise_scale",)},
+            "Tex_type_point_density_point_source" : {"attr" : ("texture.point_density.point_source",)},
+            "Tex_type_point_density_radius" : {"attr" : ("texture.point_density.radius",)},
+            "Tex_type_point_density_particule_cache_space" : {"attr" : ("texture.point_density.particle_cache_space",)},
+            "Tex_type_point_density_falloff" : {"attr" : ("texture.point_density.falloff",)},
+            "Tex_type_point_density_use_falloff_curve" : {"attr" : ("texture.point_density.use_falloff_curve",)},
+            "Tex_type_point_density_falloff_soft" : {"attr" : ("texture.point_density.falloff_soft",)},
+            "Tex_type_point_density_falloff_speed_scale" : {"attr" : ("texture.point_density.falloff_speed_scale",)},
+            "Tex_type_point_density_speed_scale" : {"attr" : ("texture.point_density.speed_scale",)},
+            "Tex_type_point_density_color_source" : {"attr" : ("texture.point_density.color_source",)},
+            "Tex_type_stucci_type" : {"attr" : ("texture.stucci_type",)},
+            "Tex_type_stucci_noise_type" : {"attr" : ("texture.noise_type",)},
+            "Tex_type_stucci_basis" : {"attr" : ("texture.noise_basis",)},
+            "Tex_type_stucci_noise_scale" : {"attr" : ("texture.noise_scale",)},
+            "Tex_type_stucci_turbulence" : {"attr" : ("texture.turbulence",)},
+            "Tex_type_voronoi_distance_metric" : {"attr" : ("texture.distance_metric",)},
+            "Tex_type_voronoi_minkovsky_exponent" : {"attr" : ("texture.minkovsky_exponent",)},
+            "Tex_type_voronoi_color_mode" : {"attr" : ("texture.color_mode",)},
+            "Tex_type_voronoi_noise_scale" : {"attr" : ("texture.noise_scale",)},
+            "Tex_type_voronoi_nabla" : {"attr" : ("texture.nabla",)},
+            "Tex_type_voronoi_weight_1" : {"attr" : ("texture.weight_1",)},
+            "Tex_type_voronoi_weight_2" : {"attr" : ("texture.weight_2",)},
+            "Tex_type_voronoi_weight_3" : {"attr" : ("texture.weight_3",)},
+            "Tex_type_voronoi_weight_4" : {"attr" : ("texture.weight_4",)},
+            "Tex_type_voxel_data_file_format" : {"attr" : ("texture.voxel_data.file_format",)},
+            "Tex_type_voxel_data_source_path" : {"attr" : ("texture.voxel_data.filepath",)},
+            "Tex_type_voxel_data_use_still_frame" : {"attr" : ("texture.voxel_data.use_still_frame",)},
+            "Tex_type_voxel_data_still_frame" : {"attr" : ("texture.voxel_data.still_frame",)},
+            "Tex_type_voxel_data_interpolation" : {"attr" : ("texture.voxel_data.interpolation",)},
+            "Tex_type_voxel_data_extension" : {"attr" : ("texture.voxel_data.extension",)},
+            "Tex_type_voxel_data_intensity" : {"attr" : ("texture.voxel_data.intensity",)},
+            "Tex_type_voxel_data_resolution_1" : {"attr" : ("texture.voxel_data.resolution", 0)},
+            "Tex_type_voxel_data_resolution_2" : {"attr" : ("texture.voxel_data.resolution", 1)},
+            "Tex_type_voxel_data_resoltion_3" : {"attr" : ("texture.voxel_data.resolution", 2)},
+            "Tex_type_voxel_data_smoke_data_type" : {"attr" : ("texture.voxel_data.smoke_data_type",)},
+            "Tex_type_wood_noise_basis_2" : {"attr" : ("texture.noise_basis_2",)},
+            "Tex_type_wood_wood_type" : {"attr" : ("texture.wood_type",)},
+            "Tex_type_wood_noise_type" : {"attr" : ("texture.noise_type",)},
+            "Tex_type_wood_basis" : {"attr" : ("texture.noise_basis",)},
+            "Tex_type_wood_noise_scale" : {"attr" : ("texture.noise_scale",)},
+            "Tex_type_wood_nabla" : {"attr" : ("texture.nabla",)},
+            "Tex_type_wood_turbulence" : {"attr" : ("texture.turbulence",)},
+            "Tex_influence_use_map_diffuse" : {"attr" : ("use_map_diffuse",)},
+            "Tex_influence_use_map_color_diffuse" : {"attr" : ("use_map_color_diffuse",)},
+            "Tex_influence_use_map_alpha" : {"attr" : ("use_map_alpha",)},
+            "Tex_influence_use_map_translucency" : {"attr" : ("use_map_translucency",)},
+            "Tex_influence_use_map_specular" : {"attr" : ("use_map_specular",)},
+            "Tex_influence_use_map_color_spec" : {"attr" : ("use_map_color_spec",)},
+            "Tex_influence_use_map_map_hardness" : {"attr" : ("use_map_hardness",)},
+            "Tex_influence_use_map_ambient" : {"attr" : ("use_map_ambient",)},
+            "Tex_influence_use_map_emit" : {"attr" : ("use_map_emit",)},
+            "Tex_influence_use_map_mirror" : {"attr" : ("use_map_mirror",)},
+            "Tex_influence_use_map_raymir" : {"attr" : ("use_map_raymir",)},
+            "Tex_influence_use_map_normal" : {"attr" : ("use_map_normal",)},
+            "Tex_influence_use_map_warp" : {"attr" : ("use_map_warp",)},
+            "Tex_influence_use_map_displacement" : {"attr" : ("use_map_displacement",)},
+            "Tex_influence_use_map_rgb_to_intensity" : {"attr" : ("use_rgb_to_intensity",)},
+            "Tex_influence_map_invert" : {"attr" : ("invert",)},
+            "Tex_influence_use_stencil" : {"attr" : ("use_stencil",)},
+            "Tex_influence_diffuse_factor" : {"attr" : ("diffuse_factor",)},
+            "Tex_influence_color_factor" : {"attr" : ("diffuse_color_factor",)},
+            "Tex_influence_alpha_factor" : {"attr" : ("alpha_factor",)},
+            "Tex_influence_translucency_factor" : {"attr" : ("translucency_factor",)},
+            "Tex_influence_specular_factor" : {"attr" : ("specular_factor",)},
+            "Tex_influence_specular_color_factor" : {"attr" : ("specular_color_factor",)},
+            "Tex_influence_hardness_factor" : {"attr" : ("hardness_factor",)},
+            "Tex_influence_ambiant_factor" : {"attr" : ("ambient_factor",)},
+            "Tex_influence_emit_factor" : {"attr" : ("emit_factor",)},
+            "Tex_influence_mirror_factor" : {"attr" : ("mirror_factor",)},
+            "Tex_influence_raymir_factor" : {"attr" : ("raymir_factor",)},
+            "Tex_influence_normal_factor" : {"attr" : ("normal_factor",)},
+            "Tex_influence_warp_factor" : {"attr" : ("warp_factor",)},
+            "Tex_influence_displacement_factor" : {"attr" : ("displacement_factor",)},
+            "Tex_influence_default_value" : {"attr" : ("default_value",)},
+            "Tex_influence_blend_type" : {"attr" : ("blend_type",)},
+            "Tex_influence_color_r" : {"attr" : ("color", 0)},
+            "Tex_influence_color_g" : {"attr" : ("color", 1)},
+            "Tex_influence_color_b" : {"attr" : ("color", 2)},
+            "Tex_influence_color_a" : {},
+            "Tex_influence_bump_method" : {"attr" : ("bump_method",)},
+            "Tex_influence_objectspace" : {"attr" : ("bump_objectspace",)},
+            "Tex_mapping_texture_coords" : {"attr" : ("texture_coords",)},
+            "Tex_mapping_mapping" : {"attr" : ("mapping",)},
+            "Tex_mapping_use_from_dupli" : {}, # attr handled specially below
+            "Tex_mapping_mapping_x" : {"attr" : ("mapping_x",)},
+            "Tex_mapping_mapping_y" : {"attr" : ("mapping_y",)},
+            "Tex_mapping_mapping_z" : {"attr" : ("mapping_z",)},
+            "Tex_mapping_offset_x" : {"attr" : ("offset", 0)},
+            "Tex_mapping_offset_y" : {"attr" : ("offset", 1)},
+            "Tex_mapping_offset_z" : {"attr" : ("offset", 2)},
+            "Tex_mapping_scale_x" : {"attr" : ("scale", 0)},
+            "Tex_mapping_scale_y" : {"attr" : ("scale", 1)},
+            "Tex_mapping_scale_z" : {"attr" : ("scale", 2)},
+            "Tex_colors_use_color_ramp" : {},
+            "Tex_colors_factor_r" : {"attr" : ("texture.factor_red",)},
+            "Tex_colors_factor_g" : {"attr" : ("texture.factor_green",)},
+            "Tex_colors_factor_b" : {"attr" : ("texture.factor_blue",)},
+            "Tex_colors_intensity" : {"attr" : ("texture.intensity",)},
+            "Tex_colors_contrast" : {"attr" : ("texture.contrast",)},
+            "Tex_colors_saturation" : {"attr" : ("texture.saturation",)},
+            "Mat_Idx" : {},
+            "Poi_Idx" : {},
+            "Col_Idx" : {},
+            "Tex_type_voronoi_intensity" : {"attr" : ("texture.noise_intensity",)},
+            "Tex_mapping_use_from_original" : {}, # attr handled specially below
+            "Tex_type_noise_distortion_noise_distortion" : {"attr" : ("texture.noise_distortion",)},
+            "Tex_type_noise_distortion_basis" : {"attr" : ("texture.noise_basis",)},
+        }
+    for \
+        field \
+    in \
+        (
+            "Tex_use_preview_alpha",
+            "Tex_type_point_density_use_falloff_curve",
+            "Tex_type_voxel_data_use_still_frame",
+            "Tex_influence_use_map_diffuse",
+            "Tex_influence_use_map_color_diffuse",
+            "Tex_influence_use_map_alpha",
+            "Tex_influence_use_map_translucency",
+            "Tex_influence_use_map_specular",
+            "Tex_influence_use_map_color_spec",
+            "Tex_influence_use_map_map_hardness",
+            "Tex_influence_use_map_ambient",
+            "Tex_influence_use_map_emit",
+            "Tex_influence_use_map_mirror",
+            "Tex_influence_use_map_raymir",
+            "Tex_influence_use_map_normal",
+            "Tex_influence_use_map_warp",
+            "Tex_influence_use_map_displacement",
+            "Tex_influence_use_map_rgb_to_intensity",
+            "Tex_influence_map_invert",
+            "Tex_influence_use_stencil",
+            "Tex_mapping_use_from_dupli",
+            "Tex_colors_use_color_ramp",
+            "Tex_mapping_use_from_original",
+        ) \
+    :
+        texture_fields[field]["convert"] = tobool
+    #end for
+    for \
+        tex_type, tex_name \
+    in \
+        ( # luckily type-specific fields are named in a systematic way
+            ("ENVIRONMENT_MAP", "env_map"),
+            ("MAGIC", "magic"),
+            ("MARBLE", "marble"),
+            ("MUSGRAVE", "musgrave"),
+            ("DISTORTED_NOISE", "noise_distortion"),
+            ("STUCCI", "stucci"),
+            ("VORONOI", "voronoi"),
+            ("VOXEL_DATA", "voxel_data"),
+            ("WOOD", "wood"),
+            ("BLEND", "blend"),
+            ("POINT_DENSITY", "point_density"),
+            # IMAGE handled specially below
+            ("CLOUDS", "clouds"),
+        ) \
+    :
+        for field in texture_fields :
+            if field.startswith("Tex_type_" + tex_name + "_") :
+                texture_fields[field]["type"] = tex_type
+            #end for
+        #end for
+    #end for
 
-    SearchName = Mat_Name
+    color_ramp_fields = \
+        {
+            "Col_Index" : {},
+            "Col_Num_Material" : {},
+            "Col_Num_Texture" : {},
+            "Col_Flip" : {},
+            "Col_Active_color_stop" : {},
+            "Col_Between_color_stop" : {},
+            "Col_Interpolation" : {},
+            "Col_Position" : {},
+            "Col_Color_stop_one_r" : {},
+            "Col_Color_stop_one_g" : {},
+            "Col_Color_stop_one_b" : {},
+            "Col_Color_stop_one_a" : {},
+            "Col_Color_stop_two_r" : {},
+            "Col_Color_stop_two_g" : {},
+            "Col_Color_stop_two_b" : {},
+            "Col_Color_stop_two_a" : {},
+            # also in database schema, but not used:
+            # "Col_Ramp_input",
+            # "Col_Ramp_blend",
+            # "Col_Ramp_factor",
+        }
+    for \
+        field \
+    in \
+        (
+            "Col_Flip",
+        ) \
+    :
+        color_ramp_fields[field]["convert"] = tobool
+    #end for
 
-    #My default values:
-    MY_IMPORT_INFORMATIONS = []
+    pointdensity_ramp_fields = \
+        {
+            "Poi_Index" : {},
+            "Poi_Num_Material" : {},
+            "Poi_Num_Texture" : {},
+            "Poi_Flip" : {},
+            "Poi_Active_color_stop" : {},
+            "Poi_Between_color_stop" : {},
+            "Poi_Interpolation" : {},
+            "Poi_Position" : {},
+            "Poi_Color_stop_one_r" : {},
+            "Poi_Color_stop_one_g" : {},
+            "Poi_Color_stop_one_b" : {},
+            "Poi_Color_stop_one_a" : {},
+            "Poi_Color_stop_two_r" : {},
+            "Poi_Color_stop_two_g" : {},
+            "Poi_Color_stop_two_b" : {},
+            "Poi_Color_stop_two_a" : {},
+            # also in database schema, but not used:
+            # "Poi_Ramp_input",
+            # "Poi_Ramp_blend",
+            # "Poi_Ramp_factor",
+        }
+    for \
+        field \
+    in \
+        (
+            "Poi_Flip",
+        ) \
+    :
+        pointdensity_ramp_fields[field]["convert"] = tobool
+    #end for
 
-    Mat_Index = ""
-    Mat_Name = ""
-    Mat_Type = ""
-    Mat_Preview_render_type = ""
-    Mat_diffuse_color_r = ""
-    Mat_diffuse_color_g = ""
-    Mat_diffuse_color_b = ""
-    Mat_diffuse_color_a = ""
-    Mat_diffuse_shader = ""
-    Mat_diffuse_intensity = ""
-    Mat_use_diffuse_ramp = ""
-    Mat_diffuse_roughness = ""
-    Mat_diffuse_toon_size = ""
-    Mat_diffuse_toon_smooth = ""
-    Mat_diffuse_darkness = ""
-    Mat_diffuse_fresnel = ""
-    Mat_diffuse_fresnel_factor = ""
-    Mat_specular_color_r = ""
-    Mat_specular_color_g = ""
-    Mat_specular_color_b = ""
-    Mat_specular_color_a = ""
-    Mat_specular_shader = ""
-    Mat_specular_intensity = ""
-    Mat_specular_ramp = ""
-    Mat_specular_hardness = ""
-    Mat_specular_ior = ""
-    Mat_specular_toon_size = ""
-    Mat_specular_toon_smooth = ""
-    Mat_shading_emit = ""
-    Mat_shading_ambient = ""
-    Mat_shading_translucency = ""
-    Mat_shading_use_shadeless = ""
-    Mat_shading_use_tangent_shading = ""
-    Mat_shading_use_cubic = ""
-    Mat_transparency_use_transparency = ""
-    Mat_transparency_method = ""
-    Mat_transparency_alpha = ""
-    Mat_transparency_fresnel = ""
-    Mat_transparency_specular_alpha = ""
-    Mat_transparency_fresnel_factor = ""
-    Mat_transparency_ior = ""
-    Mat_transparency_filter = ""
-    Mat_transparency_falloff = ""
-    Mat_transparency_depth_max = ""
-    Mat_transparency_depth = ""
-    Mat_transparency_gloss_factor = ""
-    Mat_transparency_gloss_threshold = ""
-    Mat_transparency_gloss_samples = ""
-    Mat_raytracemirror_use = ""
-    Mat_raytracemirror_reflect_factor = ""
-    Mat_raytracemirror_fresnel = ""
-    Mat_raytracemirror_color_r = ""
-    Mat_raytracemirror_color_g = ""
-    Mat_raytracemirror_color_b = ""
-    Mat_raytracemirror_color_a = ""
-    Mat_raytracemirror_fresnel_factor = ""
-    Mat_raytracemirror_depth = ""
-    Mat_raytracemirror_distance = ""
-    Mat_raytracemirror_fade_to = ""
-    Mat_raytracemirror_gloss_factor = ""
-    Mat_raytracemirror_gloss_threshold = ""
-    Mat_raytracemirror_gloss_samples = ""
-    Mat_raytracemirror_gloss_anisotropic = ""
-    Mat_subsurfacescattering_use = ""
-    Mat_subsurfacescattering_presets = ""
-    Mat_subsurfacescattering_ior = ""
-    Mat_subsurfacescattering_scale = ""
-    Mat_subsurfacescattering_color_r = ""
-    Mat_subsurfacescattering_color_g = ""
-    Mat_subsurfacescattering_color_b = ""
-    Mat_subsurfacescattering_color_a = ""
-    Mat_subsurfacescattering_color_factor = ""
-    Mat_subsurfacescattering_texture_factor = ""
-    Mat_subsurfacescattering_radius_one  = ""
-    Mat_subsurfacescattering_radius_two  = ""
-    Mat_subsurfacescattering_radius_three = ""
-    Mat_subsurfacescattering_front  = ""
-    Mat_subsurfacescattering_back  = ""
-    Mat_subsurfacescattering_error_threshold = ""
-    Mat_strand_root_size = ""
-    Mat_strand_tip_size = ""
-    Mat_strand_size_min = ""
-    Mat_strand_blender_units = ""
-    Mat_strand_use_tangent_shading = ""
-    Mat_strand_shape = ""
-    Mat_strand_width_fade = ""
-    Mat_strand_blend_distance = ""
-    Mat_options_use_raytrace = ""
-    Mat_options_use_full_oversampling = ""
-    Mat_options_use_sky = ""
-    Mat_options_use_mist = ""
-    Mat_options_invert_z = ""
-    Mat_options_offset_z = ""
-    Mat_options_use_face_texture = ""
-    Mat_options_use_texture_alpha = ""
-    Mat_options_use_vertex_color_paint = ""
-    Mat_options_use_vertex_color_light = ""
-    Mat_options_use_object_color = ""
-    Mat_options_pass_index = ""
-    Mat_shadow_use_shadows = ""
-    Mat_shadow_use_transparent_shadows = ""
-    Mat_shadow_use_cast_shadows_only = ""
-    Mat_shadow_shadow_cast_alpha = ""
-    Mat_shadow_use_only_shadow = ""
-    Mat_shadow_shadow_only_type = ""
-    Mat_shadow_use_cast_buffer_shadows = ""
-    Mat_shadow_shadow_buffer_bias = ""
-    Mat_shadow_use_ray_shadow_bias = ""
-    Mat_shadow_shadow_ray_bias = ""
-    Mat_shadow_use_cast_approximate = ""
-    Idx_ramp_diffuse = ""
-    Idx_ramp_specular = ""
-    Idx_textures = ""
+    diffuse_ramp_fields = \
+        {
+            "Dif_Index" : {},
+            "Dif_Num_material" : {},
+            "Dif_Flip" : {},
+            "Dif_Active_color_stop" : {},
+            "Dif_Between_color_stop" : {},
+            "Dif_Interpolation" : {},
+            "Dif_Position" : {},
+            "Dif_Color_stop_one_r" : {},
+            "Dif_Color_stop_one_g" : {},
+            "Dif_Color_stop_one_b" : {},
+            "Dif_Color_stop_one_a" : {},
+            "Dif_Color_stop_two_r" : {},
+            "Dif_Color_stop_two_g" : {},
+            "Dif_Color_stop_two_b" : {},
+            "Dif_Color_stop_two_a" : {},
+            "Dif_Ramp_input" : {},
+            "Dif_Ramp_blend" : {},
+            "Dif_Ramp_factor" : {},
+        }
+    for \
+        field \
+    in \
+        (
+            "Dif_Flip",
+        ) \
+    :
+        diffuse_ramp_fields[field]["convert"] = tobool
+    #end for
 
-    Ima_Index = ""
-    Idx_Texture = ""
-    Tex_ima_name = ""
-    Tex_ima_source = ""
-    Tex_ima_filepath = ""
-    Tex_ima_fileformat = ""
-    Tex_ima_fields = ""
-    Tex_ima_premultiply = ""
-    Tex_ima_field_order = ""
-    Tex_ima_generated_type = ""
-    Tex_ima_generated_width = ""
-    Tex_ima_generated_height = ""
-    Tex_ima_float_buffer = ""
-    Tex_ima_blob = ""
+    specular_ramp_fields = \
+        {
+            "Spe_Index" : {},
+            "Spe_Num_Material" : {},
+            "Spe_Flip" : {},
+            "Spe_Active_color_stop" : {},
+            "Spe_Between_color_stop" : {},
+            "Spe_Interpolation" : {},
+            "Spe_Position" : {},
+            "Spe_Color_stop_one_r" : {},
+            "Spe_Color_stop_one_g" : {},
+            "Spe_Color_stop_one_b" : {},
+            "Spe_Color_stop_one_a" : {},
+            "Spe_Color_stop_two_r" : {},
+            "Spe_Color_stop_two_g" : {},
+            "Spe_Color_stop_two_b" : {},
+            "Spe_Color_stop_two_a" : {},
+            "Spe_Ramp_input" : {},
+            "Spe_Ramp_blend" : {},
+            "Spe_Ramp_factor" : {},
+        }
+    for \
+        field \
+    in \
+        (
+            "Spe_Flip",
+        ) \
+    :
+        specular_ramp_fields[field]["convert"] = tobool
+    #end for
 
-    Tex_Index = ""
-    Tex_Name = ""
-    Tex_Type = ""
-    Tex_Preview_type = ""
-    Tex_use_preview_alpha  = ""
-    Tex_type_blend_progression = ""
-    Tex_type_blend_use_flip_axis = ""
-    Tex_type_clouds_cloud_type = ""
-    Tex_type_clouds_noise_type = ""
-    Tex_type_clouds_noise_basis = ""
-    Tex_type_noise_distortion = ""
-    Tex_type_env_map_source = ""
-    Tex_type_env_map_mapping = ""
-    Tex_type_env_map_clip_start = ""
-    Tex_type_env_map_clip_end = ""
-    Tex_type_env_map_resolution = ""
-    Tex_type_env_map_depth = ""
-    Tex_type_env_map_image_file = ""
-    Tex_type_env_map_zoom  = ""
-    Tex_type_magic_depth = ""
-    Tex_type_magic_turbulence = ""
-    Tex_type_marble_marble_type = ""
-    Tex_type_marble_noise_basis_2 = ""
-    Tex_type_marble_noise_type = ""
-    Tex_type_marble_noise_basis = ""
-    Tex_type_marble_noise_scale = ""
-    Tex_type_marble_noise_depth = ""
-    Tex_type_marble_turbulence = ""
-    Tex_type_marble_nabla = ""
-    Tex_type_musgrave_type = ""
-    Tex_type_musgrave_dimension_max = ""
-    Tex_type_musgrave_lacunarity = ""
-    Tex_type_musgrave_octaves = ""
-    Tex_type_musgrave_noise_intensity = ""
-    Tex_type_musgrave_noise_basis = ""
-    Tex_type_musgrave_noise_scale = ""
-    Tex_type_musgrave_nabla = ""
-    Tex_type_musgrave_offset = ""
-    Tex_type_musgrave_gain = ""
-    Tex_type_clouds_noise_scale = ""
-    Tex_type_clouds_nabla = ""
-    Tex_type_clouds_noise_depth = ""
-    Tex_type_noise_distortion_distortion = ""
-    Tex_type_noise_distortion_texture_distortion = ""
-    Tex_type_noise_distortion_nabla = ""
-    Tex_type_noise_distortion_noise_scale = ""
-    Tex_type_point_density_point_source = ""
-    Tex_type_point_density_radius = ""
-    Tex_type_point_density_particule_cache_space = ""
-    Tex_type_point_density_falloff = ""
-    Tex_type_point_density_use_falloff_curve = ""
-    Tex_type_point_density_falloff_soft = ""
-    Tex_type_point_density_falloff_speed_scale = ""
-    Tex_type_point_density_speed_scale = ""
-    Tex_type_point_density_color_source = ""
-    Tex_type_stucci_type = ""
-    Tex_type_stucci_noise_type = ""
-    Tex_type_stucci_basis = ""
-    Tex_type_stucci_noise_scale = ""
-    Tex_type_stucci_turbulence = ""
-    Tex_type_voronoi_distance_metric = ""
-    Tex_type_voronoi_minkovsky_exponent = ""
-    Tex_type_voronoi_color_mode = ""
-    Tex_type_voronoi_noise_scale = ""
-    Tex_type_voronoi_nabla = ""
-    Tex_type_voronoi_weight_1 = ""
-    Tex_type_voronoi_weight_2 = ""
-    Tex_type_voronoi_weight_3 = ""
-    Tex_type_voronoi_weight_4 = ""
-    Tex_type_voxel_data_file_format = ""
-    Tex_type_voxel_data_source_path = ""
-    Tex_type_voxel_data_use_still_frame = ""
-    Tex_type_voxel_data_still_frame = ""
-    Tex_type_voxel_data_interpolation  = ""
-    Tex_type_voxel_data_extension = ""
-    Tex_type_voxel_data_intensity  = ""
-    Tex_type_voxel_data_resolution_1 = ""
-    Tex_type_voxel_data_resolution_2 = ""
-    Tex_type_voxel_data_resoltion_3 = ""
-    Tex_type_voxel_data_smoke_data_type = ""
-    Tex_type_wood_noise_basis_2 = ""
-    Tex_type_wood_wood_type = ""
-    Tex_type_wood_noise_type = ""
-    Tex_type_wood_basis = ""
-    Tex_type_wood_noise_scale = ""
-    Tex_type_wood_nabla = ""
-    Tex_type_wood_turbulence = ""
-    Tex_influence_use_map_diffuse = ""
-    Tex_influence_use_map_color_diffuse = ""
-    Tex_influence_use_map_alpha = ""
-    Tex_influence_use_map_translucency = ""
-    Tex_influence_use_map_specular = ""
-    Tex_influence_use_map_color_spec = ""
-    Tex_influence_use_map_map_hardness = ""
-    Tex_influence_use_map_ambient = ""
-    Tex_influence_use_map_emit = ""
-    Tex_influence_use_map_mirror = ""
-    Tex_influence_use_map_raymir = ""
-    Tex_influence_use_map_normal = ""
-    Tex_influence_use_map_warp = ""
-    Tex_influence_use_map_displacement = ""
-    Tex_influence_use_map_rgb_to_intensity = ""
-    Tex_influence_map_invert  = ""
-    Tex_influence_use_stencil = ""
-    Tex_influence_diffuse_factor = ""
-    Tex_influence_color_factor = ""
-    Tex_influence_alpha_factor = ""
-    Tex_influence_translucency_factor  = ""
-    Tex_influence_specular_factor = ""
-    Tex_influence_specular_color_factor = ""
-    Tex_influence_hardness_factor = ""
-    Tex_influence_ambiant_factor = ""
-    Tex_influence_emit_factor = ""
-    Tex_influence_mirror_factor = ""
-    Tex_influence_raymir_factor = ""
-    Tex_influence_normal_factor = ""
-    Tex_influence_warp_factor = ""
-    Tex_influence_displacement_factor = ""
-    Tex_influence_default_value = ""
-    Tex_influence_blend_type = ""
-    Tex_influence_color_r = ""
-    Tex_influence_color_g = ""
-    Tex_influence_color_b = ""
-    Tex_influence_color_a = ""
-    Tex_influence_bump_method = ""
-    Tex_influence_objectspace = ""
-    Tex_mapping_texture_coords = ""
-    Tex_mapping_mapping = ""
-    Tex_mapping_use_from_dupli = ""
-    Tex_mapping_mapping_x  = ""
-    Tex_mapping_mapping_y = ""
-    Tex_mapping_mapping_z = ""
-    Tex_mapping_offset_x = ""
-    Tex_mapping_offset_y = ""
-    Tex_mapping_offset_z = ""
-    Tex_mapping_scale_x = ""
-    Tex_mapping_scale_y  = ""
-    Tex_mapping_scale_z = ""
-    Tex_colors_use_color_ramp = ""
-    Tex_colors_factor_r = ""
-    Tex_colors_factor_g = ""
-    Tex_colors_factor_b = ""
-    Tex_colors_intensity = ""
-    Tex_colors_contrast = ""
-    Tex_colors_saturation = ""
-    Mat_Idx = ""
-    Poi_Idx = ""
-    Col_Idx = ""
-    Tex_type_voronoi_intensity = ""
-    Tex_mapping_use_from_original = ""
-    Tex_type_noise_distortion_noise_distortion = ""
-    Tex_type_noise_distortion_basis = ""
+    ShaderToolsDatabase = sqlite3.connect(DataBasePath)
 
-    Col_Index = ""
-    Col_Num_Material = ""
-    Col_Num_Texture = ""
-    Col_Flip = ""
-    Col_Active_color_stop = ""
-    Col_Between_color_stop = ""
-    Col_Interpolation = ""
-    Col_Position = ""
-    Col_Color_stop_one_r = ""
-    Col_Color_stop_one_g = ""
-    Col_Color_stop_one_b = ""
-    Col_Color_stop_one_a = ""
-    Col_Color_stop_two_r = ""
-    Col_Color_stop_two_g = ""
-    Col_Color_stop_two_b = ""
-    Col_Color_stop_two_a = ""
-
-    Poi_Index = ""
-    Poi_Num_Material = ""
-    Poi_Num_Texture = ""
-    Poi_Flip = ""
-    Poi_Active_color_stop = ""
-    Poi_Between_color_stop = ""
-    Poi_Interpolation = ""
-    Poi_Position = ""
-    Poi_Color_stop_one_r = ""
-    Poi_Color_stop_one_g = ""
-    Poi_Color_stop_one_b = ""
-    Poi_Color_stop_one_a = ""
-    Poi_Color_stop_two_r = ""
-    Poi_Color_stop_two_g = ""
-    Poi_Color_stop_two_b = ""
-    Poi_Color_stop_two_a = ""
-
-    Dif_Index = ""
-    Dif_Num_Material = ""
-    Dif_Flip = ""
-    Dif_Active_color_stop = ""
-    Dif_Between_color_stop = ""
-    Dif_Interpolation = ""
-    Dif_Position = ""
-    Dif_Color_stop_one_r = ""
-    Dif_Color_stop_one_g = ""
-    Dif_Color_stop_one_b = ""
-    Dif_Color_stop_one_a = ""
-    Dif_Color_stop_two_r = ""
-    Dif_Color_stop_two_g = ""
-    Dif_Color_stop_two_b = ""
-    Dif_Color_stop_two_a = ""
-    Dif_Ramp_input = ""
-    Dif_Ramp_blend = ""
-    Dif_Ramp_factor = ""
-
-    Spe_Index = ""
-    Spe_Num_Material = ""
-    Spe_Flip = ""
-    Spe_Active_color_stop = ""
-    Spe_Between_color_stop = ""
-    Spe_Interpolation = ""
-    Spe_Position = ""
-    Spe_Color_stop_one_r = ""
-    Spe_Color_stop_one_g = ""
-    Spe_Color_stop_one_b = ""
-    Spe_Color_stop_one_a = ""
-    Spe_Color_stop_two_r = ""
-    Spe_Color_stop_two_g = ""
-    Spe_Color_stop_two_b = ""
-    Spe_Color_stop_two_a = ""
-    Spe_Ramp_input = ""
-    Spe_Ramp_blend = ""
-    Spe_Ramp_factor = ""
-
-
-
-
-    #************************************************************************************************************
-    MyMaterialIndex = 2 #First valid value in the Base.
-    MyTextureIndex = 2 #First valid value in the Base.
-    MyMaterialRequest = ""
-    MyColorRamplRequest = ""
-    MyDiffuseRampRequest = ""
-    MySpecularRampRequest = ""
-    MyPointDensityRampRequest = ""
-    MyImageUvRequest = ""
-    MyTextureRequest = ""
-
-
-
+    MyMaterialIndex = 2 # default to lowest valid value in database
     #I split material name and i return material index
-
     for value in SearchName.split('_Ind_', 255):
         if '.jpg' in value:
             MyMaterialIndex = value.replace('.jpg', '')
 
-
-    #I must communicate with SQLite base and create lists :
-    #Here i connect database :
-    ShadersToolsDatabase = sqlite3.connect(DataBasePath)
-    Connexion = ShadersToolsDatabase.cursor()
-
-    #My material:
-    MyMaterialRequest = "SELECT * FROM MATERIALS WHERE Mat_Index=" + str(MyMaterialIndex)
-    Connexion.execute(MyMaterialRequest)
-    ShadersToolsDatabase.commit()
-    MyMaterialResult = Connexion.fetchall()
-
-    v = 0
-    for values in MyMaterialResult:
-      for val in values:
-
-        #Debug
-        if val == 'False':
-            val = False
-
-        if val == 'True':
-            val = True
-
-
-        #Affect values:
-        if v == 0:
-            Mat_Index = val
-
-        if v == 1:
-            Mat_Name = val
-
-        if v == 2:
-            Mat_Type = val
-
-        if v == 3:
-            Mat_Preview_render_type = val
-
-        if v == 4:
-            Mat_diffuse_color_r = val
-
-        if v == 5:
-            Mat_diffuse_color_g = val
-
-        if v == 6:
-            Mat_diffuse_color_b = val
-
-        if v == 7:
-            Mat_diffuse_color_a = val
-
-        if v == 8:
-            Mat_diffuse_shader = val
-
-        if v == 9:
-            Mat_diffuse_intensity = val
-
-        if v == 10:
-
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_use_diffuse_ramp = val
-
-        if v == 11:
-            Mat_diffuse_roughness = val
-
-        if v == 12:
-            Mat_diffuse_toon_size = val
-
-        if v == 13:
-            Mat_diffuse_toon_smooth = val
-
-        if v == 14:
-            Mat_diffuse_darkness = val
-
-        if v == 15:
-            Mat_diffuse_fresnel = val
-
-        if v == 16:
-            Mat_diffuse_fresnel_factor = val
-
-        if v == 17:
-            Mat_specular_color_r = val
-
-        if v == 18:
-            Mat_specular_color_g = val
-
-        if v == 19:
-            Mat_specular_color_b = val
-
-        if v == 20:
-            Mat_specular_color_a = val
-
-        if v == 21:
-            Mat_specular_shader = val
-
-        if v == 22:
-            Mat_specular_intensity = val
-
-        if v == 23:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_specular_ramp = val
-
-        if v == 24:
-            Mat_specular_hardness = val
-
-        if v == 25:
-            Mat_specular_ior = val
-
-        if v == 26:
-            Mat_specular_toon_size = val
-
-        if v == 27:
-            Mat_specular_toon_smooth = val
-
-        if v == 28:
-            Mat_shading_emit = val
-
-        if v == 29:
-            Mat_shading_ambient = val
-
-        if v == 30:
-            Mat_shading_translucency = val
-
-        if v == 31:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_shading_use_shadeless = val
-
-        if v == 32:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_shading_use_tangent_shading = val
-
-        if v == 33:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_shading_use_cubic = val
-
-        if v == 34:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_transparency_use_transparency = val
-
-        if v == 35:
-            Mat_transparency_method = val
-
-        if v == 36:
-            Mat_transparency_alpha = val
-
-        if v == 37:
-            Mat_transparency_fresnel = val
-
-        if v == 38:
-            Mat_transparency_specular_alpha = val
-
-        if v == 39:
-            Mat_transparency_fresnel_factor = val
-
-        if v == 40:
-            Mat_transparency_ior = val
-
-        if v == 41:
-            Mat_transparency_filter = val
-
-        if v == 42:
-            Mat_transparency_falloff = val
-
-        if v == 43:
-            Mat_transparency_depth_max = val
-
-        if v == 44:
-            Mat_transparency_depth = val
-
-        if v == 45:
-            Mat_transparency_gloss_factor = val
-
-        if v == 46:
-            Mat_transparency_gloss_threshold = val
-
-        if v == 47:
-            Mat_transparency_gloss_samples = val
-
-        if v == 48:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_raytracemirror_use = val
-
-        if v == 49:
-            Mat_raytracemirror_reflect_factor = val
-
-        if v == 50:
-            Mat_raytracemirror_fresnel = val
-
-        if v == 51:
-            Mat_raytracemirror_color_r = val
-
-        if v == 52:
-            Mat_raytracemirror_color_g = val
-
-        if v == 53:
-            Mat_raytracemirror_color_b = val
-
-        if v == 54:
-            Mat_raytracemirror_color_a = val
-
-        if v == 55:
-            Mat_raytracemirror_fresnel_factor = val
-
-        if v == 56:
-            Mat_raytracemirror_depth = val
-
-        if v == 57:
-            Mat_raytracemirror_distance = val
-
-        if v == 58:
-            Mat_raytracemirror_fade_to = val
-
-        if v == 59:
-            Mat_raytracemirror_gloss_factor = val
-
-        if v == 60:
-            Mat_raytracemirror_gloss_threshold = val
-
-        if v == 61:
-            Mat_raytracemirror_gloss_samples = val
-
-        if v == 62:
-            Mat_raytracemirror_gloss_anisotropic = val
-
-        if v == 63:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_subsurfacescattering_use = val
-
-        if v == 64:
-            Mat_subsurfacescattering_presets = val
-
-        if v == 65:
-            Mat_subsurfacescattering_ior = val
-
-        if v == 66:
-            Mat_subsurfacescattering_scale = val
-
-        if v == 67:
-            Mat_subsurfacescattering_color_r = val
-
-        if v == 68:
-            Mat_subsurfacescattering_color_g = val
-
-        if v == 69:
-            Mat_subsurfacescattering_color_b = val
-
-        if v == 70:
-            Mat_subsurfacescattering_color_a = val
-
-        if v == 71:
-            Mat_subsurfacescattering_color_factor = val
-
-        if v == 72:
-            Mat_subsurfacescattering_texture_factor = val
-
-        if v == 73:
-            Mat_subsurfacescattering_radius_one  = val
-
-        if v == 74:
-            Mat_subsurfacescattering_radius_two  = val
-
-        if v == 75:
-            Mat_subsurfacescattering_radius_three = val
-
-        if v == 76:
-            Mat_subsurfacescattering_front  = val
-
-        if v == 77:
-            Mat_subsurfacescattering_back  = val
-
-        if v == 78:
-            Mat_subsurfacescattering_error_threshold = val
-
-        if v == 79:
-            Mat_strand_root_size = val
-
-        if v == 80:
-            Mat_strand_tip_size = val
-
-        if v == 81:
-            Mat_strand_size_min = val
-
-        if v == 82:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_strand_blender_units = val
-
-        if v == 83:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_strand_use_tangent_shading = val
-
-        if v == 84:
-            Mat_strand_shape = val
-
-        if v == 85:
-            Mat_strand_width_fade = val
-
-        if v == 86:
-            Mat_strand_blend_distance = val
-
-        if v == 87:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_options_use_raytrace = val
-
-        if v == 88:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_options_use_full_oversampling = val
-
-        if v == 89:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_options_use_sky = val
-
-        if v == 90:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_options_use_mist = val
-
-        if v == 91:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_options_invert_z = val
-
-        if v == 92:
-            Mat_options_offset_z = val
-
-        if v == 93:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_options_use_face_texture = val
-
-        if v == 94:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_options_use_texture_alpha = val
-
-        if v == 95:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_options_use_vertex_color_paint = val
-
-        if v == 96:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_options_use_vertex_color_light = val
-
-        if v == 97:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_options_use_object_color = val
-
-        if v == 98:
-            Mat_options_pass_index = val
-
-        if v == 99:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_shadow_use_shadows = val
-
-        if v == 100:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_shadow_use_transparent_shadows = val
-
-        if v == 101:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_shadow_use_cast_shadows_only = val
-
-        if v == 102:
-            Mat_shadow_shadow_cast_alpha = val
-
-        if v == 103:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_shadow_use_only_shadow = val
-
-        if v == 104:
-            Mat_shadow_shadow_only_type = val
-
-        if v == 105:
-            #I convert SQlite Boolean to Blender Boolean:
-            if val == 1:
-                val = True
-
-            else:
-                val = False
-
-            Mat_shadow_use_cast_buffer_shadows = val
-
-        if v == 106:
-            Mat_shadow_shadow_buffer_bias = val
-
-        if v == 107:
-            Mat_shadow_use_ray_shadow_bias = val
-
-        if v == 108:
-            Mat_shadow_shadow_ray_bias = val
-
-        if v == 109:
-            Mat_shadow_use_cast_approximate = val
-
-        if v == 110:
-            Idx_ramp_diffuse = val
-
-        if v == 111:
-            Idx_ramp_specular = val
-
-        if v == 112:
-            Idx_textures = val
-
-
-        v = v + 1
+    Material = GetRecords \
+      (
+        Conn = ShaderToolsDatabase,
+        TableName = "MATERIALS",
+        Condition = "Mat_Index = %s",
+        Values = [MyMaterialIndex],
+        FieldDefs = material_fields
+      )[0] # assume exactly 1 record
+    Mat_Name = Material["Mat_Name"]
 
     #Here I restore imported values in Blender:
     obj = bpy.context.object
+      # won't be None, because this script is only invocable via a custom panel
+      # in the Materials tab in the Properties window, and that tab only appears
+      # when something is selected that can take a material.
     tex = bpy.context.active_object.active_material
 
+    def SetupObject(obj, fields, fielddefs, include = lambda field : True) :
+        # common routine for converting field values into new attribute
+        # values for an object.
+        for field in fields :
+            if include(field) :
+                attr = fielddefs[field].get("attr")
+                if attr != None :
+                    if len(attr) > 1 :
+                        if "." in attr[0] :
+                            idx = attr[1]
+                            attr = attr[0].split(".")
+                            subobj = obj
+                            for name in attr[:-1] :
+                                subobj = getattr(subobj, name)
+                            #end of
+                            getattr(subobj, attr[-1])[idx] = fields[field]
+                        else :
+                            getattr(obj, attr[0])[attr[1]] = fields[field]
+                        #end if
+                    else :
+                        if "." in attr[0] :
+                            attr = attr[0].split(".")
+                            subobj = obj
+                            for name in attr[:-1] :
+                                subobj = getattr(subobj, name)
+                            #end of
+                            setattr(subobj, attr[-1], fields[field])
+                        else :
+                            setattr(obj, attr[0], fields[field])
+                        #end if
+                    #end if
+                #end if
+            #end if
+        #end for
+        return obj
+    #end SetupObject
+
     # Create Material :
-    def CreateMaterial(Mat_Name):
-
-        # Materials Values :
-        mat = bpy.data.materials.new(Mat_Name)
-        mat.diffuse_color[0] = Mat_diffuse_color_r
-        mat.diffuse_color[1] = Mat_diffuse_color_g
-        mat.diffuse_color[2] = Mat_diffuse_color_b
-        mat.diffuse_shader = Mat_diffuse_shader
-        mat.diffuse_intensity = Mat_diffuse_intensity
-        mat.roughness = Mat_diffuse_roughness
-        mat.diffuse_toon_size = Mat_diffuse_toon_size
-        mat.diffuse_toon_smooth = Mat_diffuse_toon_smooth
-        mat.darkness  = Mat_diffuse_darkness
-        mat.diffuse_fresnel = Mat_diffuse_fresnel
-        mat.diffuse_fresnel_factor  = Mat_diffuse_fresnel_factor
-        mat.specular_shader  = Mat_specular_shader
-        mat.specular_color[0] = Mat_specular_color_r
-        mat.specular_color[1] = Mat_specular_color_g
-        mat.specular_color[2] = Mat_specular_color_b
-        mat.specular_intensity = Mat_specular_intensity
-        mat.specular_hardness = Mat_specular_hardness
-        mat.specular_ior = Mat_specular_ior
-        mat.specular_toon_size = Mat_specular_toon_size
-        mat.specular_toon_smooth = Mat_specular_toon_smooth
-        mat.emit = Mat_shading_emit
-        mat.ambient  = Mat_shading_ambient
-        mat.translucency = Mat_shading_translucency
-        mat.use_shadeless = Mat_shading_use_shadeless
-        mat.use_tangent_shading = Mat_shading_use_tangent_shading
-        mat.use_transparency = Mat_transparency_use_transparency
-        mat.transparency_method = Mat_transparency_method
-        mat.alpha = Mat_transparency_alpha
-        mat.raytrace_transparency.fresnel = Mat_transparency_fresnel
-        mat.specular_alpha = Mat_transparency_specular_alpha
-        mat.raytrace_transparency.fresnel_factor = Mat_transparency_fresnel_factor
-        mat.raytrace_transparency.ior = Mat_transparency_ior
-        mat.raytrace_transparency.filter = Mat_transparency_filter
-        mat.raytrace_transparency.falloff = Mat_transparency_falloff
-        mat.raytrace_transparency.depth_max = Mat_transparency_depth_max
-        mat.raytrace_transparency.depth = Mat_transparency_depth
-        mat.raytrace_transparency.gloss_factor = Mat_transparency_gloss_factor
-        mat.raytrace_transparency.gloss_threshold = Mat_transparency_gloss_threshold
-        mat.raytrace_transparency.gloss_samples = Mat_transparency_gloss_samples
-        mat.raytrace_mirror.use = Mat_raytracemirror_use
-        mat.raytrace_mirror.reflect_factor = Mat_raytracemirror_reflect_factor
-        mat.raytrace_mirror.fresnel = Mat_raytracemirror_fresnel
-        mat.mirror_color[0] = Mat_raytracemirror_color_r
-        mat.mirror_color[1] = Mat_raytracemirror_color_g
-        mat.mirror_color[2] = Mat_raytracemirror_color_b
-        mat.raytrace_mirror.fresnel_factor = Mat_raytracemirror_fresnel_factor
-        mat.raytrace_mirror.depth = Mat_raytracemirror_depth
-        mat.raytrace_mirror.distance = Mat_raytracemirror_distance
-        mat.raytrace_mirror.fade_to = Mat_raytracemirror_fade_to
-        mat.raytrace_mirror.gloss_factor = Mat_raytracemirror_gloss_factor
-        mat.raytrace_mirror.gloss_threshold = Mat_raytracemirror_gloss_threshold
-        mat.raytrace_mirror.gloss_samples = Mat_raytracemirror_gloss_samples
-        mat.raytrace_mirror.gloss_anisotropic = Mat_raytracemirror_gloss_anisotropic
-        mat.subsurface_scattering.use  = Mat_subsurfacescattering_use
-        mat.subsurface_scattering.ior = Mat_subsurfacescattering_ior
-        mat.subsurface_scattering.scale = Mat_subsurfacescattering_scale
-        mat.subsurface_scattering.color[0] = Mat_subsurfacescattering_color_r
-        mat.subsurface_scattering.color[1] = Mat_subsurfacescattering_color_g
-        mat.subsurface_scattering.color[2] = Mat_subsurfacescattering_color_b
-        mat.subsurface_scattering.color_factor = Mat_subsurfacescattering_color_factor
-        mat.subsurface_scattering.texture_factor = Mat_subsurfacescattering_texture_factor
-        mat.subsurface_scattering.radius[0] = Mat_subsurfacescattering_radius_one
-        mat.subsurface_scattering.radius[1] = Mat_subsurfacescattering_radius_two
-        mat.subsurface_scattering.radius[2] = Mat_subsurfacescattering_radius_three
-        mat.subsurface_scattering.front = Mat_subsurfacescattering_front
-        mat.subsurface_scattering.back = Mat_subsurfacescattering_back
-        mat.subsurface_scattering.error_threshold = Mat_subsurfacescattering_error_threshold
-        mat.strand.root_size = Mat_strand_root_size
-        mat.strand.tip_size = Mat_strand_tip_size
-        mat.strand.size_min = Mat_strand_size_min
-        mat.strand.use_blender_units = Mat_strand_blender_units
-        mat.strand.use_tangent_shading = Mat_strand_use_tangent_shading
-        mat.strand.shape = Mat_strand_shape
-        mat.strand.width_fade = Mat_strand_width_fade
-        mat.strand.blend_distance = Mat_strand_blend_distance
-        mat.use_raytrace = Mat_options_use_raytrace
-        mat.use_full_oversampling = Mat_options_use_full_oversampling
-        mat.use_sky = Mat_options_use_sky
-        mat.use_mist = Mat_options_use_mist
-        mat.invert_z = Mat_options_invert_z
-        mat.offset_z = Mat_options_offset_z
-        mat.use_face_texture = Mat_options_use_face_texture
-        mat.use_face_texture_alpha = Mat_options_use_texture_alpha
-        mat.use_vertex_color_paint = Mat_options_use_vertex_color_paint
-        mat.use_vertex_color_light = Mat_options_use_vertex_color_light
-        mat.use_object_color = Mat_options_use_object_color
-        mat.pass_index = Mat_options_pass_index
-        mat.use_shadows = Mat_shadow_use_shadows
-        mat.use_transparent_shadows = Mat_shadow_use_transparent_shadows
-        mat.use_cast_shadows_only = Mat_shadow_use_cast_shadows_only
-        mat.shadow_cast_alpha = Mat_shadow_shadow_cast_alpha
-        mat.use_only_shadow = Mat_shadow_use_only_shadow
-        mat.shadow_only_type = Mat_shadow_shadow_only_type
-        mat.use_cast_buffer_shadows = Mat_shadow_use_cast_buffer_shadows
-        mat.shadow_buffer_bias = Mat_shadow_shadow_buffer_bias
-        mat.use_ray_shadow_bias = Mat_shadow_use_ray_shadow_bias
-        mat.shadow_ray_bias = Mat_shadow_shadow_ray_bias
-        mat.use_cast_approximate = Mat_shadow_use_cast_approximate
-
-        return mat
 
     bpy.ops.object.material_slot_add()
-    obj.material_slots[obj.material_slots.__len__() - 1].material = CreateMaterial(Mat_Name)
+    obj.material_slots[obj.material_slots.__len__() - 1].material = SetupObject \
+      (
+        bpy.data.materials.new(Mat_Name),
+        Material,
+        material_fields
+      )
 
-
-
-    #My texture:
-    MyTextureRequest = "SELECT * FROM TEXTURES WHERE Mat_Idx=" + str(MyMaterialIndex)
-    Connexion = ShadersToolsDatabase.cursor()
-    Connexion.execute(MyTextureRequest)
-    ShadersToolsDatabase.commit()
-    MyTextureResult = Connexion.fetchall()
-
+    MyTextureResult = GetRecords \
+      (
+        Conn = ShaderToolsDatabase,
+        TableName = "TEXTURES",
+        Condition = "Mat_Idx = %s",
+        Values = [MyMaterialIndex],
+        FieldDefs = texture_fields
+      )
     #I must extract IMAGES/UV before create Textures:
-    MyTextureIdxRequest = "SELECT Tex_Index FROM TEXTURES WHERE Mat_Idx=" + str(MyMaterialIndex)
-    Connexion = ShadersToolsDatabase.cursor()
-    Connexion.execute(MyTextureIdxRequest)
-    ShadersToolsDatabase.commit()
-    MyTextureIdxResult = Connexion.fetchall()
+    MyTextureIdxResult = list(t["Tex_Index"] for t in MyTextureResult)
     Render = ""
-
     #I create a new folder contains all textures:
     CopyBlendFolder = ""
     Render_exists = False
@@ -1377,82 +1012,62 @@ def ImporterSQL(Mat_Name):
         for f in files:
             if not os.path.isdir(f):
                 os.remove(os.path.join(OutPath, f))
-
     else:
         os.makedirs(OutPath)
 
+    #I must find all textures in database:
+    for val in MyTextureIdxResult:
+        if val != '' or val == None :
+            #Now I generate image files:
+            for \
+                ThisImage \
+            in \
+                GetEachRecord \
+                  (
+                    Conn = ShaderToolsDatabase,
+                    TableName = "IMAGE_UV",
+                    Fields =
+                        (
+                            "Ima_Name",
+                            "Ima_Filepath",
+                            "Ima_Fileformat",
+                            "Ima_Fields",
+                            "Ima_Premultiply",
+                            "Ima_Fields_order",
+                            "Ima_Blob",
+                        ),
+                    Condition = "Idx_Texture = %s",
+                    Values = [val]
+                  ) \
+            :
+                MyImageUvRequest = ThisImage
+                Render = ThisImage["Ima_Blob"]
+                Render_exists = True
+                if ThisImage["Ima_Name"] == '' :
+                    adresse = os.path.join(OutPath, "error_save.jpg")
+                    test = shutil.copy2(os.path.join(ErrorsPath, "error_save.jpg"), adresse)
+                    ThisImage["Ima_filepath"] = os.path.join(AppPath, "error_save.jpg")
+                else :
+                    format_image = [".png", ".jpg", ".jpeg", ".tiff", ".tga", ".raw", ".bmp", ".hdr", ".gif", ".svg", ".wmf", ".pst"]
+                    c = 0
+                    for format in format_image:
+                        if c == 0:
+                            if ThisImage["Ima_Name"].endswith(format) :
+                                adresse = os.path.join(OutPath, ThisImage["Ima_Name"])
+                                c = 1
 
-    for values in MyTextureIdxResult:
-        #I must find all textures in database:
-        for val in values:
-            if val != '' or val == None:
-                MyImageUvRequest = "SELECT * FROM IMAGE_UV WHERE Idx_Texture=" + str(val)
-                Connexion = ShadersToolsDatabase.cursor()
-                Connexion.execute(MyImageUvRequest)
-                ShadersToolsDatabase.commit()
-                MyImageUvRequest = Connexion.fetchall()
-
-                #I return values:
-                c = 0
-                for val2 in MyImageUvRequest:
-                  for values2 in val2:
-
-                    #Debug
-                    if values2 == 'False':
-                        values2 = False
-
-                    if values2 == 'True':
-                        values2 = True
-
-                    if c == 2:
-                        Tex_ima_name = values2
-
-                    if c == 4:
-                        Tex_ima_filepath = values2
-
-                    if c == 5:
-                        Tex_ima_fileformat = values2
-
-                    if c == 6:
-                        Tex_ima_fields = values2
-
-                    if c == 7:
-                        Tex_ima_premultiply = values2
-
-                    if c == 8:
-                        Tex_ima_field_order = values2
-
-
-                    if c == 13:
-                        Render = values2
-                        Render_exists = True
-
-                        #Now I generate image files:
-                        if Tex_ima_name == '':
-                            adresse = os.path.join(OutPath, "error_save.jpg")
-                            test = shutil.copy2(os.path.join(ErrorsPath, "error_save.jpg"), adresse)
-                            Tex_ima_filepath = os.path.join(AppPath, "error_save.jpg")
-
-                        else:
-                            format_image = [".png", ".jpg", ".jpeg", ".tiff", ".tga", ".raw", ".bmp", ".hdr", ".gif", ".svg", ".wmf", ".pst"]
-                            c = 0
-                            for format in format_image:
-                                if c == 0:
-                                    if format in Tex_ima_name:
-                                        adresse = os.path.join(OutPath, Tex_ima_name)
-                                        c = 1
-
-                                    else:
-                                        adresse = os.path.join(OutPath, Tex_ima_name + "." +  Tex_ima_fileformat)
-
-
-                            generated_image = open(adresse,'wb')
-                            generated_image.write(Render)
-                            generated_image.close()
-
-
-                    c = c + 1
-
+                            else:
+                                adresse = os.path.join(OutPath, ThisImage["Ima_Name"] + "." +  ThisImage["Ima_Fileformat"])
+                            #end if
+                        #end if
+                    #end for
+                    generated_image = open(adresse,'wb')
+                    generated_image.write(Render)
+                    generated_image.close()
+                #end if
+            #end for
+        #end if
+    #end for
 
     #I copy all images files in ShaderToolsImport folder:
     print("*******************************************************")
@@ -1469,7 +1084,6 @@ def ImporterSQL(Mat_Name):
             while os.path.exists(CopyBlendFolder) :
                 CopyBlendFolder = os.path.join(BlendPath, "ShaderToolsImport", Mat_Name + "_" + str(c))
                 c = c + 1
-
             os.makedirs(CopyBlendFolder)
 
         #Debug
@@ -1482,7 +1096,6 @@ def ImporterSQL(Mat_Name):
             if not os.path.exists(CopyBlendFolder) :
                 os.makedirs(CopyBlendFolder)
 
-
         #Here I copy all files in Out Folder to ShaderToolsImport folder:
         files = os.listdir(OutPath)
 
@@ -1490,1411 +1103,212 @@ def ImporterSQL(Mat_Name):
             if not os.path.isdir(f):
                 shutil.copy2(os.path.join(OutPath, f), os.path.join(CopyBlendFolder, f))
 
-
-
     #Now I treat textures informations
-    textureNumberSlot = -1
-    for values in MyTextureResult:
-        v = 0
-        textureNumberSlot = textureNumberSlot + 1
-        for val in values:
-
-            #Debug
-            if val == 'False':
-                val = False
-
-            if val == 'True':
-                val = True
-
-            #Affect values:
-            if v == 0:
-                Tex_Index = val
-
-            if v == 1:
-                Tex_Name = val
-
-            if v == 2:
-                Tex_Type = val
-
-            if v == 3:
-                Tex_Preview_type = val
-
-            if v == 4:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_use_preview_alpha  = val
-
-            if v == 5:
-                Tex_type_blend_progression = val
-
-            if v == 6:
-                Tex_type_blend_use_flip_axis = val
-
-            if v == 7:
-                Tex_type_clouds_cloud_type = val
-
-            if v == 8:
-                Tex_type_clouds_noise_type = val
-
-            if v == 9:
-                Tex_type_clouds_noise_basis = val
-
-            if v == 10:
-                Tex_type_noise_distortion = val
-
-            if v == 11:
-                Tex_type_env_map_source = val
-
-            if v == 12:
-                Tex_type_env_map_mapping = val
-
-            if v == 13:
-                Tex_type_env_map_clip_start = val
-
-            if v == 14:
-                Tex_type_env_map_clip_end = val
-
-            if v == 15:
-                Tex_type_env_map_resolution = val
-
-            if v == 16:
-                Tex_type_env_map_depth = val
-
-            if v == 17:
-                Tex_type_env_map_image_file = val
-
-            if v == 18:
-                Tex_type_env_map_zoom  = val
-
-            if v == 19:
-                Tex_type_magic_depth = val
-
-            if v == 20:
-                Tex_type_magic_turbulence = val
-
-            if v == 21:
-                Tex_type_marble_marble_type = val
-
-            if v == 22:
-                Tex_type_marble_noise_basis_2 = val
-
-            if v == 23:
-                Tex_type_marble_noise_type = val
-
-            if v == 24:
-                Tex_type_marble_noise_basis = val
-
-            if v == 25:
-                Tex_type_marble_noise_scale = val
-
-            if v == 26:
-                Tex_type_marble_noise_depth = val
-
-            if v == 27:
-                Tex_type_marble_turbulence = val
-
-            if v == 28:
-                Tex_type_marble_nabla = val
-
-            if v == 29:
-                Tex_type_musgrave_type = val
-
-            if v == 30:
-                Tex_type_musgrave_dimension_max = val
-
-            if v == 31:
-                Tex_type_musgrave_lacunarity = val
-
-            if v == 32:
-                Tex_type_musgrave_octaves = val
-
-            if v == 33:
-                Tex_type_musgrave_noise_intensity = val
-
-            if v == 34:
-                Tex_type_musgrave_noise_basis = val
-
-            if v == 35:
-                Tex_type_musgrave_noise_scale = val
-
-            if v == 36:
-                Tex_type_musgrave_nabla = val
-
-            if v == 37:
-                Tex_type_musgrave_offset = val
-
-            if v == 38:
-                Tex_type_musgrave_gain = val
-
-            if v == 39:
-                Tex_type_clouds_noise_scale = val
-
-            if v == 40:
-                Tex_type_clouds_nabla = val
-
-            if v == 41:
-                Tex_type_clouds_noise_depth = val
-
-            if v == 42:
-                Tex_type_noise_distortion_distortion = val
-
-            if v == 43:
-                Tex_type_noise_distortion_texture_distortion = val
-
-            if v == 44:
-                Tex_type_noise_distortion_nabla = val
-
-            if v == 45:
-                Tex_type_noise_distortion_noise_scale = val
-
-            if v == 46:
-                Tex_type_point_density_point_source = val
-
-            if v == 47:
-                Tex_type_point_density_radius = val
-
-            if v == 48:
-                Tex_type_point_density_particule_cache_space = val
-
-            if v == 49:
-                Tex_type_point_density_falloff = val
-
-            if v == 50:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_type_point_density_use_falloff_curve = val
-
-            if v == 51:
-                Tex_type_point_density_falloff_soft = val
-
-            if v == 52:
-                Tex_type_point_density_falloff_speed_scale = val
-
-            if v == 53:
-                Tex_type_point_density_speed_scale = val
-
-            if v == 54:
-                Tex_type_point_density_color_source = val
-
-            if v == 55:
-                Tex_type_stucci_type = val
-
-            if v == 56:
-                Tex_type_stucci_noise_type = val
-
-            if v == 57:
-                Tex_type_stucci_basis = val
-
-            if v == 58:
-                Tex_type_stucci_noise_scale = val
-
-            if v == 59:
-                Tex_type_stucci_turbulence = val
-
-            if v == 60:
-                Tex_type_voronoi_distance_metric = val
-
-            if v == 61:
-                Tex_type_voronoi_minkovsky_exponent = val
-
-            if v == 62:
-                Tex_type_voronoi_color_mode = val
-
-            if v == 63:
-                Tex_type_voronoi_noise_scale = val
-
-            if v == 64:
-                Tex_type_voronoi_nabla = val
-
-            if v == 65:
-                Tex_type_voronoi_weight_1 = val
-
-            if v == 66:
-                Tex_type_voronoi_weight_2 = val
-
-            if v == 67:
-                Tex_type_voronoi_weight_3 = val
-
-            if v == 68:
-                Tex_type_voronoi_weight_4 = val
-
-            if v == 69:
-                Tex_type_voxel_data_file_format = val
-
-            if v == 70:
-                Tex_type_voxel_data_source_path = val
-
-            if v == 71:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_type_voxel_data_use_still_frame = val
-
-            if v == 72:
-                Tex_type_voxel_data_still_frame = val
-
-            if v == 73:
-                Tex_type_voxel_data_interpolation  = val
-
-            if v == 74:
-                Tex_type_voxel_data_extension = val
-
-            if v == 75:
-                Tex_type_voxel_data_intensity  = val
-
-            if v == 76:
-                Tex_type_voxel_data_resolution_1 = val
-
-            if v == 77:
-                Tex_type_voxel_data_resolution_2 = val
-
-            if v == 78:
-                Tex_type_voxel_data_resoltion_3 = val
-
-            if v == 79:
-                Tex_type_voxel_data_smoke_data_type = val
-
-            if v == 80:
-                Tex_type_wood_noise_basis_2 = val
-
-            if v == 81:
-                Tex_type_wood_wood_type = val
-
-            if v == 82:
-                Tex_type_wood_noise_type = val
-
-            if v == 83:
-                Tex_type_wood_basis = val
-
-            if v == 84:
-                Tex_type_wood_noise_scale = val
-
-            if v == 85:
-                Tex_type_wood_nabla = val
-
-            if v == 86:
-                Tex_type_wood_turbulence = val
-
-            if v == 87:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_influence_use_map_diffuse = val
-
-            if v == 88:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_influence_use_map_color_diffuse = val
-
-            if v == 89:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_influence_use_map_alpha = val
-
-            if v == 90:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_influence_use_map_translucency = val
-
-            if v == 91:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_influence_use_map_specular = val
-
-            if v == 92:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_influence_use_map_color_spec = val
-
-            if v == 93:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_influence_use_map_map_hardness = val
-
-            if v == 94:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_influence_use_map_ambient = val
-
-            if v == 95:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_influence_use_map_emit = val
-
-            if v == 96:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_influence_use_map_mirror = val
-
-            if v == 97:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_influence_use_map_raymir = val
-
-            if v == 98:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_influence_use_map_normal = val
-
-            if v == 99:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_influence_use_map_warp = val
-
-            if v == 100:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_influence_use_map_displacement = val
-
-            if v == 101:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_influence_use_map_rgb_to_intensity = val
-
-            if v == 102:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_influence_map_invert  = val
-
-            if v == 103:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_influence_use_stencil = val
-
-            if v == 104:
-                Tex_influence_diffuse_factor = val
-
-            if v == 105:
-                Tex_influence_color_factor = val
-
-            if v == 106:
-                Tex_influence_alpha_factor = val
-
-            if v == 107:
-                Tex_influence_translucency_factor  = val
-
-            if v == 108:
-                Tex_influence_specular_factor = val
-
-            if v == 109:
-                Tex_influence_specular_color_factor = val
-
-            if v == 110:
-                Tex_influence_hardness_factor = val
-
-            if v == 111:
-                Tex_influence_ambiant_factor = val
-
-            if v == 112:
-                Tex_influence_emit_factor = val
-
-            if v == 113:
-                Tex_influence_mirror_factor = val
-
-            if v == 114:
-                Tex_influence_raymir_factor = val
-
-            if v == 115:
-                Tex_influence_normal_factor = val
-
-            if v == 116:
-                Tex_influence_warp_factor = val
-
-            if v == 117:
-                Tex_influence_displacement_factor = val
-
-            if v == 118:
-                Tex_influence_default_value = val
-
-            if v == 119:
-                Tex_influence_blend_type = val
-
-            if v == 120:
-                Tex_influence_color_r = val
-
-            if v == 121:
-                Tex_influence_color_g = val
-
-            if v == 122:
-                Tex_influence_color_b = val
-
-            if v == 123:
-                Tex_influence_color_a = val
-
-            if v == 124:
-                Tex_influence_bump_method = val
-
-            if v == 125:
-                Tex_influence_objectspace = val
-
-            if v == 126:
-                Tex_mapping_texture_coords = val
-
-            if v == 127:
-                Tex_mapping_mapping = val
-
-            if v == 128:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_mapping_use_from_dupli = val
-
-            if v == 129:
-                Tex_mapping_mapping_x  = val
-
-            if v == 130:
-                Tex_mapping_mapping_y = val
-
-            if v == 131:
-                Tex_mapping_mapping_z = val
-
-            if v == 132:
-                Tex_mapping_offset_x = val
-
-            if v == 133:
-                Tex_mapping_offset_y = val
-
-            if v == 134:
-                Tex_mapping_offset_z = val
-
-            if v == 135:
-                Tex_mapping_scale_x = val
-
-            if v == 136:
-                Tex_mapping_scale_y  = val
-
-            if v == 137:
-                Tex_mapping_scale_z = val
-
-            if v == 138:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_colors_use_color_ramp = val
-
-            if v == 139:
-                Tex_colors_factor_r = val
-
-            if v == 140:
-                Tex_colors_factor_g = val
-
-            if v == 141:
-                Tex_colors_factor_b = val
-
-            if v == 142:
-                Tex_colors_intensity = val
-
-            if v == 143:
-                Tex_colors_contrast = val
-
-            if v == 144:
-                Tex_colors_saturation = val
-
-            if v == 145:
-                Mat_Idx = val
-
-            if v == 146:
-                Poi_Idx = val
-
-            if v == 147:
-                Col_Idx = val
-
-            if v == 148:
-                Tex_type_voronoi_intensity = val
-
-            if v == 149:
-                #I convert SQlite Boolean to Blender Boolean:
-                if val == 1:
-                    val = True
-
-                else:
-                    val = False
-
-                Tex_mapping_use_from_original = val
-
-            if v == 150:
-                Tex_type_noise_distortion_noise_distortion = val
-
-            if v == 151:
-                Tex_type_noise_distortion_basis = val
-
-
-            v = v + 1
-
-
+    for textureNumberSlot, ThisTexture in enumerate(MyTextureResult) :
+        Tex_Type = ThisTexture["Tex_Type"]
         #Create texture :
-        mytex = ""
-        mytex = bpy.data.textures.new(name =Tex_Name , type=Tex_Type)
-        slot =  obj.active_material.texture_slots.add()
-        slot.texture = mytex
-        slot.texture.use_preview_alpha  = Tex_use_preview_alpha
-
-
-
-
-        if Tex_Type ==  'CLOUDS' :
-            slot.texture.cloud_type  = Tex_type_clouds_cloud_type
-            slot.texture.noise_type  = Tex_type_clouds_noise_type
-            slot.texture.noise_basis  = Tex_type_clouds_noise_basis
-            slot.texture.noise_scale  = Tex_type_clouds_noise_scale
-            slot.texture.nabla  = Tex_type_clouds_nabla
-            slot.texture.noise_depth  = Tex_type_clouds_noise_depth
-
-
-        if Tex_Type ==  'POINT_DENSITY' :
-            slot.texture.point_density.point_source  = Tex_type_point_density_point_source
-            slot.texture.point_density.radius  = Tex_type_point_density_radius
-            slot.texture.point_density.particle_cache_space  = Tex_type_point_density_particule_cache_space
-            slot.texture.point_density.falloff  = Tex_type_point_density_falloff
-            slot.texture.point_density.use_falloff_curve  = Tex_type_point_density_use_falloff_curve
-            slot.texture.point_density.falloff_soft  = Tex_type_point_density_falloff_soft
-            slot.texture.point_density.falloff_speed_scale  = Tex_type_point_density_falloff_speed_scale
-            slot.texture.point_density.speed_scale  = Tex_type_point_density_speed_scale
-            slot.texture.point_density.color_source  = Tex_type_point_density_color_source
-
+        slot = obj.active_material.texture_slots.add()
+        slot.texture = bpy.data.textures.new(name = ThisTexture["Tex_Name"], type = Tex_Type)
+        SetupObject \
+          (
+            slot,
+            ThisTexture,
+            texture_fields,
+            include = lambda field : texture_fields[field].get("type") in (None, Tex_Type)
+          )
+        if Tex_Type == 'POINT_DENSITY' :
             #My point density ramp:
-            MyPointDensityRampRequest = "SELECT * FROM POINTDENSITY_RAMP WHERE Poi_Num_Texture=" + str(Tex_Index)
-            Connexion = ShadersToolsDatabase.cursor()
-            Connexion.execute(MyPointDensityRampRequest)
-            ShadersToolsDatabase.commit()
-            MyPointDensityRampResult = Connexion.fetchall()
-
+            MyPointDensityRampResult = GetRecords \
+              (
+                Conn = ShaderToolsDatabase,
+                TableName = "POINTDENSITY_RAMP",
+                Condition = "Poi_Num_Texture = %s",
+                Values = [ThisTexture["Tex_Index"]],
+                FieldDefs = pointdensity_ramp_fields
+              )
             RAMP_MIN_POSITION = 0.0
             RAMP_MAX_POSITION = 1.0
-
-            if MyPointDensityRampResult != []:
-                v = 0
-                counter = -1
-                loop = -1
-                #I must count numbers of ramps:
-                for values in MyPointDensityRampResult:
-                    loop = loop + 1
-
+            if MyPointDensityRampResult != [] :
+                ramp_last = len(MyPointDensityRampResult) - 1
                 #Now I create ramps:
-                for values in MyPointDensityRampResult:
-                    v = 0
-                    counter = counter + 1
-                    for val in values:
-
-                        #Debug
-                        if val == 'False':
-                            val = False
-
-                        if val == 'True':
-                            val = True
-
-
-                        #Affect values:
-                        if v == 0:
-                            Poi_Index = val
-
-                        if v == 1:
-                            Poi_Num_Material = val
-
-                        if v == 2:
-                            Poi_Num_Texture = val
-
-                        if v == 3:
-                            #I convert SQlite Boolean to Blender Boolean:
-                            if val == 1:
-                                val = True
-
-                            else:
-                                val = False
-
-                            Poi_Flip = val
-
-                        if v == 4:
-                            Poi_Active_color_stop = val
-
-                        if v == 5:
-                            Poi_Between_color_stop = val
-
-                        if v == 6:
-                            Poi_Interpolation = val
-
-                        if v == 7:
-                            Poi_Position = val
-
-                        if v == 8:
-                            Poi_Color_stop_one_r = val
-
-                        if v == 9:
-                            Poi_Color_stop_one_g = val
-
-                        if v == 10:
-                            Poi_Color_stop_one_b = val
-
-                        if v == 11:
-                            Poi_Color_stop_one_a = val
-
-                        if v == 12:
-                            Poi_Color_stop_two_r = val
-
-                        if v == 13:
-                            Poi_Color_stop_two_g = val
-
-                        if v == 14:
-                            Poi_Color_stop_two_b = val
-
-                        if v == 15:
-                            Poi_Color_stop_two_a = val
-
-                        v = v + 1
-
-
+                for counter, values in enumerate(MyPointDensityRampResult) :
                     #Here my specular ramp :
                     ramp = bpy.context.object.active_material.texture_slots[textureNumberSlot].texture
-
-
-                    if ramp.point_density.color_source == 'PARTICLE_SPEED' or ramp.point_density.color_source == 'PARTICLE_AGE':
-                        if counter == 0:
+                    if ramp.point_density.color_source == 'PARTICLE_SPEED' or ramp.point_density.color_source == 'PARTICLE_AGE' :
+                        if counter == 0 :
                             #Here i get differentes color bands:
-                            RAMP_MIN_POSITION = Poi_Position
-                            ramp.point_density.color_ramp.elements[0].position = Poi_Position
-                            ramp.point_density.color_ramp.interpolation  = Poi_Interpolation
-                            ramp.point_density.color_ramp.elements[counter].color[0]  =  Poi_Color_stop_one_r
-                            ramp.point_density.color_ramp.elements[counter].color[1]  =  Poi_Color_stop_one_g
-                            ramp.point_density.color_ramp.elements[counter].color[2]  =  Poi_Color_stop_one_b
-                            ramp.point_density.color_ramp.elements[counter].color[3]  =  Poi_Color_stop_one_a
-
-                        if counter > 0 and counter < loop:
+                            RAMP_MIN_POSITION = values["Poi_Position"]
+                            ramp.point_density.color_ramp.elements[0].position = values["Poi_Position"]
+                        #end if
+                        if counter > 0 and counter < ramp_last:
                             #Here i get differentes color bands:
-                            ramp.point_density.color_ramp.elements.new(position = Poi_Position)
-                            ramp.point_density.color_ramp.interpolation  = Poi_Interpolation
-                            ramp.point_density.color_ramp.elements[counter].color[0]  =  Poi_Color_stop_one_r
-                            ramp.point_density.color_ramp.elements[counter].color[1]  =  Poi_Color_stop_one_g
-                            ramp.point_density.color_ramp.elements[counter].color[2]  =  Poi_Color_stop_one_b
-                            ramp.point_density.color_ramp.elements[counter].color[3]  =  Poi_Color_stop_one_a
-
-                        if counter == loop:
-                            RAMP_MAX_POSITION = Poi_Position
-                            ramp.point_density.color_ramp.elements[counter].position=1.0
-                            ramp.point_density.color_ramp.interpolation  = Poi_Interpolation
-                            ramp.point_density.color_ramp.elements[counter].color[0]  =  Poi_Color_stop_one_r
-                            ramp.point_density.color_ramp.elements[counter].color[1]  =  Poi_Color_stop_one_g
-                            ramp.point_density.color_ramp.elements[counter].color[2]  =  Poi_Color_stop_one_b
-                            ramp.point_density.color_ramp.elements[counter].color[3]  =  Poi_Color_stop_one_a
-
+                            ramp.point_density.color_ramp.elements.new(position = values["Poi_Position"])
+                        #end if
+                        if counter == ramp_last :
+                            RAMP_MAX_POSITION = values["Poi_Position"]
+                            ramp.point_density.color_ramp.elements[counter].position = 1.0
                             #Debug first ramp and last ramp positions:
                             ramp.point_density.color_ramp.elements[0].position = RAMP_MIN_POSITION
                             ramp.point_density.color_ramp.elements[counter].position = RAMP_MAX_POSITION
+                        #end if
+                        ramp.point_density.color_ramp.interpolation  = values["Poi_Interpolation"]
+                        ramp.point_density.color_ramp.elements[counter].color[0] = values["Poi_Color_stop_one_r"]
+                        ramp.point_density.color_ramp.elements[counter].color[1] = values["Poi_Color_stop_one_g"]
+                        ramp.point_density.color_ramp.elements[counter].color[2] = values["Poi_Color_stop_one_b"]
+                        ramp.point_density.color_ramp.elements[counter].color[3] = values["Poi_Color_stop_one_a"]
+                    #end if
+                #end for
+            #end if
+        #end if
 
-
-
-
-        #**************************************************************************************************************************
-
-
-
-        if Tex_Type ==  'ENVIRONMENT_MAP' :
-            slot.texture.environment_map.source  = Tex_type_env_map_source
-            slot.texture.environment_map.mapping  = Tex_type_env_map_mapping
-            slot.texture.environment_map.clip_start  = Tex_type_env_map_clip_start
-            slot.texture.environment_map.clip_end  = Tex_type_env_map_clip_end
-            slot.texture.environment_map.resolution  = Tex_type_env_map_resolution
-            slot.texture.environment_map.depth  = Tex_type_env_map_depth
-            slot.texture.environment_map.zoom  = Tex_type_env_map_zoom
-
-
-        if Tex_Type ==  'MAGIC':
-            slot.texture.noise_depth  = Tex_type_magic_depth
-            slot.texture.turbulence  = Tex_type_magic_turbulence
-
-
-        if Tex_Type == 'MARBLE':
-            slot.texture.marble_type  = Tex_type_marble_marble_type
-            slot.texture.noise_basis_2  = Tex_type_marble_noise_basis_2
-            slot.texture.noise_type  = Tex_type_marble_noise_type
-            slot.texture.noise_basis  = Tex_type_marble_noise_basis
-            slot.texture.noise_scale  = Tex_type_marble_noise_scale
-            slot.texture.noise_depth  = Tex_type_marble_noise_depth
-            slot.texture.turbulence  = Tex_type_marble_turbulence
-            slot.texture.nabla  = Tex_type_marble_nabla
-
-
-        if Tex_Type == 'MUSGRAVE':
-            slot.texture.musgrave_type  = Tex_type_musgrave_type
-            slot.texture.dimension_max  = Tex_type_musgrave_dimension_max
-            slot.texture.lacunarity  = Tex_type_musgrave_lacunarity
-            slot.texture.octaves  = Tex_type_musgrave_octaves
-            slot.texture.noise_intensity  = Tex_type_musgrave_noise_intensity
-            slot.texture.noise_basis  = Tex_type_musgrave_noise_basis
-            slot.texture.noise_scale  = Tex_type_musgrave_noise_scale
-            slot.texture.nabla  = Tex_type_musgrave_nabla
-            slot.texture.offset  = Tex_type_musgrave_offset
-            slot.texture.gain  = Tex_type_musgrave_gain
-
-
-        if Tex_Type == 'DISTORTED_NOISE':
-            slot.texture.distortion  = Tex_type_noise_distortion_distortion
-            slot.texture.noise_distortion  = Tex_type_noise_distortion_noise_distortion
-            slot.texture.noise_basis  = Tex_type_noise_distortion_basis
-            slot.texture.nabla  = Tex_type_noise_distortion_nabla
-            slot.texture.noise_scale  = Tex_type_noise_distortion_noise_scale
-
-
-        if Tex_Type == 'STUCCI':
-            slot.texture.stucci_type  = Tex_type_stucci_type
-            slot.texture.noise_type  = Tex_type_stucci_noise_type
-            slot.texture.noise_basis  = Tex_type_stucci_basis
-            slot.texture.noise_scale  = Tex_type_stucci_noise_scale
-            slot.texture.turbulence  = Tex_type_stucci_turbulence
-
-
-        if Tex_Type == 'VORONOI':
-            slot.texture.noise_intensity  = Tex_type_voronoi_intensity
-            slot.texture.distance_metric  = Tex_type_voronoi_distance_metric
-            slot.texture.minkovsky_exponent  = Tex_type_voronoi_minkovsky_exponent
-            slot.texture.color_mode  = Tex_type_voronoi_color_mode
-            slot.texture.noise_scale  = Tex_type_voronoi_noise_scale
-            slot.texture.nabla  = Tex_type_voronoi_nabla
-            slot.texture.weight_1  = Tex_type_voronoi_weight_1
-            slot.texture.weight_2  = Tex_type_voronoi_weight_2
-            slot.texture.weight_3  = Tex_type_voronoi_weight_3
-            slot.texture.weight_4  = Tex_type_voronoi_weight_4
-
-
-        if Tex_Type == 'VOXEL_DATA':
-            slot.texture.voxel_data.file_format  = Tex_type_voxel_data_file_format
-            slot.texture.voxel_data.filepath  = Tex_type_voxel_data_source_path
-            slot.texture.voxel_data.use_still_frame  = Tex_type_voxel_data_use_still_frame
-            slot.texture.voxel_data.still_frame  = Tex_type_voxel_data_still_frame
-            slot.texture.voxel_data.interpolation  = Tex_type_voxel_data_interpolation
-            slot.texture.voxel_data.extension  = Tex_type_voxel_data_extension
-            slot.texture.voxel_data.intensity  = Tex_type_voxel_data_intensity
-            slot.texture.voxel_data.resolution[0]  = Tex_type_voxel_data_resolution_1
-            slot.texture.voxel_data.resolution[1]  = Tex_type_voxel_data_resolution_2
-            slot.texture.voxel_data.resolution[2]  = Tex_type_voxel_data_resoltion_3
-            slot.texture.voxel_data.smoke_data_type  = Tex_type_voxel_data_smoke_data_type
-
-
-        if Tex_Type == 'WOOD':
-            slot.texture.noise_basis_2  = Tex_type_wood_noise_basis_2
-            slot.texture.wood_type  = Tex_type_wood_wood_type
-            slot.texture.noise_type  = Tex_type_wood_noise_type
-            slot.texture.noise_basis  = Tex_type_wood_basis
-            slot.texture.noise_scale  = Tex_type_wood_noise_scale
-            slot.texture.nabla  = float(Tex_type_wood_nabla)
-            slot.texture.turbulence  = Tex_type_wood_turbulence
-
-
-
-        if Tex_Type == 'BLEND':
-            slot.texture.progression  = Tex_type_blend_progression
-            slot.texture.use_flip_axis  = Tex_type_blend_use_flip_axis
-
-
-        if Tex_Type ==  'IMAGE' :
+        if Tex_Type == 'IMAGE' :
             #I create image texture environnement:
-            imagePath = os.path.join(CopyBlendFolder, Tex_ima_name)
-            img=bpy.data.images.load(filepath=imagePath )
-
+            imagePath = os.path.join(CopyBlendFolder, MyImageUvRequest["Ima_Name"])
+            img = bpy.data.images.load(filepath = imagePath)
             #Now I create file:
-            slot.texture.image  = img
-            slot.texture.image.use_fields  = Tex_ima_fields
-            slot.texture.image.use_premultiply  = Tex_ima_premultiply
-            if Tex_ima_field_order != '': #Debug
-                slot.texture.image.field_order  = Tex_ima_field_order
+            slot.texture.image = img
+            slot.texture.image.use_fields = MyImageUvRequest["Ima_Fields"]
+            slot.texture.image.use_premultiply = MyImageUvRequest["Ima_Premultiply"]
+            if MyImageUvRequest["Ima_Fields_order"] != '' : #Debug
+                slot.texture.image.field_order = MyImageUvRequest["Ima_Fields_order"]
+            #end if
+        #end if
 
+        if slot.texture_coords == 'UV' or slot.texture_coords == 'ORCO' :
+            slot.use_from_dupli = ThisTexture["Tex_mapping_use_from_dupli"]
+        #end if
+        if slot.texture_coords == 'OBJECT' :
+            slot.use_from_original = ThisTexture["Tex_mapping_use_from_original"]
+        #end if
 
-        slot.texture.factor_red  = Tex_colors_factor_r
-        slot.texture.factor_green  = Tex_colors_factor_g
-        slot.texture.factor_blue  = Tex_colors_factor_b
-        slot.texture.intensity  = Tex_colors_intensity
-        slot.texture.contrast  = Tex_colors_contrast
-        slot.texture.saturation  = Tex_colors_saturation
-        slot.texture_coords  = Tex_mapping_texture_coords
-        slot.mapping  = Tex_mapping_mapping
-
-        if slot.texture_coords == 'UV' or slot.texture_coords == 'ORCO':
-            slot.use_from_dupli  = Tex_mapping_use_from_dupli
-
-        if slot.texture_coords == 'OBJECT':
-            slot.use_from_original  =  Tex_mapping_use_from_original
-
-        slot.mapping_x  = Tex_mapping_mapping_x
-        slot.mapping_y  = Tex_mapping_mapping_y
-        slot.mapping_z  = Tex_mapping_mapping_z
-        slot.offset[0]  = Tex_mapping_offset_x
-        slot.offset[1]  = Tex_mapping_offset_y
-        slot.offset[2]  = Tex_mapping_offset_z
-        slot.scale[0]  = Tex_mapping_scale_x
-        slot.scale[1]  = Tex_mapping_scale_y
-        slot.scale[2]  = Tex_mapping_scale_z
-        slot.use_map_diffuse  = Tex_influence_use_map_diffuse
-        slot.use_map_color_diffuse  = Tex_influence_use_map_color_diffuse
-        slot.use_map_alpha  = Tex_influence_use_map_alpha
-        slot.use_map_translucency  = Tex_influence_use_map_translucency
-        slot.use_map_specular  = Tex_influence_use_map_specular
-        slot.use_map_color_spec  = Tex_influence_use_map_color_spec
-        slot.use_map_hardness  = Tex_influence_use_map_map_hardness
-        slot.use_map_ambient  = Tex_influence_use_map_ambient
-        slot.use_map_emit  = Tex_influence_use_map_emit
-        slot.use_map_mirror  = Tex_influence_use_map_mirror
-        slot.use_map_raymir  = Tex_influence_use_map_raymir
-        slot.use_map_normal  = Tex_influence_use_map_normal
-        slot.use_map_warp  = Tex_influence_use_map_warp
-        slot.use_map_displacement  = Tex_influence_use_map_displacement
-        slot.use_rgb_to_intensity  = Tex_influence_use_map_rgb_to_intensity
-        slot.invert = Tex_influence_map_invert
-        slot.use_stencil = Tex_influence_use_stencil
-        slot.diffuse_factor = Tex_influence_diffuse_factor
-        slot.diffuse_color_factor  = Tex_influence_color_factor
-        slot.alpha_factor  = Tex_influence_alpha_factor
-        slot.translucency_factor  = Tex_influence_translucency_factor
-        slot.specular_factor  = Tex_influence_specular_factor
-        slot.specular_color_factor  = Tex_influence_specular_color_factor
-        slot.hardness_factor  = Tex_influence_hardness_factor
-        slot.ambient_factor  = Tex_influence_ambiant_factor
-        slot.emit_factor  = Tex_influence_emit_factor
-        slot.mirror_factor  = Tex_influence_mirror_factor
-        slot.raymir_factor  = Tex_influence_raymir_factor
-        slot.normal_factor  = Tex_influence_normal_factor
-        slot.warp_factor  = Tex_influence_warp_factor
-        slot.displacement_factor  = Tex_influence_displacement_factor
-        slot.default_value  = Tex_influence_default_value
-        slot.blend_type  = Tex_influence_blend_type
-        slot.color[0]  = Tex_influence_color_r
-        slot.color[1]  = Tex_influence_color_g
-        slot.color[2]  = Tex_influence_color_b
-        slot.bump_method  =  Tex_influence_bump_method
-        slot.bump_objectspace  = Tex_influence_objectspace
-
-
-
-        #**********************************************************************************************************
         #My colors ramp:
-        MyColorRampRequest = "SELECT * FROM COLORS_RAMP WHERE Col_Num_Texture=" + str(Tex_Index)
-        Connexion = ShadersToolsDatabase.cursor()
-        Connexion.execute(MyColorRampRequest)
-        ShadersToolsDatabase.commit()
-        MyColorRampResult = Connexion.fetchall()
-
-        if MyColorRampResult != []:
-            v = 0
-            counter = -1
-            loop = -1
-            #I must count numbers of ramps:
-            for values in MyColorRampResult:
-                loop = loop + 1
-
+        MyColorRampResult = GetRecords \
+          (
+            Conn = ShaderToolsDatabase,
+            TableName = "COLORS_RAMP",
+            Condition = "Col_Num_Texture = %s",
+            Values = [ThisTexture["Tex_Index"]],
+            FieldDefs = color_ramp_fields
+          )
+        if MyColorRampResult != [] :
+            ramp_last = len(MyColorRampResult) - 1
             #Now I create ramps:
-            for values in MyColorRampResult:
-                v = 0
-                counter = counter + 1
-                for val in values:
-                    #Debug
-                    if val == 'False':
-                        val = False
-
-                    if val == 'True':
-                        val = True
-
-
-                    #Affect values:
-                    if v == 0:
-                        Col_Index = val
-
-                    if v == 1:
-                        Col_Num_Material = val
-
-                    if v == 2:
-                        Col_Num_Texture = val
-
-                    if v == 3:
-                        #I convert SQlite Boolean to Blender Boolean:
-                        if val == 1:
-                            val = True
-
-                        else:
-                            val = False
-
-                        Col_Flip = val
-
-                    if v == 4:
-                        Col_Active_color_stop = val
-
-                    if v == 5:
-                        Col_Between_color_stop = val
-
-                    if v == 6:
-                        Col_Interpolation = val
-
-                    if v == 7:
-                        Col_Position = val
-
-                    if v == 8:
-                        Col_Color_stop_one_r = val
-
-                    if v == 9:
-                        Col_Color_stop_one_g = val
-
-                    if v == 10:
-                        Col_Color_stop_one_b = val
-
-                    if v == 11:
-                        Col_Color_stop_one_a = val
-
-                    if v == 12:
-                        Col_Color_stop_two_r = val
-
-                    if v == 13:
-                        Col_Color_stop_two_g = val
-
-                    if v == 14:
-                        Col_Color_stop_two_b = val
-
-                    if v == 15:
-                        Col_Color_stop_two_a = val
-
-                    v = v + 1
-
-
+            for counter, values in enumerate(MyColorRampResult) :
                 #Here my specular ramp :
                 ramp = bpy.context.object.active_material.texture_slots[textureNumberSlot].texture
-
                 #Here my specular ramp :
                 ramp.use_color_ramp = True
-
-                if counter == 0:
+                if counter == 0 :
                     #Here i get differentes color bands:
-                    RAMP_MIN_POSITION = Col_Position
-                    ramp.color_ramp.elements[0].position = Col_Position
-                    ramp.color_ramp.interpolation  = Col_Interpolation
-                    ramp.color_ramp.elements[counter].color[0]  =  Col_Color_stop_one_r
-                    ramp.color_ramp.elements[counter].color[1]  =  Col_Color_stop_one_g
-                    ramp.color_ramp.elements[counter].color[2]  =  Col_Color_stop_one_b
-                    ramp.color_ramp.elements[counter].color[3]  =  Col_Color_stop_one_a
-
-                if counter > 0 and counter < loop:
+                    RAMP_MIN_POSITION = values["Col_Position"]
+                    ramp.color_ramp.elements[0].position = values["Col_Position"]
+                #end if
+                if counter > 0 and counter < ramp_last:
                     #Here i get differentes color bands:
-                    ramp.color_ramp.elements.new(position = Col_Position)
-                    ramp.color_ramp.interpolation  = Col_Interpolation
-                    ramp.color_ramp.elements[counter].color[0]  =  Col_Color_stop_one_r
-                    ramp.color_ramp.elements[counter].color[1]  =  Col_Color_stop_one_g
-                    ramp.color_ramp.elements[counter].color[2]  =  Col_Color_stop_one_b
-                    ramp.color_ramp.elements[counter].color[3]  =  Col_Color_stop_one_a
-
-                if counter == loop:
-                    RAMP_MAX_POSITION = Col_Position
-                    ramp.color_ramp.elements[counter].position=1.0
-                    ramp.color_ramp.interpolation  = Col_Interpolation
-                    ramp.color_ramp.elements[counter].color[0]  =  Col_Color_stop_one_r
-                    ramp.color_ramp.elements[counter].color[1]  =  Col_Color_stop_one_g
-                    ramp.color_ramp.elements[counter].color[2]  =  Col_Color_stop_one_b
-                    ramp.color_ramp.elements[counter].color[3]  =  Col_Color_stop_one_a
-
+                    ramp.color_ramp.elements.new(position = values["Col_Position"])
+                #end if
+                if counter == ramp_last :
+                    RAMP_MAX_POSITION = values["Col_Position"]
+                    ramp.color_ramp.elements[counter].position = 1.0
                     #Debug first ramp and last ramp positions:
                     ramp.color_ramp.elements[0].position = RAMP_MIN_POSITION
                     ramp.color_ramp.elements[counter].position = RAMP_MAX_POSITION
-
-
-    #**************************************************************************************************************************
+                #end if
+                ramp.color_ramp.interpolation = values["Col_Interpolation"]
+                ramp.color_ramp.elements[counter].color[0] = values["Col_Color_stop_one_r"]
+                ramp.color_ramp.elements[counter].color[1] = values["Col_Color_stop_one_g"]
+                ramp.color_ramp.elements[counter].color[2] = values["Col_Color_stop_one_b"]
+                ramp.color_ramp.elements[counter].color[3] = values["Col_Color_stop_one_a"]
+            #end for
+        #end if MyColorRampResult != []
+    #end for each texture
 
     #My diffuse ramp:
-    MyDiffuseRampRequest = "SELECT * FROM DIFFUSE_RAMP WHERE Dif_Num_material=" + str(MyMaterialIndex)
-    Connexion = ShadersToolsDatabase.cursor()
-    Connexion.execute(MyDiffuseRampRequest)
-    ShadersToolsDatabase.commit()
-    MyDiffuseRampResult = Connexion.fetchall()
-
-    if MyDiffuseRampResult != []:
-        v = 0
-        counter = -1
-        loop = -1
-        #I must count numbers of ramps:
-        for values in MyDiffuseRampResult:
-            loop = loop + 1
-
+    MyDiffuseRampResult = GetRecords \
+      (
+        Conn = ShaderToolsDatabase,
+        TableName = "DIFFUSE_RAMP",
+        Condition = "Dif_Num_material = %s",
+        Values = [MyMaterialIndex],
+        FieldDefs = diffuse_ramp_fields
+      )
+    if MyDiffuseRampResult != [] :
+        ramp_last = len(MyDiffuseRampResult) - 1
         #Now I create ramps:
-        for values in MyDiffuseRampResult:
-            v = 0
-            counter = counter + 1
-            for val in values:
-
-                #Debug
-                if val == 'False':
-                    val = False
-
-                if val == 'True':
-                    val = True
-
-
-                #Affect values:
-                if v == 0:
-                    Dif_Index = val
-
-                if v == 1:
-                    Dif_Num_Material = val
-
-                if v == 2:
-                    #I convert SQlite Boolean to Blender Boolean:
-                    if val == 1:
-                        val = True
-
-                    else:
-                        val = False
-
-                    Dif_Flip = val
-
-                if v == 3:
-                    Dif_Active_color_stop = val
-
-                if v == 4:
-                    Dif_Between_color_stop = val
-
-                if v == 5:
-                    Dif_Interpolation = val
-
-                if v == 6:
-                    Dif_Position = val
-
-                if v == 7:
-                    Dif_Color_stop_one_r = val
-
-                if v == 8:
-                    Dif_Color_stop_one_g = val
-
-                if v == 9:
-                    Dif_Color_stop_one_b = val
-
-                if v == 10:
-                    Dif_Color_stop_one_a = val
-
-                if v == 11:
-                    Dif_Color_stop_two_r = val
-
-                if v == 12:
-                    Dif_Color_stop_two_g = val
-
-                if v == 13:
-                    Dif_Color_stop_two_b = val
-
-                if v == 14:
-                    Dif_Color_stop_two_a = val
-
-                if v == 15:
-                    Dif_Ramp_input = val
-
-                if v == 16:
-                    Dif_Ramp_blend = val
-
-                if v == 17:
-                    Dif_Ramp_factor = val
-
-                v = v + 1
-
-
-            #Here my diffuse ramp :
+        for counter, values in enumerate(MyDiffuseRampResult) :
             ramp = bpy.context.object.active_material
-
-            #Here my diffuse ramp :
             ramp.use_diffuse_ramp = True
-
-            if counter == 0:
+            if counter == 0 :
                 #Here i get differentes color bands:
-                RAMP_MIN_POSITION = Dif_Position
-                ramp.diffuse_ramp.elements[0].position = Dif_Position
-                ramp.diffuse_ramp_blend  = Dif_Ramp_blend
-                ramp.diffuse_ramp_input  = Dif_Ramp_input
-                ramp.diffuse_ramp_factor  = Dif_Ramp_factor
-                ramp.diffuse_ramp.interpolation  = Dif_Interpolation
-                ramp.diffuse_ramp.elements[counter].color[0]  =  Dif_Color_stop_one_r
-                ramp.diffuse_ramp.elements[counter].color[1]  =  Dif_Color_stop_one_g
-                ramp.diffuse_ramp.elements[counter].color[2]  =  Dif_Color_stop_one_b
-                ramp.diffuse_ramp.elements[counter].color[3]  =  Dif_Color_stop_one_a
-
-            if counter > 0 and counter < loop:
+                RAMP_MIN_POSITION = values["Dif_Position"]
+                ramp.diffuse_ramp.elements[0].position = values["Dif_Position"]
+            #end if
+            if counter > 0 and counter < ramp_last :
                 #Here i get differentes color bands:
-                ramp.diffuse_ramp.elements.new(position = Dif_Position)
-                ramp.diffuse_ramp_blend  = Dif_Ramp_blend
-                ramp.diffuse_ramp_input  = Dif_Ramp_input
-                ramp.diffuse_ramp_factor  = Dif_Ramp_factor
-                ramp.diffuse_ramp.interpolation  = Dif_Interpolation
-                ramp.diffuse_ramp.elements[counter].color[0]  =  Dif_Color_stop_one_r
-                ramp.diffuse_ramp.elements[counter].color[1]  =  Dif_Color_stop_one_g
-                ramp.diffuse_ramp.elements[counter].color[2]  =  Dif_Color_stop_one_b
-                ramp.diffuse_ramp.elements[counter].color[3]  =  Dif_Color_stop_one_a
-
-            if counter == loop:
-                RAMP_MAX_POSITION = Dif_Position
-                ramp.diffuse_ramp.elements[counter].position=1.0
-                ramp.diffuse_ramp_blend  = Dif_Ramp_blend
-                ramp.diffuse_ramp_input  = Dif_Ramp_input
-                ramp.diffuse_ramp_factor  = Dif_Ramp_factor
-                ramp.diffuse_ramp.interpolation  = Dif_Interpolation
-                ramp.diffuse_ramp.elements[counter].color[0]  =  Dif_Color_stop_one_r
-                ramp.diffuse_ramp.elements[counter].color[1]  =  Dif_Color_stop_one_g
-                ramp.diffuse_ramp.elements[counter].color[2]  =  Dif_Color_stop_one_b
-                ramp.diffuse_ramp.elements[counter].color[3]  =  Dif_Color_stop_one_a
-
-
+                ramp.diffuse_ramp.elements.new(position = values["Dif_Position"])
+            #end if
+            if counter == ramp_last :
+                RAMP_MAX_POSITION = values["Dif_Position"]
+                ramp.diffuse_ramp.elements[counter].position = 1.0
                 #Debug first ramp and last ramp positions:
                 ramp.diffuse_ramp.elements[0].position = RAMP_MIN_POSITION
                 ramp.diffuse_ramp.elements[counter].position = RAMP_MAX_POSITION
-
-
-    #**********************************************************************************************************
+            #end if
+            ramp.diffuse_ramp_blend = values["Dif_Ramp_blend"]
+            ramp.diffuse_ramp_input = values["Dif_Ramp_input"]
+            ramp.diffuse_ramp_factor = values["Dif_Ramp_factor"]
+            ramp.diffuse_ramp.interpolation = values["Dif_Interpolation"]
+            ramp.diffuse_ramp.elements[counter].color[0] = values["Dif_Color_stop_one_r"]
+            ramp.diffuse_ramp.elements[counter].color[1] = values["Dif_Color_stop_one_g"]
+            ramp.diffuse_ramp.elements[counter].color[2] = values["Dif_Color_stop_one_b"]
+            ramp.diffuse_ramp.elements[counter].color[3] = values["Dif_Color_stop_one_a"]
+        #end for
+    #end if
 
     #My specular ramp:
-    MySpecularRampRequest = "SELECT * FROM SPECULAR_RAMP WHERE Spe_Num_Material=" + str(MyMaterialIndex)
-    Connexion = ShadersToolsDatabase.cursor()
-    Connexion.execute(MySpecularRampRequest)
-    ShadersToolsDatabase.commit()
-    MySpecularRampResult = Connexion.fetchall()
-
+    MySpecularRampResult = GetRecords \
+      (
+        Conn = ShaderToolsDatabase,
+        TableName = "SPECULAR_RAMP",
+        Condition = "Spe_Num_Material = %s",
+        Values = [MyMaterialIndex],
+        FieldDefs = specular_ramp_fields
+      )
     if MySpecularRampResult != []:
-        v = 0
-        counter = -1
-        loop = -1
-        #I must count numbers of ramps:
-        for values in MySpecularRampResult:
-            loop = loop + 1
-
+        ramp_last = len(MySpecularRampResult) - 1
         #Now I create ramps:
-        for values in MySpecularRampResult:
-            v = 0
-            counter = counter + 1
-            for val in values:
-
-                #Debug
-                if val == 'False':
-                    val = False
-
-                if val == 'True':
-                    val = True
-
-
-                #Affect values:
-                if v == 0:
-                    Spe_Index = val
-
-                if v == 1:
-                    Spe_Num_Material = val
-
-                if v == 2:
-                    #I convert SQlite Boolean to Blender Boolean:
-                    if val == 1:
-                        val = True
-
-                    else:
-                        val = False
-
-                    Spe_Flip = val
-
-                if v == 3:
-                    Spe_Active_color_stop = val
-
-                if v == 4:
-                    Spe_Between_color_stop = val
-
-                if v == 5:
-                    Spe_Interpolation = val
-
-                if v == 6:
-                    Spe_Position = val
-
-                if v == 7:
-                    Spe_Color_stop_one_r = val
-
-                if v == 8:
-                    Spe_Color_stop_one_g = val
-
-                if v == 9:
-                    Spe_Color_stop_one_b = val
-
-                if v == 10:
-                    Spe_Color_stop_one_a = val
-
-                if v == 11:
-                    Spe_Color_stop_two_r = val
-
-                if v == 12:
-                    Spe_Color_stop_two_g = val
-
-                if v == 13:
-                    Spe_Color_stop_two_b = val
-
-                if v == 14:
-                    Spe_Color_stop_two_a = val
-
-                if v == 15:
-                    Spe_Ramp_input = val
-
-                if v == 16:
-                    Spe_Ramp_blend = val
-
-                if v == 17:
-                    Spe_Ramp_factor = val
-
-                v = v + 1
-
-
-            #Here my specular ramp :
+        for counter, values in enumerate(MySpecularRampResult) :
             ramp = bpy.context.object.active_material
-
-            #Here my specular ramp :
             ramp.use_specular_ramp = True
-
-            if counter == 0:
+            if counter == 0 :
                 #Here i get differentes color bands:
-                RAMP_MIN_POSITION = Spe_Position
-                ramp.specular_ramp.elements[0].position = Spe_Position
-                ramp.specular_ramp_blend  = Spe_Ramp_blend
-                ramp.specular_ramp_input  = Spe_Ramp_input
-                ramp.specular_ramp_factor  = Spe_Ramp_factor
-                ramp.specular_ramp.interpolation  = Spe_Interpolation
-                ramp.specular_ramp.elements[counter].color[0]  =  Spe_Color_stop_one_r
-                ramp.specular_ramp.elements[counter].color[1]  =  Spe_Color_stop_one_g
-                ramp.specular_ramp.elements[counter].color[2]  =  Spe_Color_stop_one_b
-                ramp.specular_ramp.elements[counter].color[3]  =  Spe_Color_stop_one_a
-
-            if counter > 0 and counter < loop:
+                RAMP_MIN_POSITION = values["Spe_Position"]
+                ramp.specular_ramp.elements[0].position = values["Spe_Position"]
+            #end if
+            if counter > 0 and counter < ramp_last :
                 #Here i get differentes color bands:
-                ramp.specular_ramp.elements.new(position = Spe_Position)
-                ramp.specular_ramp_blend  = Spe_Ramp_blend
-                ramp.specular_ramp_input  = Spe_Ramp_input
-                ramp.specular_ramp_factor  = Spe_Ramp_factor
-                ramp.specular_ramp.interpolation  = Spe_Interpolation
-                ramp.specular_ramp.elements[counter].color[0]  =  Spe_Color_stop_one_r
-                ramp.specular_ramp.elements[counter].color[1]  =  Spe_Color_stop_one_g
-                ramp.specular_ramp.elements[counter].color[2]  =  Spe_Color_stop_one_b
-                ramp.specular_ramp.elements[counter].color[3]  =  Spe_Color_stop_one_a
-
-            if counter == loop:
-                RAMP_MAX_POSITION = Spe_Position
-                ramp.specular_ramp.elements[counter].position=1.0
-                ramp.specular_ramp_blend  = Spe_Ramp_blend
-                ramp.specular_ramp_input  = Spe_Ramp_input
-                ramp.specular_ramp_factor  = Spe_Ramp_factor
-                ramp.specular_ramp.interpolation  = Spe_Interpolation
-                ramp.specular_ramp.elements[counter].color[0]  =  Spe_Color_stop_one_r
-                ramp.specular_ramp.elements[counter].color[1]  =  Spe_Color_stop_one_g
-                ramp.specular_ramp.elements[counter].color[2]  =  Spe_Color_stop_one_b
-                ramp.specular_ramp.elements[counter].color[3]  =  Spe_Color_stop_one_a
-
-
+                ramp.specular_ramp.elements.new(position = values["Spe_Position"])
+            #end if
+            if counter == ramp_last :
+                RAMP_MAX_POSITION = values["Spe_Position"]
+                ramp.specular_ramp.elements[counter].position = 1.0
                 #Debug first ramp and last ramp positions:
                 ramp.specular_ramp.elements[0].position = RAMP_MIN_POSITION
                 ramp.specular_ramp.elements[counter].position = RAMP_MAX_POSITION
+            #end if
+            ramp.specular_ramp_blend = values["Spe_Ramp_blend"]
+            ramp.specular_ramp_input = values["Spe_Ramp_input"]
+            ramp.specular_ramp_factor = values["Spe_Ramp_factor"]
+            ramp.specular_ramp.interpolation  = values["Spe_Interpolation"]
+            ramp.specular_ramp.elements[counter].color[0] = values["Spe_Color_stop_one_r"]
+            ramp.specular_ramp.elements[counter].color[1] = values["Spe_Color_stop_one_g"]
+            ramp.specular_ramp.elements[counter].color[2] = values["Spe_Color_stop_one_b"]
+            ramp.specular_ramp.elements[counter].color[3] = values["Spe_Color_stop_one_a"]
+        #end for
+    #end if
 
-
-
-
-    #I close base
-    Connexion.close()
-
-
-
-    #**********************************************************************************************************************************
-
+    ShaderToolsDatabase.close()
+#end ImporterSQL
 
 
 # ************************************************************************************
@@ -4392,25 +2806,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                                ]
 
 
-                #MY IMAGE_UV DATA BASE NAME LIST :
-                MY_IMAGE_UV_DATABASE_NAME =  ['Ima_Index',
-                                          'Idx_Texture',
-                                          'Ima_Name',
-                                          'Ima_Source',
-                                          'Ima_Filepath',
-                                          'Ima_Fileformat',
-                                          'Ima_Fields',
-                                          'Ima_Premultiply',
-                                          'Ima_Fields_order',
-                                          'Ima_Generated_type',
-                                          'Ima_Generated_width',
-                                          'Ima_Generated_height',
-                                          'Ima_Float_buffer',
-                                          'Ima_Blob'
-                                         ]
-
-
-
                 #I create my request here but in first time i debug list IMAGES/UV values:
                 MY_SQL_TABLE_IMAGE_UV = []
                 values = ""
@@ -4430,7 +2825,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
 
 
                 values = ""
-                for values in MY_IMAGE_UV_DATABASE_NAME:
+                for values in image_uv_fields:
                     MY_SQL_TABLE_IMAGE_UV.append(values)
 
 
@@ -5470,7 +3865,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
 
     #My values:
     Dif_Index = 0
-    Dif_Num_Material = 0
+    Dif_Num_material = 0
     Dif_Flip = 0
     Dif_Active_color_stop = 0
     Dif_Between_color_stop = 0
@@ -5507,7 +3902,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
             if counter == 0:
                 #Here i get differentes color bands:
                 Dif_Index = Dif_Idx[5]
-                Dif_Num_Material = Dif_Idx[1] -1
+                Dif_Num_material = Dif_Idx[1] -1
                 Dif_Flip = 0
                 Dif_Active_color_stop = 0
                 Dif_Between_color_stop = "'" + ramp.diffuse_ramp.interpolation + "'"
@@ -5531,7 +3926,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
             if counter > 0 and counter < loop - 1 :
                 #Here i get differentes color bands:
                 Dif_Index = Dif_Idx[5]
-                Dif_Num_Material = Dif_Idx[1] - 1
+                Dif_Num_material = Dif_Idx[1] - 1
                 Dif_Flip = 0
                 Dif_Active_color_stop = 0
                 Dif_Between_color_stop = "'" + ramp.diffuse_ramp.interpolation + "'"
@@ -5553,7 +3948,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
 
             if counter == loop - 1:
                 Dif_Index = Dif_Idx[5]
-                Dif_Num_Material = Dif_Idx[1] - 1
+                Dif_Num_material = Dif_Idx[1] - 1
                 Dif_Flip = 0
                 Dif_Active_color_stop = 0
                 Dif_Between_color_stop = "'" + ramp.diffuse_ramp.interpolation + "'"
@@ -5579,7 +3974,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
 
             #MY DIFFUSE RAMP LIST :
             MY_DIFFUSE_RAMP =  [Dif_Index,
-                             Dif_Num_Material,
+                             Dif_Num_material,
                              Dif_Flip,
                              Dif_Active_color_stop,
                              Dif_Between_color_stop,
@@ -5601,7 +3996,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
 
             #MY DIFFUSE RAMP DATA BASE NAME LIST :
             MY_DIFFUSE_RAMP_DATABASE_NAME =  ['Dif_Index',
-                                      'Dif_Num_Material',
+                                      'Dif_Num_material',
                                       'Dif_Flip',
                                       'Dif_Active_color_stop',
                                       'Dif_Between_color_stop',
