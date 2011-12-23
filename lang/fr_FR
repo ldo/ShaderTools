@@ -93,7 +93,6 @@ Wood=Bois
 [ConfigurationMenu]
 Title=Creer une configuration
 Label01=Parametres d'export
-ExportPath=Chemin d'export
 Label02=Parametres de la Base de Donnees
 DataBasePath=Chemin de la Base
 Label03=Parametres de preview

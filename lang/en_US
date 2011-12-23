@@ -89,7 +89,6 @@ Wood=Wood
 [ConfigurationMenu]
 Title=Create a confiuguration
 Label01=Parameters of export
-ExportPath=Path export
 Label02=Parameters of the Database
 DataBasePath=Path of Database
 Label03=Preview parameters

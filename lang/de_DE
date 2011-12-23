@@ -92,7 +92,6 @@ Wood=Holz
 [ConfigurationMenu]
 Title=Kreieren ein Konfiguration
 Label01=Export Parameter
-ExportPath=Export Pfadangabe
 Label02=Datenbank Parameter
 DataBasePath=Datenbank Pfadangabe
 Warning01=Configuration Werte nicht automatisch aktualisiert sind, aber die Änderungen 
