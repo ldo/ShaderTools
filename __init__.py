@@ -4914,50 +4914,48 @@ class CreateNew(bpy.types.Operator):
 # ************************************************************************************
 # *                                           MAIN                                   *
 # ************************************************************************************
-class PreconfiguredShadersPanel(bpy.types.Panel):
-    bl_label = LanguageValuesDict['PanelName']
-    bl_idname = "OBJECT_PT_shaders"
-    bl_space_type = "PROPERTIES"
-    bl_region_type = "WINDOW"
-    bl_context = "material"
 
-    def draw(self, context):
-        layout = self.layout
-        row = layout.row()
-        row.operator(OpenShaders.bl_idname, text=LanguageValuesDict['ButtonsOpen'], icon="NEWFOLDER" )
-        row.operator(SaveCurrentConfiguration.bl_idname, text=LanguageValuesDict['ButtonsSave'], icon="MATERIAL" )
-        row.operator(Export.bl_idname, text=LanguageValuesDict['ButtonsExport'], icon="SCRIPTWIN" )
-        row.operator(Import.bl_idname, text=LanguageValuesDict['ButtonsImport'], icon="SCRIPTWIN" )
-        row = layout.row()
-        row.operator(CreateNew.bl_idname, text=LanguageValuesDict['ButtonsCreate'], icon="BLENDER" )
-        row.operator(Configuration.bl_idname, text=LanguageValuesDict['ButtonsConfiguration'], icon="TEXT" )
-        row.operator(Help.bl_idname, text=LanguageValuesDict['ButtonsHelp'], icon="HELP")
-        row.operator(Credits.bl_idname, text="Credits", icon="QUESTION")
-        row = layout.row()
+MyRegClasses = \
+    (
+        SaveCurrentConfiguration,
+        UpdateWarning,
+        OpenShaders,
+        Configuration,
+        Export,
+        Import,
+        Credits,
+        CreateNew,
+        Help,
+    )
+
+def add_my_panel(self, context) :
+    layout = self.layout
+    row = layout.row()
+    row.operator(OpenShaders.bl_idname, text=LanguageValuesDict['ButtonsOpen'], icon="NEWFOLDER" )
+    row.operator(SaveCurrentConfiguration.bl_idname, text=LanguageValuesDict['ButtonsSave'], icon="MATERIAL" )
+    row.operator(Export.bl_idname, text=LanguageValuesDict['ButtonsExport'], icon="SCRIPTWIN" )
+    row.operator(Import.bl_idname, text=LanguageValuesDict['ButtonsImport'], icon="SCRIPTWIN" )
+    row = layout.row()
+    row.operator(CreateNew.bl_idname, text=LanguageValuesDict['ButtonsCreate'], icon="BLENDER" )
+    row.operator(Configuration.bl_idname, text=LanguageValuesDict['ButtonsConfiguration'], icon="TEXT" )
+    row.operator(Help.bl_idname, text=LanguageValuesDict['ButtonsHelp'], icon="HELP")
+    row.operator(Credits.bl_idname, text="Credits", icon="QUESTION")
+    row = layout.row()
+#end add_my_panel
 
 def register():
-    bpy.utils.register_class(SaveCurrentConfiguration)
-    bpy.utils.register_class(PreconfiguredShadersPanel)
-    bpy.utils.register_class(UpdateWarning)
-    bpy.utils.register_class(OpenShaders)
-    bpy.utils.register_class(Configuration)
-    bpy.utils.register_class(Export)
-    bpy.utils.register_class(Import)
-    bpy.utils.register_class(Credits)
-    bpy.utils.register_class(CreateNew)
-    bpy.utils.register_class(Help)
+    for c in MyRegClasses :
+        bpy.utils.register_class(c)
+    #end for
+    bpy.types.MATERIAL_PT_context_material.append(add_my_panel)
+#end register
 
 def unregister():
-    bpy.utils.unregister_class(SaveCurrentConfiguration)
-    bpy.utils.unregister_class(PreconfiguredShadersPanel)
-    bpy.utils.unregister_class(UpdateWarning)
-    bpy.utils.unregister_class(OpenShaders)
-    bpy.utils.unregister_class(Configuration)
-    bpy.utils.unregister_class(Export)
-    bpy.utils.unregister_class(Import)
-    bpy.utils.unregister_class(Credits)
-    bpy.utils.unregister_class(CreateNew)
-    bpy.utils.unregister_class(Help)
+    bpy.types.MATERIAL_PT_context_material.remove(add_my_panel)
+    for c in MyRegClasses :
+        bpy.utils.unregister_class(c)
+    #end for
+#end unregister
 
 # ************************************************************************************
 # *                           UPDATE BOOKMARKS INFORMATIONS                          *
