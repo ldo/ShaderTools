@@ -4924,15 +4924,15 @@ class PreconfiguredShadersPanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         row = layout.row()
-        row.operator("object.openshaders", text=LanguageValuesDict['ButtonsOpen'], icon="NEWFOLDER" )
-        row.operator("object.saveconfiguration", text=LanguageValuesDict['ButtonsSave'], icon="MATERIAL" )
-        row.operator("object.export", text=LanguageValuesDict['ButtonsExport'], icon="SCRIPTWIN" )
-        row.operator("object.import", text=LanguageValuesDict['ButtonsImport'], icon="SCRIPTWIN" )
+        row.operator(OpenShaders.bl_idname, text=LanguageValuesDict['ButtonsOpen'], icon="NEWFOLDER" )
+        row.operator(SaveCurrentConfiguration.bl_idname, text=LanguageValuesDict['ButtonsSave'], icon="MATERIAL" )
+        row.operator(Export.bl_idname, text=LanguageValuesDict['ButtonsExport'], icon="SCRIPTWIN" )
+        row.operator(Import.bl_idname, text=LanguageValuesDict['ButtonsImport'], icon="SCRIPTWIN" )
         row = layout.row()
-        row.operator("object.createnew", text=LanguageValuesDict['ButtonsCreate'], icon="BLENDER" )
-        row.operator("object.configuration", text=LanguageValuesDict['ButtonsConfiguration'], icon="TEXT" )
-        row.operator("object.help", text=LanguageValuesDict['ButtonsHelp'], icon="HELP")
-        row.operator("object.credits", text="Credits", icon="QUESTION")
+        row.operator(CreateNew.bl_idname, text=LanguageValuesDict['ButtonsCreate'], icon="BLENDER" )
+        row.operator(Configuration.bl_idname, text=LanguageValuesDict['ButtonsConfiguration'], icon="TEXT" )
+        row.operator(Help.bl_idname, text=LanguageValuesDict['ButtonsHelp'], icon="HELP")
+        row.operator(Credits.bl_idname, text="Credits", icon="QUESTION")
         row = layout.row()
 
 def register():
