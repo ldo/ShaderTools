@@ -210,7 +210,7 @@ LanguageKeys = \
 
 def LoadLanguageValues(languageUser, languageDict) :
     saveCategoryConfig = None
-    languageFile = open(os.path.join(AppPath, "lang", languageUser),'r')
+    languageFile = open(os.path.join(AppPath, "lang", languageUser), "r", encoding = "utf-8")
     for readValue in languageFile:
         readValue = readValue.rstrip("\n")
         section = None
