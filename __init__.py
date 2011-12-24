@@ -29,15 +29,7 @@ bl_info = {
     "tracker_url": "",
     "category": "System"}
 
-
-# ************************************************************************************
-# *                                      IMPORTS MODULES                             *
-# ************************************************************************************
 import bpy
-from bpy.props import (StringProperty,
-                       BoolProperty,
-                       EnumProperty,
-                       )
 
 import sqlite3
 import os
@@ -4629,7 +4621,7 @@ class Export(bpy.types.Operator):
 
     #I prepare the window :
     Inf_Creator = bpy.props.StringProperty(name=LanguageValuesDict['ExportMenuCreator'], default=DefaultCreator)
-    Take_a_preview = BoolProperty(name=LanguageValuesDict['ExportMenuTakePreview'], default=False)
+    Take_a_preview = bpy.props.BoolProperty(name=LanguageValuesDict['ExportMenuTakePreview'], default=False)
 
     def draw(self, context):
         layout = self.layout
