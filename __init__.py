@@ -4176,7 +4176,7 @@ def SearchShadersEnum(self, context):
 # *                                        OPEN SHADERS                              *
 # ************************************************************************************
 class OpenShaders(bpy.types.Operator):
-    bl_idname = "object.openshaders"
+    bl_idname = "object.shadertools_openshaders"
     bl_label = LanguageValuesDict['OpenMenuTitle']
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -4299,7 +4299,7 @@ class OpenShaders(bpy.types.Operator):
             imageFileJPG.close()
 
         if os.path.exists(os.path.join(AppPath, "first")) :
-            bpy.ops.object.warning('INVOKE_DEFAULT')
+            bpy.ops.object.shadertools_warning('INVOKE_DEFAULT')
             os.remove(os.path.join(AppPath, "first"))
             time.sleep(1)
 
@@ -4313,7 +4313,7 @@ class OpenShaders(bpy.types.Operator):
 # *                                          CREDITS                                 *
 # ************************************************************************************
 class Credits(bpy.types.Operator):
-    bl_idname = "object.credits"
+    bl_idname = "object.shadertools_credits"
     bl_label = "Credits"
 
     @classmethod
@@ -4382,7 +4382,7 @@ class Credits(bpy.types.Operator):
 # *                                           HELP                                   *
 # ************************************************************************************
 class Help(bpy.types.Operator):
-    bl_idname = "object.help"
+    bl_idname = "object.shadertools_help"
     bl_label = LanguageValuesDict['HelpMenuTitle']
 
     @classmethod
@@ -4601,7 +4601,7 @@ def Importer(File_Path, Mat_Name):
 # *                                           IMPORT                                 *
 # ************************************************************************************
 class Import(bpy.types.Operator):
-    bl_idname = "object.import"
+    bl_idname = "object.shadertools_import"
     bl_label = LanguageValuesDict['ImportMenuTitle']
 
     filename = bpy.props.StringProperty(subtype="FILENAME")
@@ -4620,7 +4620,7 @@ class Import(bpy.types.Operator):
 # *                                           EXPORT                                 *
 # ************************************************************************************
 class Export(bpy.types.Operator):
-    bl_idname = "object.export"
+    bl_idname = "object.shadertools_export"
     bl_label = LanguageValuesDict['ExportMenuTitle']
 
     DefaultCreator = DefaultCreator.replace('\n', '')
@@ -4654,7 +4654,7 @@ class Export(bpy.types.Operator):
 # *                                    SAVE CURRENT SHADER                           *
 # ************************************************************************************
 class SaveCurrentConfiguration(bpy.types.Operator):
-    bl_idname = "object.saveconfiguration"
+    bl_idname = "object.shadertools_saveconfiguration"
     bl_label = LanguageValuesDict['SaveMenuTitle']
 
     #I normalize values:
@@ -4737,7 +4737,7 @@ def InformationsUpdateInformations(info):
 # *                                  UPDATE WARNING                                  *
 # ************************************************************************************
 class UpdateWarning(bpy.types.Operator):
-    bl_idname = "object.warning"
+    bl_idname = "object.shadertools_warning"
     bl_label = LanguageValuesDict['WarningWinTitle']
 
     def draw(self, context):
@@ -4762,7 +4762,7 @@ class UpdateWarning(bpy.types.Operator):
 # *                                      CONFIGURATION                               *
 # ************************************************************************************
 class Configuration(bpy.types.Operator):
-    bl_idname = "object.configuration"
+    bl_idname = "object.shadertools_configuration"
     bl_label = LanguageValuesDict['ConfigurationMenuTitle']
 
     #I normalize values:
@@ -4887,7 +4887,7 @@ class Configuration(bpy.types.Operator):
 # *                                     CREATE NEW                                   *
 # ************************************************************************************
 class CreateNew(bpy.types.Operator):
-    bl_idname = "object.createnew"
+    bl_idname = "object.shadertools_createnew"
     bl_label = "New"
 
     def execute(self, context):
