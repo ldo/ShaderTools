@@ -125,40 +125,44 @@ else:
 # ************************************************************************************
 # *                                       HISTORY FILE                               *
 # ************************************************************************************
-HISTORY_FILE = []
-if os.path.exists(HistoryPath) :
-    history = open(HistoryPath,'r')
-    x = 0
-    for values in history:
-        if x > 0:
-            values = values.replace("History" + str(x) + "=" , "")
-            values = values.replace("\n" , "")
-            HISTORY_FILE.append(values)
 
-        x = x + 1
+def LoadHistory() :
+    # returns the contents of the history file, if it exists.
+    if os.path.exists(HistoryPath) :
+        HISTORY_FILE = []
+        history = open(HistoryPath, 'r')
+        history.readline() # ignore "[HISTORY]" header
+        for i, l in enumerate(history) :
+            l = l.rstrip("\n")
+            prefix = "History%d=" % (i + 1)
+            if l.startswith(prefix) :
+                l = l[len(prefix):]
+            #end if
+            HISTORY_FILE.append(l)
+        #end for
+        history.close()
+    else :
+        HISTORY_FILE = None
+    #end if
+    return HISTORY_FILE
+#end LoadHistory
 
-else:
-    history = open(HistoryPath,'w')
-    history.write('[HISTORY]\n')
-    x = 1
-    while x <= 20:
-        history.write('History' + str(x) + '=\n')
-        x = x + 1
-
+def SaveHistory(HISTORY_FILE) :
+    # saves the specified list of items to the history file.
+    history = open(HistoryPath, 'w')
+    history.write("[HISTORY]\n")
+    for i, l in enumerate(HISTORY_FILE) :
+        history.write("History%d=%s\n" % (i + 1, l))
+    #end for
+    history.flush()
     history.close()
+#end SaveHistory
 
-    history = open(HistoryPath,'r')
-    x = 0
-    for values in history:
-        if x > 0:
-            values = values.replace("History" + str(x) + "=" , "")
-            values = values.replace("\n" , "")
-            HISTORY_FILE.append(values)
-
-        x = x + 1
-
-history.close()
-
+HISTORY_FILE = LoadHistory()
+if HISTORY_FILE == None :
+    HISTORY_FILE = 20 * [""]
+    SaveHistory(HISTORY_FILE)
+#end if
 
 # ************************************************************************************
 # *                                     LANGUAGE PARAMETERS                           *
@@ -4157,7 +4161,7 @@ def SearchShadersEnum(self, context):
     files = os.listdir(TempPath)
     for f in files:
         if not os.path.isdir(f) and ".jpg" in f:
-            if self.History.upper() in f.upper():
+            if True in map(lambda h : os.path.normcase(f) == os.path.normcase(h), HISTORY_FILE) :
                 shutil.copy2(os.path.join(TempPath, f), os.path.join(shaderFolderPath, f))
 
     bpy.ops.file.refresh()
@@ -4174,37 +4178,18 @@ class OpenShaders(bpy.types.Operator):
     filename = bpy.props.StringProperty(subtype="FILENAME")
 
     Search = bpy.props.StringProperty(name='', update=SearchShaders)
-    History = bpy.props.EnumProperty(
-
-                                     name='',
-                                     update=SearchShadersEnum,
-                                     items=(('', "---- " +
-                                             LanguageValuesDict['OpenMenuLabel09'] + " ----", ""),
-                                            (HISTORY_FILE[0], HISTORY_FILE[0], ""),
-                                            (HISTORY_FILE[1], HISTORY_FILE[1], ""),
-                                            (HISTORY_FILE[2], HISTORY_FILE[2], ""),
-                                            (HISTORY_FILE[3], HISTORY_FILE[3], ""),
-                                            (HISTORY_FILE[4], HISTORY_FILE[4], ""),
-                                            (HISTORY_FILE[5], HISTORY_FILE[5], ""),
-                                            (HISTORY_FILE[6], HISTORY_FILE[6], ""),
-                                            (HISTORY_FILE[7], HISTORY_FILE[7], ""),
-                                            (HISTORY_FILE[8], HISTORY_FILE[8], ""),
-                                            (HISTORY_FILE[9], HISTORY_FILE[9], ""),
-                                            (HISTORY_FILE[10], HISTORY_FILE[10], ""),
-                                            (HISTORY_FILE[11], HISTORY_FILE[11], ""),
-                                            (HISTORY_FILE[12], HISTORY_FILE[12], ""),
-                                            (HISTORY_FILE[13], HISTORY_FILE[13], ""),
-                                            (HISTORY_FILE[14], HISTORY_FILE[14], ""),
-                                            (HISTORY_FILE[15], HISTORY_FILE[15], ""),
-                                            (HISTORY_FILE[16], HISTORY_FILE[16], ""),
-                                            (HISTORY_FILE[17], HISTORY_FILE[17], ""),
-                                            (HISTORY_FILE[18], HISTORY_FILE[18], ""),
-                                            (HISTORY_FILE[19], HISTORY_FILE[19], "")
-                                            ),
-                                     default= HISTORY_FILE[0]
-                                     )
-
-
+    History = bpy.props.EnumProperty \
+      (
+        name = '',
+        update = SearchShadersEnum,
+        items =
+            lambda self, context :
+                    (
+                        ('', "---- " + LanguageValuesDict['OpenMenuLabel09'] + " ----", ""),
+                    )
+                +
+                    tuple((h, h, "") for h in HISTORY_FILE)
+      )
 
     def draw(self, context):
         layout = self.layout
@@ -4221,57 +4206,18 @@ class OpenShaders(bpy.types.Operator):
         row = layout.row(align=True)
 
     def execute(self, context):
+        global HISTORY_FILE
         selectedFile = self.filename.replace('.jpg', '')
         if os.path.exists(os.path.join(TempPath, "searching")) :
             os.remove(os.path.join(TempPath, "searching"))
-
-
-        #I update history file (in config file):
-        History_save = []
-        if os.path.exists(HistoryPath) and selectedFile is not '' and selectedFile is not '\n':
-            history = open(HistoryPath,'r')
-            for l in history:
-                History_save.append(l)
-            #I remove history path:
-            history.close()
-            os.remove(HistoryPath)
-
-            #I create a new History File:
-            history = open(HistoryPath,'w')
-            history.write('[HISTORY]\n')
-            history.write('History1=' + selectedFile + "\n")
-
-            #Now I must to create new structure:
-            c = 0
-            x = 2
-            for values in History_save:
-                if c == 1 and values != '' and values != '\n':
-                    if x <= 20:
-                        values = values.replace('History' + str(x-1), 'History' + str(x))
-                        history.write(values)
-                        x =  x + 1
-
-                if values == "[HISTORY]" or values == "[HISTORY]\n":
-                    c = c + 1
-
-            history.close()
-
-        else:
-
-            if selectedFile is not '' and selectedFile is not '\n':
-                history = open(HistoryPath,'w')
-                history.write('[HISTORY]\n')
-                history.write('History1=' + selectedFile + '\n')
-                x = 2
-                while x <= 20:
-                    history.write('History' + str(x) + '=\n')
-                    x = x + 1
-
-                history.close()
-
+        #I update history file:
+        if selectedFile != "" :
+            HISTORY_FILE = [selectedFile] + HISTORY_FILE[:-1]
+            SaveHistory(HISTORY_FILE)
+        #end if
         ImporterSQL(self.filename)
-        bpy.ops.script.python_file_run(filepath=os.path.join(AppPath, "__init__.py"))
-
+        #bpy.ops.script.python_file_run(filepath=os.path.join(AppPath, "__init__.py"))
+          # am I right this was only needed to update above EnumProperty before it was dynamic?
         return {'FINISHED'}
 
     def invoke(self, context, event):
