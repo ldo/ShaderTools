@@ -21,7 +21,7 @@ Label01=INFORMATIONS SUR LE MATERIAU
 Label02=Materiau
 Label03=Createur
 Label04=Categorie
-Label05=Descritpion
+Label05=Description
 Label06=Lien Internet
 Label07=Email
 Label08=RECHERCHER
@@ -94,8 +94,10 @@ Wood=Bois
 Title=Creer une configuration
 Label01=Parametres d'export
 Label02=Parametres de la Base de Donnees
-DataBasePath=Chemin de la Base
 Label03=Parametres de preview
+Label04=Parametres de langues
+Label05=Selectionnez votre langue
+DataBasePath=Chemin de la Base
 ResolutionPreviewX=Resolution X
 ResolutionPreviewY=Resolution Y
 Warning01=Les valeurs de configuration ne se rafraichissent pas automatiquement mais les modifications 
@@ -117,10 +119,6 @@ TakePreview=Creer une preview
 
 [ImportMenu]
 Title=Importer un materiau
-*!-*
-
-[FindImageMenu]
-Name=Rechercher une image
 *!-*
 
 

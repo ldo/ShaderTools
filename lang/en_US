@@ -22,7 +22,7 @@ Label01=INFORMATIONS ON THE MATERIAL
 Label02=Material
 Label03=Creator
 Label04=Category
-Label05=Descritpion
+Label05=Description
 Label06=Internet Link
 Label07=Email
 Label08=SEARCH
@@ -90,8 +90,10 @@ Wood=Wood
 Title=Create a confiuguration
 Label01=Parameters of export
 Label02=Parameters of the Database
-DataBasePath=Path of Database
 Label03=Preview parameters
+Label04=Language parameters
+Label05=Select your language
+DataBasePath=Path of Database
 ResolutionPreviewX=Resolution X
 ResolutionPreviewY=Resolution Y
 Warning01=
@@ -113,11 +115,6 @@ TakePreview=Create a preview
 [ImportMenu]
 Title=Import a material
 *!-*
-
-[FindImageMenu]
-Name=Search image
-*!-*
-
 
 
 [InformationsMenu]
