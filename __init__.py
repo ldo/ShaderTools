@@ -198,7 +198,7 @@ LanguageKeys = \
                 "Wall", "Water", "Wood",
             },
         "ConfigurationMenu" :
-                {"Title", "ResolutionPreviewX", "ResolutionPreviewY", "DataBasePath", }
+                {"Title", "ResolutionPreviewX", "ResolutionPreviewY", "DataBasePath",}
             |
                 set("Label%02d" % i for i in range(1, 6))
             |
@@ -246,7 +246,6 @@ for k in LanguageKeys :
 language = locale.getdefaultlocale()[0]
 if os.path.exists(os.path.join(AppPath, "lang", language)) :
     LoadLanguageValues(language, LanguageValuesDict)
-
 else:
     LoadLanguageValues('en_US', LanguageValuesDict)
 
@@ -489,6 +488,7 @@ def ImporterSQL(SearchName):
             "Mat_shadow_use_ray_shadow_bias" : {"attr" : ("use_ray_shadow_bias",)},
             "Mat_shadow_shadow_ray_bias" : {"attr" : ("shadow_ray_bias",)},
             "Mat_shadow_use_cast_approximate" : {"attr" : ("use_cast_approximate",)},
+            # entries above with no "attr" keys in their dicts are unused!
             "Idx_ramp_diffuse" : {},
             "Idx_ramp_specular" : {},
             "Idx_textures" : {},
@@ -543,14 +543,14 @@ def ImporterSQL(SearchName):
             "Tex_type_clouds_cloud_type" : {"attr" : ("texture.cloud_type",)},
             "Tex_type_clouds_noise_type" : {"attr" : ("texture.noise_type",)},
             "Tex_type_clouds_noise_basis" : {"attr" : ("texture.noise_basis",)},
-            "Tex_type_noise_distortion" : {},
+            "Tex_type_noise_distortion" : {}, # unused?
             "Tex_type_env_map_source" : {"attr" : ("texture.environment_map.source",)},
             "Tex_type_env_map_mapping" : {"attr" : ("texture.environment_map.mapping",)},
             "Tex_type_env_map_clip_start" : {"attr" : ("texture.environment_map.clip_start",)},
             "Tex_type_env_map_clip_end" : {"attr" : ("texture.environment_map.clip_end",)},
             "Tex_type_env_map_resolution" : {"attr" : ("texture.environment_map.resolution",)},
             "Tex_type_env_map_depth" : {"attr" : ("texture.environment_map.depth",)},
-            "Tex_type_env_map_image_file" : {},
+            "Tex_type_env_map_image_file" : {}, # unused?
             "Tex_type_env_map_zoom" : {"attr" : ("texture.environment_map.zoom",)},
             "Tex_type_magic_depth" : {"attr" : ("texture.noise_depth",)},
             "Tex_type_magic_turbulence" : {"attr" : ("texture.turbulence",)},
@@ -576,9 +576,11 @@ def ImporterSQL(SearchName):
             "Tex_type_clouds_nabla" : {"attr" : ("texture.nabla",)},
             "Tex_type_clouds_noise_depth" : {"attr" : ("texture.noise_depth",)},
             "Tex_type_noise_distortion_distortion" : {"attr" : ("texture.distortion",)},
-            "Tex_type_noise_distortion_texture_distortion" : {},
+            "Tex_type_noise_distortion_texture_distortion" : {}, # unused?
             "Tex_type_noise_distortion_nabla" : {"attr" : ("texture.nabla",)},
             "Tex_type_noise_distortion_noise_scale" : {"attr" : ("texture.noise_scale",)},
+            "Tex_type_noise_distortion_noise_distortion" : {"attr" : ("texture.noise_distortion",)},
+            "Tex_type_noise_distortion_basis" : {"attr" : ("texture.noise_basis",)},
             "Tex_type_point_density_point_source" : {"attr" : ("texture.point_density.point_source",)},
             "Tex_type_point_density_radius" : {"attr" : ("texture.point_density.radius",)},
             "Tex_type_point_density_particule_cache_space" : {"attr" : ("texture.point_density.particle_cache_space",)},
@@ -602,6 +604,7 @@ def ImporterSQL(SearchName):
             "Tex_type_voronoi_weight_2" : {"attr" : ("texture.weight_2",)},
             "Tex_type_voronoi_weight_3" : {"attr" : ("texture.weight_3",)},
             "Tex_type_voronoi_weight_4" : {"attr" : ("texture.weight_4",)},
+            "Tex_type_voronoi_intensity" : {"attr" : ("texture.noise_intensity",)},
             "Tex_type_voxel_data_file_format" : {"attr" : ("texture.voxel_data.file_format",)},
             "Tex_type_voxel_data_source_path" : {"attr" : ("texture.voxel_data.filepath",)},
             "Tex_type_voxel_data_use_still_frame" : {"attr" : ("texture.voxel_data.use_still_frame",)},
@@ -656,7 +659,7 @@ def ImporterSQL(SearchName):
             "Tex_influence_color_r" : {"attr" : ("color", 0)},
             "Tex_influence_color_g" : {"attr" : ("color", 1)},
             "Tex_influence_color_b" : {"attr" : ("color", 2)},
-            "Tex_influence_color_a" : {},
+            "Tex_influence_color_a" : {}, # unused?
             "Tex_influence_bump_method" : {"attr" : ("bump_method",)},
             "Tex_influence_objectspace" : {"attr" : ("bump_objectspace",)},
             "Tex_mapping_texture_coords" : {"attr" : ("texture_coords",)},
@@ -671,7 +674,8 @@ def ImporterSQL(SearchName):
             "Tex_mapping_scale_x" : {"attr" : ("scale", 0)},
             "Tex_mapping_scale_y" : {"attr" : ("scale", 1)},
             "Tex_mapping_scale_z" : {"attr" : ("scale", 2)},
-            "Tex_colors_use_color_ramp" : {},
+            "Tex_mapping_use_from_original" : {}, # attr handled specially below
+            "Tex_colors_use_color_ramp" : {}, # unused?
             "Tex_colors_factor_r" : {"attr" : ("texture.factor_red",)},
             "Tex_colors_factor_g" : {"attr" : ("texture.factor_green",)},
             "Tex_colors_factor_b" : {"attr" : ("texture.factor_blue",)},
@@ -681,10 +685,6 @@ def ImporterSQL(SearchName):
             "Mat_Idx" : {},
             "Poi_Idx" : {},
             "Col_Idx" : {},
-            "Tex_type_voronoi_intensity" : {"attr" : ("texture.noise_intensity",)},
-            "Tex_mapping_use_from_original" : {}, # attr handled specially below
-            "Tex_type_noise_distortion_noise_distortion" : {"attr" : ("texture.noise_distortion",)},
-            "Tex_type_noise_distortion_basis" : {"attr" : ("texture.noise_basis",)},
         }
     for \
         field \
@@ -934,7 +934,6 @@ def ImporterSQL(SearchName):
     #end SetupObject
 
     # Create Material :
-
     bpy.ops.object.material_slot_add()
     obj.material_slots[obj.material_slots.__len__() - 1].material = SetupObject \
       (
@@ -4681,8 +4680,6 @@ class Export(bpy.types.Operator):
     Inf_Creator = bpy.props.StringProperty(name=LanguageValuesDict['ExportMenuCreator'], default=DefaultCreator)
     Take_a_preview = BoolProperty(name=LanguageValuesDict['ExportMenuTakePreview'], default=False)
 
-
-
     def draw(self, context):
         layout = self.layout
         row = layout.row(align=True)
@@ -4752,11 +4749,6 @@ class SaveCurrentConfiguration(bpy.types.Operator):
     Inf_Weblink = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuWebLinkLabel'], default=DefaultWeblink)
     Inf_Email = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuEmailLabel'], default=DefaultEmail)
     Mat_Name = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuName'], default=DefaultMaterialName)
-
-
-
-
-
 
     def draw(self, context):
         layout = self.layout
