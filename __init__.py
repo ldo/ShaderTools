@@ -48,6 +48,14 @@ import zipfile
 import time
 import sys
 
+MaterialCategories = \
+    (
+        "CarPaint", "Dirt", "FabricClothes", "Fancy", "FibreFur",
+        "Glass", "Halo", "Liquids", "Metal", "Misc", "Nature",
+        "Organic", "Personal", "Plastic", "Sky", "Space", "Stone",
+        "Toon", "Wall", "Water", "Wood",
+    )
+
 # ************************************************************************************
 # *                                     MY GLOBAL VALUES                             *
 # ************************************************************************************
@@ -195,12 +203,9 @@ LanguageKeys = \
             |
                 set("Warning%02d" % i for i in range(1, 6)),
         "SaveCategory" :
-            {
-                "Title", "CategoryTitle", "CarPaint", "Dirt", "FabricClothes", "Fancy",
-                "FibreFur", "Glass", "Halo", "Liquids", "Metal", "Misc", "Nature",
-                "Organic", "Personal", "Plastic", "Sky", "Space", "Stone", "Toon",
-                "Wall", "Water", "Wood",
-            },
+                {"Title", "CategoryTitle"}
+            |
+                set(MaterialCategories),
         "ConfigurationMenu" :
                 {"Title", "ResolutionPreviewX", "ResolutionPreviewY", "DataBasePath",}
             |
@@ -4662,34 +4667,20 @@ class SaveCurrentConfiguration(bpy.types.Operator):
 
     #I prepare the window :
     Inf_Creator = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuCreator'], default=DefaultCreator)
-    Inf_Category = bpy.props.EnumProperty(
-
-                                          name=LanguageValuesDict['SaveCategoryTitle'],
-                                          items=(('', "---- " + LanguageValuesDict['SaveCategoryCategoryTitle'] + " ----", ""),
-                                                 ('CarPaint', LanguageValuesDict['SaveCategoryCarPaint'], ""),
-                                                 ('Dirt', LanguageValuesDict['SaveCategoryDirt'], ""),
-                                                 ('FabricClothes', LanguageValuesDict['SaveCategoryFabricClothes'], ""),
-                                                 ('Fancy', LanguageValuesDict['SaveCategoryFancy'], ""),
-                                                 ('FibreFur', LanguageValuesDict['SaveCategoryFibreFur'], ""),
-                                                 ('Glass', LanguageValuesDict['SaveCategoryGlass'], ""),
-                                                 ('Halo', LanguageValuesDict['SaveCategoryHalo'], ""),
-                                                 ('Liquids', LanguageValuesDict['SaveCategoryLiquids'], ""),
-                                                 ('Metal', LanguageValuesDict['SaveCategoryMetal'], ""),
-                                                 ('Misc', LanguageValuesDict['SaveCategoryMisc'], ""),
-                                                 ('Nature', LanguageValuesDict['SaveCategoryNature'], ""),
-                                                 ('Organic', LanguageValuesDict['SaveCategoryOrganic'], ""),
-                                                 ('Personal', LanguageValuesDict['SaveCategoryPersonal'], ""),
-                                                 ('Plastic', LanguageValuesDict['SaveCategoryPlastic'], ""),
-                                                 ('Sky', LanguageValuesDict['SaveCategorySky'], ""),
-                                                 ('Space', LanguageValuesDict['SaveCategorySpace'], ""),
-                                                 ('Stone', LanguageValuesDict['SaveCategoryStone'], ""),
-                                                 ('Toon', LanguageValuesDict['SaveCategoryToon'], ""),
-                                                 ('Wall', LanguageValuesDict['SaveCategoryWall'], ""),
-                                                 ('Water', LanguageValuesDict['SaveCategoryWater'], ""),
-                                                 ('Wood', LanguageValuesDict['SaveCategoryWood'], ""),
-                                                 ),
-                                          default= DefaultCategory
-                                          )
+    Inf_Category = bpy.props.EnumProperty \
+      (
+        name = LanguageValuesDict['SaveCategoryTitle'],
+        items =
+                (
+                    ('', "---- " + LanguageValuesDict['SaveCategoryCategoryTitle'] + " ----", ""),
+                )
+            +
+                tuple
+                  (
+                    (c, LanguageValuesDict["SaveCategory" + c], "") for c in MaterialCategories
+                  ),
+        default = DefaultCategory
+      )
 
     Inf_Description = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuDescriptionLabel'], default=DefaultDescription)
     Inf_Weblink = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuWebLinkLabel'], default=DefaultWeblink)
@@ -4790,34 +4781,20 @@ class Configuration(bpy.types.Operator):
     #I prepare the window :
     DataBasePathFile = bpy.props.StringProperty(name=LanguageValuesDict['ConfigurationMenuDataBasePath'], default=DataBasePath)
     Inf_Creator = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuCreator'], default=DefaultCreator)
-    Inf_Category = bpy.props.EnumProperty(
-
-                                          name=LanguageValuesDict['SaveCategoryTitle'],
-                                          items=(('', "---- " + LanguageValuesDict['SaveCategoryCategoryTitle'] + " ----", ""),
-                                                 ('CarPaint', LanguageValuesDict['SaveCategoryCarPaint'], ""),
-                                                 ('Dirt', LanguageValuesDict['SaveCategoryDirt'], ""),
-                                                 ('FabricClothes', LanguageValuesDict['SaveCategoryFabricClothes'], ""),
-                                                 ('Fancy', LanguageValuesDict['SaveCategoryFancy'], ""),
-                                                 ('FibreFur', LanguageValuesDict['SaveCategoryFibreFur'], ""),
-                                                 ('Glass', LanguageValuesDict['SaveCategoryGlass'], ""),
-                                                 ('Halo', LanguageValuesDict['SaveCategoryHalo'], ""),
-                                                 ('Liquids', LanguageValuesDict['SaveCategoryLiquids'], ""),
-                                                 ('Metal', LanguageValuesDict['SaveCategoryMetal'], ""),
-                                                 ('Misc', LanguageValuesDict['SaveCategoryMisc'], ""),
-                                                 ('Nature', LanguageValuesDict['SaveCategoryNature'], ""),
-                                                 ('Organic', LanguageValuesDict['SaveCategoryOrganic'], ""),
-                                                 ('Personal', LanguageValuesDict['SaveCategoryPersonal'], ""),
-                                                 ('Plastic', LanguageValuesDict['SaveCategoryPlastic'], ""),
-                                                 ('Sky', LanguageValuesDict['SaveCategorySky'], ""),
-                                                 ('Space', LanguageValuesDict['SaveCategorySpace'], ""),
-                                                 ('Stone', LanguageValuesDict['SaveCategoryStone'], ""),
-                                                 ('Toon', LanguageValuesDict['SaveCategoryToon'], ""),
-                                                 ('Wall', LanguageValuesDict['SaveCategoryWall'], ""),
-                                                 ('Water', LanguageValuesDict['SaveCategoryWater'], ""),
-                                                 ('Wood', LanguageValuesDict['SaveCategoryWood'], ""),
-                                                 ),
-                                          default= DefaultCategory
-                                          )
+    Inf_Category = bpy.props.EnumProperty \
+      (
+        name = LanguageValuesDict['SaveCategoryTitle'],
+        items =
+                (
+                    ('', "---- " + LanguageValuesDict['SaveCategoryCategoryTitle'] + " ----", ""),
+                )
+            +
+                tuple
+                  (
+                    (c, LanguageValuesDict["SaveCategory" + c], "") for c in MaterialCategories
+                  ),
+        default = DefaultCategory
+      )
 
     Inf_Description = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuDescriptionLabel'], default=DefaultDescription)
     Inf_Weblink = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuWebLinkLabel'], default=DefaultWeblink)
