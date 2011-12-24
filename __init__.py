@@ -2281,9 +2281,9 @@ def ImporterSQL(Mat_Name):
   
                         #Now I generate image files:
                         if Tex_ima_name == '':
-                            adresse = OutPath + "error_save.jpg"
-                            test = shutil.copy2(ErrorsPath + "error_save.jpg", adresse)                   
-                            Tex_ima_filepath = AppPath + "error_save.jpg"  
+                            adresse = os.path.join(OutPath, "error_save.jpg")
+                            test = shutil.copy2(os.path.join(ErrorsPath,"error_save.jpg"), adresse)                   
+                            Tex_ima_filepath = os.path.join(AppPath, "error_save.jpg")  
                     
                         else:
                             format_image = [".png", ".jpg", ".jpeg", ".tiff", ".tga", ".raw", ".bmp", ".hdr", ".gif", ".svg", ".wmf", ".pst"]
@@ -2295,7 +2295,7 @@ def ImporterSQL(Mat_Name):
                                         c = 1
                                 
                                     else:
-                                        adresse = OutPath + Tex_ima_name + "." +  Tex_ima_fileformat
+                                        adresse = os.path.join(OutPath, Tex_ima_name + "." +  Tex_ima_fileformat)
                         
                         
                             generated_image = open(adresse,'wb')
@@ -2348,7 +2348,7 @@ def ImporterSQL(Mat_Name):
 
         for f in files:
             if not os.path.isdir(f):         
-                shutil.copy2(OutPath + f, CopyBlendFolder+f)
+                shutil.copy2(os.path.join(OutPath, f), os.path.join(CopyBlendFolder, f))
        
     #Now I treat textures informations
     textureNumberSlot = -1
@@ -3923,9 +3923,9 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                     IMAGE_FILENAME = Raw_Image_Name(IMAGE_FILEPATH)
                     
                     if '*Error*' in IMAGE_FILEPATH:
-                        ErrorsPathJpg = ErrorsPath + 'error_save.jpg' 
-                        shutil.copy2(ErrorsPathJpg, AppPath + 'error_save.jpg')
-                        IMAGE_FILEPATH = AppPath + 'error_save.jpg'
+                        ErrorsPathJpg = os.path.join(ErrorsPath, 'error_save.jpg') 
+                        shutil.copy2(ErrorsPathJpg, os.path.join(AppPath, 'error_save.jpg'))
+                        IMAGE_FILEPATH = os.path.join(AppPath, 'error_save.jpg')
                         IMAGE_FILENAME = 'error_save.jpg'
                         print(LangageValuesDict['ErrorsMenuError013'])
                          
@@ -3947,7 +3947,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                     MY_EXPORT_INFORMATIONS.append('slot.texture.image.field_order  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.image.field_order) +  '"\n')
                     
                     #I copy images :
-                    shutil.copy2(IMAGE_FILEPATH, save_path + "_" + IMAGE_FILENAME)                     
+                    shutil.copy2(IMAGE_FILEPATH, os.path.join(save_path, "_" + IMAGE_FILENAME))                     
                     print(LangageValuesDict['ErrorsMenuError005'])
                     print("*******************************************************************************")
 
@@ -4998,9 +4998,9 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                     IMAGE_FILENAME = Raw_Image_Name(IMAGE_FILEPATH)
 
                     if '*Error*' in IMAGE_FILEPATH:
-                        ErrorsPathJpg = ErrorsPath + 'error_save.jpg' 
-                        shutil.copy2(ErrorsPathJpg, AppPath + 'error_save.jpg')
-                        IMAGE_FILEPATH = AppPath + 'error_save.jpg'
+                        ErrorsPathJpg = os.path.join(ErrorsPath, 'error_save.jpg') 
+                        shutil.copy2(ErrorsPathJpg, os.path.join(AppPath, 'error_save.jpg'))
+                        IMAGE_FILEPATH = os.path.join(AppPath, 'error_save.jpg')
                         IMAGE_FILENAME = 'error_save.jpg'
                         print(LangageValuesDict['ErrorsMenuError013'])
                     
@@ -6513,12 +6513,12 @@ def TakePreviewRender(Inf_Creator, Mat_Name):
     ren.image_settings.color_mode = mode
     
     #I do a preview of scene and i send render in memory:
-    PreviewFileImage = open(AppPath + Mat_Name + "_" + Inf_Creator + "_preview.jpg",'rb')
+    PreviewFileImage = open(os.path.join(AppPath, Mat_Name + "_" + Inf_Creator + "_preview.jpg"),'rb')
     PreviewFileImageInMemory = PreviewFileImage.read()
     PreviewFileImage.close()
     
     #Remove Preview File:
-    os.remove( AppPath + Mat_Name + "_" + Inf_Creator + "_preview.jpg")
+    os.remove(os.path.join(AppPath, Mat_Name + "_" + Inf_Creator + "_preview.jpg"))
     
     return PreviewFileImageInMemory
 
@@ -6714,7 +6714,7 @@ class OpenShaders(bpy.types.Operator):
                 os.remove(HistoryPath)
             
             #I create a new History File:
-            history = open(AppPath + "history",'w')            
+            history = open(os.path.join(AppPath, "history"),'w')            
             history.writelines('[HISTORY]\n')
             history.writelines('History1=' + selectedFile + "\n")
             
@@ -6736,7 +6736,7 @@ class OpenShaders(bpy.types.Operator):
         else:
             
             if selectedFile is not '' and selectedFile is not '\n':
-                history = open(AppPath + "history",'w')            
+                history = open(os.path.join(AppPath, "history"),'w')            
                 history.writelines('[HISTORY]\n')
                 history.writelines('History1=' + selectedFile + '\n')
                 x = 2 
@@ -7027,7 +7027,7 @@ def Importer(File_Path, Mat_Name):
     files = os.listdir(ZipPath)
     for f in files:
         if not os.path.isdir(f):
-            os.remove(ZipPath+f)
+            os.remove(os.path.join(ZipPath,f))
     
     def unzip(ZipFile_Name, BlendDestination = ''):
         if BlendDestination == '': BlendDestination = os.getcwd()  
@@ -7091,7 +7091,7 @@ def Importer(File_Path, Mat_Name):
         
         #Here I save script in a list:
         MY_SCRIPT_LIST = []
-        env_file = open(os.path.join(CopyMatFolder, script_name,'r'))
+        env_file = open(os.path.join(CopyMatFolder, script_name),'r')
         for values in env_file:
             if values == "!*- environnement path -*!" or values == "!*- environnement path -*!\n":
                 NewEnvPath = os.path.normpath(CopyMatFolder)
@@ -7419,10 +7419,10 @@ class Configuration(bpy.types.Operator):
     
     def execute(self, context): 
         #Delete configuration file:
-        os.remove(AppPath + "config")
+        os.remove(os.path.join(AppPath, "config"))
     
         #Create a new configuration file:
-        config = open(AppPath + "config",'w')
+        config = open(os.path.join(AppPath, "config"),'w')
         config.writelines(AppPath + '\n')
         config.writelines(self.DataBasePathFile + '\n')    
         config.writelines(self.Inf_Creator + '\n')
@@ -7552,7 +7552,6 @@ if os.path.exists(BookmarksPathUser):
     
     #I create new bookmarks:
     if updateInformation:
-        print("I update")
         os.remove(BookmarksPathUser)
         bookmarkspathfile = open(BookmarksPathUser,'w')    
         for value in MY_BOOKMARKS_FILE:      
