@@ -18,7 +18,6 @@
 
 # <pep8 compliant>
 
-
 bl_info = {
 	"name": "Shader Tools",
 	"author": "Please press Credits Button for more details", 
@@ -31,11 +30,6 @@ bl_info = {
 	"wiki_url": "http://shadertools.tuxfamily.org/?page_id=36",
 	"tracker_url": "",
 	"category": "System"}
-
-
-
-
-
 
 # ************************************************************************************
 # *                                      IMPORTS MODULES                             *
@@ -57,7 +51,6 @@ import zlib
 import sys
 import time
 
-
 # ************************************************************************************
 # *                                     MY GLOBAL VALUES                             *
 # ************************************************************************************
@@ -66,25 +59,22 @@ MY_MATERIAL_TABLE = []
 MY_INFORMATION_TABLE = []
 NAME_ACTIVE_MATERIAL = False
 
-
 # ************************************************************************************
 # *                                     HERE I UPDATE PATH                           *
 # ************************************************************************************
 value = "" #Initialize value
 BlenderPath = bpy.app.binary_path #Blender binary path
-AppPath = bpy.utils.script_paths("addons/shader_tools/")[0] #Add-on path
+AppPath = os.path.join(bpy.utils.script_paths()[0], "addons", "shader_tools") + os.sep
 BlendPath = os.path.dirname(bpy.data.filepath) #Project path
-ImportPath = BlendPath + os.sep #Import path
-ErrorsPath = AppPath + "erro" + os.sep #Errors path
-OutPath = AppPath + "out" + os.sep #Out path
-ZipPath = AppPath + "zip" + os.sep #Zip path
-DataBasePath = AppPath + "ShaderToolsDatabase.sqlite" #Initialize value
-ConfigPath = AppPath + "config"
-HistoryPath = AppPath + "history"
-TempPath = AppPath + "temp" + os.sep #Tempory path
-BookmarksPathUser = bpy.utils.resource_path('USER', major=bpy.app.version[0], minor=bpy.app.version[1]) + os.sep + "config" + os.sep + "bookmarks.txt"
-BookmarksPathSystem = bpy.utils.resource_path('SYSTEM', major=bpy.app.version[0], minor=bpy.app.version[1]) + os.sep + "config" + os.sep + "bookmarks.txt"
-
+ImportPath = BlendPath #Import path
+ErrorsPath = os.path.join(AppPath, "erro")  #Errors path
+OutPath = os.path.join(AppPath, "out") #Out path
+ZipPath = os.path.join(AppPath, "zip") #Zip path
+DataBasePath = os.path.join(AppPath, "ShaderToolsDatabase.sqlite") #Initialize value
+ConfigPath = os.path.join(AppPath, "config")
+HistoryPath = os.path.join(AppPath, "history")
+TempPath = os.path.join(AppPath, "temp")#Tempory path
+BookmarksPathUser = os.path.join(bpy.utils.resource_path('USER', major=bpy.app.version[0], minor=bpy.app.version[1]), "config", "bookmarks.txt")
 
 #Defaults configuration values
 DefaultCreator = "You"
@@ -95,8 +85,8 @@ DefaultCategory = "Personal"
 DefaultEmail = "my_email@company.com"
 Resolution_X = 120
 Resolution_Y = 120
-
-
+DefaultLangage = 'en_US' 
+'''
 #Update Path for Windows environnement :
 if platform.system() == 'Windows':
     BlenderPath = os.path.normcase(BlenderPath)
@@ -111,9 +101,7 @@ if platform.system() == 'Windows':
     HistoryPath = os.path.normcase(HistoryPath)
     TempPath = os.path.normcase(TempPath)
     BookmarksPathUser = os.path.normcase(BookmarksPathUser)
-    BookmarksPathSystem = os.path.normcase(BookmarksPathSystem)
-
-
+'''
 
 #Config Path :
 if os.path.exists(ConfigPath):
@@ -128,7 +116,7 @@ if os.path.exists(ConfigPath):
     DefaultEmail = config.readline() 
     Resolution_X = config.readline()
     Resolution_Y = config.readline()
-    
+    DefaultLangage = config.readline() 
 
 else:
     config = open(ConfigPath,'w')
@@ -142,38 +130,30 @@ else:
     config.writelines(DefaultEmail + '\n')
     config.writelines(str(Resolution_X) + '\n')
     config.writelines(str(Resolution_Y) + '\n')
-
+    config.writelines(DefaultLangage + '\n')
 
 config.close()
 
 AppPath = AppPath.replace('\n', '')
 DataBasePath = DataBasePath.replace('\n', '')
 
-
 #Empty Tempory folder:
 if os.path.exists(TempPath):
     files = os.listdir(TempPath)
     for f in files:
         if not os.path.isdir(f) and ".jpg" in f:
-            os.remove(TempPath+f)
+            os.remove(os.path.join(TempPath,f))
         
         else:
-            os.remove(TempPath+f)    
+            os.remove(os.path.join(TempPath,f))    
 
 else:
     os.makedirs(TempPath)    
-
-
-
-
-
-
 
 # ************************************************************************************
 # *                                       HISTORY FILE                               *
 # ************************************************************************************
 HISTORY_FILE = [] 
-
 if os.path.exists(HistoryPath):
     history = open(HistoryPath,'r')
     x = 0
@@ -185,7 +165,6 @@ if os.path.exists(HistoryPath):
         
         x = x + 1
 
-
 else:
     history = open(HistoryPath,'w')            
     history.writelines('[HISTORY]\n')
@@ -195,7 +174,6 @@ else:
         x = x + 1
 
     history.close()
-
 
     history = open(HistoryPath,'r')
     x = 0
@@ -207,22 +185,15 @@ else:
         
         x = x + 1
 
-
 history.close()
-
-
 
 # ************************************************************************************
 # *                                          LANGAGES                                *
 # ************************************************************************************
 def Langage_en_US(langageDict):
-    
-    
     #Panel Values :
     langageDict['PanelName'] = "Material pre-defined" 
-    
-    langageDict['FindImageMenuName'] = "Search image" 
-    
+        
     langageDict['ButtonsOpen'] = "Open..." 
     langageDict['ButtonsSave'] = "Save" 
     langageDict['ButtonsConfiguration'] = "Configuration" 
@@ -238,7 +209,7 @@ def Langage_en_US(langageDict):
     langageDict['OpenMenuLabel02'] = "Material" 
     langageDict['OpenMenuLabel03'] = "Creator" 
     langageDict['OpenMenuLabel04'] = "Category" 
-    langageDict['OpenMenuLabel05'] = "Descritpion" 
+    langageDict['OpenMenuLabel05'] = "Description" 
     langageDict['OpenMenuLabel06'] = "Internet Link" 
     langageDict['OpenMenuLabel07'] = "Email" 
     langageDict['OpenMenuLabel08'] = "SEARCH" 
@@ -346,6 +317,8 @@ def Langage_en_US(langageDict):
     langageDict['ConfigurationMenuLabel01'] = "Parameters of export" 
     langageDict['ConfigurationMenuLabel02'] = "Parameters of the Database" 
     langageDict['ConfigurationMenuLabel03'] = "Preview parameters" 
+    langageDict['ConfigurationMenuLabel04'] = "Langages parameters" 
+    langageDict['ConfigurationMenuLabel05'] = "Select your langage" 
     langageDict['ConfigurationMenuResolutionPreviewX'] = "Resolution X"
     langageDict['ConfigurationMenuResolutionPreviewY'] = "Resolution Y"
     langageDict['ConfigurationMenuDataBasePath'] = "Path of Database" 
@@ -408,19 +381,13 @@ def Langage_en_US(langageDict):
     langageDict['HelpMenuLabel38'] = " " 
     langageDict['HelpMenuLabel39'] = " " 
     langageDict['HelpMenuLabel40'] = " " 
-
     
     return langageDict
 
-
-
-
-
 def Langage_fr_FR(langageDict):
-    
     #Panel Values :
     langageDict['PanelName'] = "Materiaux Pre-configures" 
-    langageDict['FindImageMenuName'] = "Rechercher un image" 
+
     langageDict['ButtonsOpen'] = "Ouvrir..." 
     langageDict['ButtonsSave'] = "Sauvegarder" 
     langageDict['ButtonsConfiguration'] = "Configuration" 
@@ -436,7 +403,7 @@ def Langage_fr_FR(langageDict):
     langageDict['OpenMenuLabel02'] = "Materiau" 
     langageDict['OpenMenuLabel03'] = "Createur" 
     langageDict['OpenMenuLabel04'] = "Categorie" 
-    langageDict['OpenMenuLabel05'] = "Descritpion" 
+    langageDict['OpenMenuLabel05'] = "Description" 
     langageDict['OpenMenuLabel06'] = "Lien Internet" 
     langageDict['OpenMenuLabel07'] = "Email" 
     langageDict['OpenMenuLabel08'] = "RECHERCHER" 
@@ -544,6 +511,8 @@ def Langage_fr_FR(langageDict):
     langageDict['ConfigurationMenuLabel01'] = "Parametres d'export" 
     langageDict['ConfigurationMenuLabel02'] = "Parametres de la Base de Donnees" 
     langageDict['ConfigurationMenuLabel03'] = "Parametres de preview" 
+    langageDict['ConfigurationMenuLabel04'] = "Parametres de langues" 
+    langageDict['ConfigurationMenuLabel05'] = "Selectionnez votre langue" 
     langageDict['ConfigurationMenuResolutionPreviewX'] = "Resolution X" 
     langageDict['ConfigurationMenuResolutionPreviewY'] = "Resolution Y" 
     langageDict['ConfigurationMenuDataBasePath'] = "Chemin de la base" 
@@ -609,15 +578,204 @@ def Langage_fr_FR(langageDict):
 
     return langageDict
 
+def Langage_es_ES(langageDict):
+    #Panel Values :
+    langageDict['PanelName'] = "Materiales Preconfigurados" 
 
+    langageDict['ButtonsOpen'] = "Abrir..." 
+    langageDict['ButtonsSave'] = "Salvar" 
+    langageDict['ButtonsConfiguration'] = "Configuracion" 
+    langageDict['ButtonsExport'] = "Exportar" 
+    langageDict['ButtonsImport'] = "Importar" 
+    langageDict['ButtonsHelp'] = "Ayuda" 
+    langageDict['ButtonsInformations'] = "informacion" 
+    langageDict['ButtonsCreate'] = "Nuevo" 
+        
+    #OpenMenu Values :
+    langageDict['OpenMenuTitle'] = "Validar el material seleccionado"             
+    langageDict['OpenMenuLabel01'] = "INFORMACION SOBRE EL MATERIAL" 
+    langageDict['OpenMenuLabel02'] = "Material" 
+    langageDict['OpenMenuLabel03'] = "Creador" 
+    langageDict['OpenMenuLabel04'] = "Categoria" 
+    langageDict['OpenMenuLabel05'] = "Descripcion" 
+    langageDict['OpenMenuLabel06'] = "Vinculo Internet" 
+    langageDict['OpenMenuLabel07'] = "Correo electronico" 
+    langageDict['OpenMenuLabel08'] = "BUSCAR" 
+    langageDict['OpenMenuLabel09'] = "ANTECEDENTES" 
+     
+    #BookmarksMenu Values :
+    langageDict['BookmarksMenuName'] = "Base Materiales" 
+        
+    #BookmarksMenu Values :
+    langageDict['ErrorsMenuError001'] = "Informacion importante: Si encuentra un error siguiente, comprueba:" 
+    langageDict['ErrorsMenuError002'] = "1/ Que tiene bien crear o abierto una imagen," 
+    langageDict['ErrorsMenuError003'] = "2/ El camino de la imagen introduccion de datos correctamente." 
+    langageDict['ErrorsMenuError004'] = "No error: el material estuvo correctamente salvar." 
+    langageDict['ErrorsMenuError005'] = "No error: la imagen estuvo correctamente exportar." 
+    langageDict['ErrorsMenuError006'] = " --> Que su proyecto es salvar." 
+    langageDict['ErrorsMenuError007'] = "La importacion es efectua correctamente." 
+    langageDict['ErrorsMenuError008'] = "Imposible de encontrar la escritura en el archivo '*.blex'. Se corrompe el fichero." 
+    langageDict['ErrorsMenuError009'] = "Error: Imposible de encontrar la imagen:" 
+    langageDict['ErrorsMenuError010'] = "Solucion: Quiere cambiar la direccion de la imagen en las propiedades de texturas de Blender." 
+    langageDict['ErrorsMenuError011'] = "Consejo: Prefieren una direccion Absoluta o purifican la direccion suprimiendo los caracteres '..', '/..', '\', '\\', '//../'"   
+    langageDict['ErrorsMenuError012'] = "ATENCION: La imagen no se anadira pues en la exportacion o la salvaguar"
+    langageDict['ErrorsMenuError013'] = "INFORMACION: Se anadio una imagen de sustitucion para evitar un error."
+    langageDict['ErrorsMenuError014'] = " " 
+    langageDict['ErrorsMenuError015'] = " " 
+    langageDict['ErrorsMenuError016'] = " " 
+    langageDict['ErrorsMenuError017'] = " " 
+    langageDict['ErrorsMenuError018'] = " " 
+    langageDict['ErrorsMenuError019'] = " " 
+    langageDict['ErrorsMenuError020'] = " " 
 
+    #InformationsMenu Values :
+    langageDict['InformationsMenuTitle'] = "Informacion sobre el material"
+    langageDict['InformationsMenuLabelName'] = "Material"
+    langageDict['InformationsMenuName'] = "Ningun"
+    langageDict['InformationsMenuLabelCreator'] = "Creador"
+    langageDict['InformationsMenuCreator'] = "Ningun"
+    langageDict['InformationsMenuLabelCategory'] = "Categoria"
+    langageDict['InformationsMenuCategory'] = "Ningun"
+    langageDict['InformationsMenuLabelDescription'] = "Descripcion"
+    langageDict['InformationsMenuDescription'] = "Ningun"
+    langageDict['InformationsMenuLabelWebLink'] = "Vinculo Internet"
+    langageDict['InformationsMenuWebLink'] = "Ningun"
+    langageDict['InformationsMenuLabelEmail'] = "Correo electronico"
+    langageDict['InformationsMenuEmail'] = "Ningun"
+
+    #WarningWin Values :
+    langageDict['WarningWinTitle'] = "Informacion(s) importante(s)" 
+    langageDict['WarningWinLabel01'] = "Una actualizacion de sus parametros acaba efectuarse." 
+    langageDict['WarningWinLabel02'] = "Gracias de reactivar Blender para que las modificaciones se tengan en cuenta." 
+    langageDict['WarningWinLabel03'] = " " 
+    langageDict['WarningWinLabel04'] = " " 
+    langageDict['WarningWinLabel05'] = " " 
+    langageDict['WarningWinLabel06'] = " " 
+    langageDict['WarningWinLabel07'] = " " 
+    langageDict['WarningWinLabel08'] = " " 
+    langageDict['WarningWinLabel09'] = " " 
+    langageDict['WarningWinLabel10'] = " " 
+        
+    #SaveMenu Values :
+    langageDict['SaveMenuTitle'] = "Salvar el material selecciona" 
+    langageDict['SaveMenuLabel01'] = "Quiere entender la informacion" 
+    langageDict['SaveMenuName'] = "Nombre del material" 
+    langageDict['SaveMenuCreator'] = "Nombre del creador" 
+    langageDict['SaveMenuCreatorValue'] = "Usted" 
+    langageDict['SaveMenuCategoryDefault'] = "Personal" 
+    langageDict['SaveMenuDescriptionLabel'] = "Descripcion" 
+    langageDict['SaveMenuDescription'] = "Una descripcion del material" 
+    langageDict['SaveMenuWebLinkLabel'] = "Vinculo Internet" 
+    langageDict['SaveMenuWebLink'] = "http://" 
+    langageDict['SaveMenuEmailLabel'] = "Correo electronico" 
+    langageDict['SaveMenuEmail'] = "mi_corre_electronico@compana.es" 
+    langageDict['SaveMenuWarning01'] = " " 
+    langageDict['SaveMenuWarning02'] = " " 
+    langageDict['SaveMenuWarning03'] = " " 
+    langageDict['SaveMenuWarning04'] = " " 
+    langageDict['SaveMenuWarning05'] = " " 
+        
+    #SaveCategory Values :
+    langageDict['SaveCategoryTitle'] = "Seleccione una categoria" 
+    langageDict['SaveCategoryCategoryTitle'] = "Categorias" 
+    langageDict['SaveCategoryCarPaint'] = "Pintura de coche" 
+    langageDict['SaveCategoryDirt'] = "Suciedad" 
+    langageDict['SaveCategoryFabricClothes'] = "Tejido" 
+    langageDict['SaveCategoryFancy'] = "Caprichoso" 
+    langageDict['SaveCategoryFibreFur'] = "Forro" 
+    langageDict['SaveCategoryGlass'] = "Vidrio" 
+    langageDict['SaveCategoryHalo'] = "Halo" 
+    langageDict['SaveCategoryLiquids'] = "Liquido" 
+    langageDict['SaveCategoryMetal'] = "Metal" 
+    langageDict['SaveCategoryMisc'] = "Varios" 
+    langageDict['SaveCategoryNature'] = "Naturaleza" 
+    langageDict['SaveCategoryOrganic'] = "Organico" 
+    langageDict['SaveCategoryPersonal'] = "Personal" 
+    langageDict['SaveCategoryPlastic'] = "Plastico" 
+    langageDict['SaveCategorySky'] = "Cielo" 
+    langageDict['SaveCategorySpace'] = "Espacio" 
+    langageDict['SaveCategoryStone'] = "Pedro" 
+    langageDict['SaveCategoryToon'] = "Toon" 
+    langageDict['SaveCategoryWall'] = "Pared" 
+    langageDict['SaveCategoryWater'] = "Agua" 
+    langageDict['SaveCategoryWood'] = "Madera" 
+        
+    #ConfigurationMenu Values :
+    langageDict['ConfigurationMenuTitle'] = "Crear una configuracion" 
+    langageDict['ConfigurationMenuLabel01'] = "Parametros de exportacion" 
+    langageDict['ConfigurationMenuLabel02'] = "Parametros de la Base de Datos" 
+    langageDict['ConfigurationMenuLabel03'] = "Parametros de previsualisation" 
+    langageDict['ConfigurationMenuLabel04'] = "Parametros de lenguas" 
+    langageDict['ConfigurationMenuLabel05'] = "Seleccione su lengua" 
+    langageDict['ConfigurationMenuResolutionPreviewX'] = "Resolucion X" 
+    langageDict['ConfigurationMenuResolutionPreviewY'] = "Resolucion Y" 
+    langageDict['ConfigurationMenuDataBasePath'] = "Direccion de la base" 
+    langageDict['ConfigurationMenuWarning01'] = " " 
+    langageDict['ConfigurationMenuWarning02'] = " " 
+    langageDict['ConfigurationMenuWarning03'] = " " 
+    langageDict['ConfigurationMenuWarning04'] = " " 
+    langageDict['ConfigurationMenuWarning05'] = " " 
+        
+    #ExportMenu Values :
+    langageDict['ExportMenuTitle'] = "Exportar los materiales preconfigurados" 
+    langageDict['ExportMenuLabel01'] = "Quiere completar la informacion" 
+    langageDict['ExportMenuName'] = "Nombre del material" 
+    langageDict['ExportMenuCreator'] = "Nombre del creador" 
+    langageDict['ExportMenuCreatorDefault'] = "Usted" 
+    langageDict['ExportMenuTakePreview'] = "Crear una configuracion" 
  
+    #ImportMenu Values :
+    langageDict['ImportMenuTitle'] = "Importar un material" 
+        
+    #HelpMenu Values :
+    langageDict['HelpMenuTitle'] = "Sutilmente de ayuda" 
+    langageDict['HelpMenuLabel01'] = "Ayuda tiene la utilizacion del modulo" 
+    langageDict['HelpMenuLabel02'] = " " 
+    langageDict['HelpMenuLabel03'] = "- Feria a las cuestiones:" 
+    langageDict['HelpMenuLabel04'] = "Abrir" 
+    langageDict['HelpMenuLabel05'] = "Este modulo le permite acceder a su base de materiales. Una vez tener presionar el modulo debera presionar el Bookmarks Base recientemente crea Base Materiales . Usted"
+    langageDict['HelpMenuLabel06'] = "puede activar el meodo iconos para ver el contenido en forma de iconos. El boton 'BUSCAR' le permite efectuar una investigacion en la base. Para indicar todo el"
+    langageDict['HelpMenuLabel07'] = "materiales despues de una investigacion entienden un valor vacio en el modula de investigacion y validar. El modulo historico le permitira acceder a los 20 ultimos materiales utilizados."
+    langageDict['HelpMenuLabel08'] = " " 
+    langageDict['HelpMenuLabel09'] = " " 
+    langageDict['HelpMenuLabel10'] = "Una vez su eleccion efecta a doble presionan el material para permitirle importarlo sobre su object activo"
+    langageDict['HelpMenuLabel11'] = "Salvar" 
+    langageDict['HelpMenuLabel12'] = "Este modulo le permite salvar el material activo directamente en la base. Usted basta para utilizarlo de completar los campos (en parte o completamente) y validar por " 
+    langageDict['HelpMenuLabel13'] = "el boton 'OK'. Podra reutilizar este material pasando por el modula 'Abrir...'."
+    langageDict['HelpMenuLabel14'] = " " 
+    langageDict['HelpMenuLabel15'] = "Exportar" 
+    langageDict['HelpMenuLabel16'] = "Este modulo le permite exportar un material en forma de archivo realizable por cualquier otro Blender. Para exportar le basta que presione el modulo luego de" 
+    langageDict['HelpMenuLabel17'] = "seleccionar el directorio, el nombre del archivo asi como el nombre del creador (es decir, USTED), luego de validar. Para realizar este archivo le bastara que abra el 'Texteditor', "
+    langageDict['HelpMenuLabel18'] = "luego de ir sobre la carta 'Text' luego 'Open text bloc' y el archivo exportar. No le quedara ya que por presionar el boton 'Run script' del 'Text editor'." 
+    langageDict['HelpMenuLabel19'] = " " 
+    langageDict['HelpMenuLabel20'] = " " 
+    langageDict['HelpMenuLabel21'] = "Nuevo"
+    langageDict['HelpMenuLabel22'] = "Este modula va a permitir escargar un modelo de material. Podra hacer juegos malabares entre los quatres primeros calcos segun que necesite une base que se asemeja a"  
+    langageDict['HelpMenuLabel23'] = "una Esfera/Cubo/Plan/Suzanne. Este modelo es el utilizar para indicar los previews de la base de materiales. Es practico para la creacion de un nuevo material." 
+    langageDict['HelpMenuLabel24'] = " " 
+    langageDict['HelpMenuLabel25'] = " " 
+    langageDict['HelpMenuLabel26'] = "Configuracion" 
+    langageDict['HelpMenuLabel27'] = "Este modulo permite adaptar el lugar donde se situa la base de datos de material. Practica para las personas deseosas de modificar el sitio de la base." 
+    langageDict['HelpMenuLabel28'] = " " 
+    langageDict['HelpMenuLabel29'] = " " 
+    langageDict['HelpMenuLabel30'] = "Credits" 
+    langageDict['HelpMenuLabel31'] = "Se trata de todas las personas que tienen contribuir a la creacion de este addon y que agradezco una vez mas su ayuda preciosa." 
+    langageDict['HelpMenuLabel32'] = " " 
+    langageDict['HelpMenuLabel33'] = " " 
+    langageDict['HelpMenuLabel34'] = " " 
+    langageDict['HelpMenuLabel35'] = " " 
+    langageDict['HelpMenuLabel36'] = " " 
+    langageDict['HelpMenuLabel37'] = " " 
+    langageDict['HelpMenuLabel38'] = " " 
+    langageDict['HelpMenuLabel39'] = " " 
+    langageDict['HelpMenuLabel40'] = " " 
+
+    return langageDict
 
 def Langage_de_DE(langageDict):
-    
     #Panel Values :
     langageDict['PanelName'] = "vorkonfigurierten material speichern" 
-    langageDict['FindImageMenuName'] = "" 
+
     langageDict['ButtonsOpen'] = "Offnen..." 
     langageDict['ButtonsSave'] = "Speichern" 
     langageDict['ButtonsConfiguration'] = "Konfiguration" 
@@ -741,6 +899,8 @@ def Langage_de_DE(langageDict):
     langageDict['ConfigurationMenuLabel01'] = "Export Parameter" 
     langageDict['ConfigurationMenuLabel02'] = "Datenbank Parameter" 
     langageDict['ConfigurationMenuLabel03'] = "Vorschau Parameter" 
+    langageDict['ConfigurationMenuLabel04'] = "Parameter von Sprachen" 
+    langageDict['ConfigurationMenuLabel05'] = "Wahlen Sie Ihre Sprache aus" 
     langageDict['ConfigurationMenuResolutionPreviewX'] = "Auflosung X" 
     langageDict['ConfigurationMenuResolutionPreviewY'] = "Auflosung Y" 
     langageDict['ConfigurationMenuDataBasePath'] = "Datenbank Verzeichnis" 
@@ -805,20 +965,6 @@ def Langage_de_DE(langageDict):
     langageDict['HelpMenuLabel40'] = " " 
 
     return langageDict
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
 
 #Open langage file:
 c = 0
@@ -906,6 +1052,8 @@ LangageValuesDict = {'PanelName':'',
     'ConfigurationMenuLabel01':'',
     'ConfigurationMenuLabel02':'',
     'ConfigurationMenuLabel03':'',
+    'ConfigurationMenuLabel04':'',
+    'ConfigurationMenuLabel05':'',
     'ConfigurationMenuResolutionPreviewX':'',
     'ConfigurationMenuResolutionPreviewY':'',
     'ConfigurationMenuDataBasePath':'',
@@ -922,10 +1070,7 @@ LangageValuesDict = {'PanelName':'',
     'ExportMenuCreatorDefault':'',
     'ExportMenuTakePreview':'',
 
-
     'ImportMenuTitle':'',
-
-    'FindImageMenuName':'',
 
     'InformationsMenuTitle':'',
     'InformationsMenuLabelName':'',
@@ -1005,42 +1150,34 @@ LangageValuesDict = {'PanelName':'',
     'ErrorsMenuError020':''
     }
 
+
 verify = False
-for value in locale.getdefaultlocale():
-    if c == 0:
-        langage = value
-    
-    c = c +1
-
-
-if langage == 'fr_FR':
+DefaultLangage = DefaultLangage.replace('\n', '')
+if DefaultLangage == 'fr_FR':
     LangageValuesDict = Langage_fr_FR(LangageValuesDict)   
     verify = True
     
-if langage == 'de_DE':
+if DefaultLangage == 'de_DE':
     LangageValuesDict = Langage_de_DE(LangageValuesDict)    
     verify = True
 
-
+if DefaultLangage == 'es_ES':
+    LangageValuesDict = Langage_es_ES(LangageValuesDict)    
+    verify = True
+    
 if verify == False:
     LangageValuesDict = Langage_en_US(LangageValuesDict)    
-
-
-
 
 # ************************************************************************************
 # *                                    IMPORTER SQL                                  *
 # ************************************************************************************
 def ImporterSQL(Mat_Name):
-
     print()
     print("                                        *****                         ")
     print()
     print("*******************************************************************************")
     print("*                                IMPORT BASE MATERIAL                         *")
     print("*******************************************************************************")
-    
-
     
     SearchName = Mat_Name
     
@@ -1400,9 +1537,6 @@ def ImporterSQL(Mat_Name):
     Spe_Ramp_input = ""
     Spe_Ramp_blend = "" 
     Spe_Ramp_factor = "" 
-
-
-    
      
     #************************************************************************************************************
     MyMaterialIndex = 2 #First valid value in the Base.
@@ -1415,15 +1549,11 @@ def ImporterSQL(Mat_Name):
     MyImageUvRequest = ""
     MyTextureRequest = ""
  
- 
-       
     #I split material name and i return material index
-    
     for value in SearchName.split('_Ind_', 255):
         if '.jpg' in value:
             MyMaterialIndex = value.replace('.jpg', '')
                 
-    
     #I must communicate with SQLite base and create lists :
     #Here i connect database :
     ShadersToolsDatabase = sqlite3.connect(DataBasePath)
@@ -1445,7 +1575,6 @@ def ImporterSQL(Mat_Name):
             
         if val == 'True':
             val = True
-
 
         #Affect values:
         if v == 0:
@@ -1479,7 +1608,6 @@ def ImporterSQL(Mat_Name):
             Mat_diffuse_intensity = val
 
         if v == 10:
-            
             #I convert SQlite Boolean to Blender Boolean:
             if val == 1:
                 val = True
@@ -1972,7 +2100,6 @@ def ImporterSQL(Mat_Name):
 
     # Create Material :   
     def CreateMaterial(Mat_Name):   
-            
         # Materials Values :   
         mat = bpy.data.materials.new(Mat_Name)   
         mat.diffuse_color[0] = Mat_diffuse_color_r   
@@ -2078,8 +2205,6 @@ def ImporterSQL(Mat_Name):
          
     bpy.ops.object.material_slot_add()   
     obj.material_slots[obj.material_slots.__len__() - 1].material = CreateMaterial(Mat_Name)
-        
-
 
     #My texture:
     MyTextureRequest = "SELECT * FROM TEXTURES WHERE Mat_Idx=" + str(MyMaterialIndex)
@@ -2108,7 +2233,6 @@ def ImporterSQL(Mat_Name):
     
     else:
         os.makedirs(OutPath)
-  
   
     for values in MyTextureIdxResult:
         #I must find all textures in database:
@@ -2178,9 +2302,7 @@ def ImporterSQL(Mat_Name):
                             generated_image.write(Render)
                             generated_image.close()  
   
-                                            
                     c = c + 1
-    
     
     #I copy all images files in ShaderToolsImport folder:
     print("*******************************************************")
@@ -2189,8 +2311,8 @@ def ImporterSQL(Mat_Name):
 
     BlendPath = os.path.dirname(bpy.data.filepath)
     if Render_exists: #I verify if an image exists
-        CopyBlendFolder = BlendPath + os.sep + 'ShaderToolsImport'+ os.sep + Mat_Name
-        CopyBlendFolder = os.path.normpath(CopyBlendFolder)
+        CopyBlendFolder = os.path.join(BlendPath, 'ShaderToolsImport', Mat_Name)
+        #CopyBlendFolder = os.path.normpath(CopyBlendFolder)
         
         if os.path.exists(CopyBlendFolder) == False:
             os.makedirs(CopyBlendFolder + os.sep)
@@ -2200,30 +2322,26 @@ def ImporterSQL(Mat_Name):
         else:
             c = 1
             while os.path.exists(CopyBlendFolder):
-                CopyBlendFolder = BlendPath + os.sep + 'ShaderToolsImport' + os.sep + Mat_Name + "_" + str(c) + os.sep 
-                CopyBlendFolder = os.path.normpath(CopyBlendFolder)
+                CopyBlendFolder = os.path.join(BlendPath, 'ShaderToolsImport', Mat_Name + "_" + str(c)) + os.sep 
                 c = c + 1
                 
             os.makedirs(CopyBlendFolder)
 
-
-
         #Debug
         if os.path.exists(CopyBlendFolder) == False:
-            CopyBlendFolder = AppPath + os.sep + 'ShaderToolsImport' 
-            CopyBlendFolder = os.path.normpath(CopyBlendFolder)
+            CopyBlendFolder = os.path.join(AppPath, 'ShaderToolsImport') 
+            #CopyBlendFolder = os.path.normpath(CopyBlendFolder)
 
             if os.path.exists(CopyBlendFolder) == False:
                 os.makedirs(CopyBlendFolder) 
 
-            CopyBlendFolder = AppPath + os.sep + 'ShaderToolsImport' + os.sep + Mat_Name 
-            CopyBlendFolder = os.path.normpath(CopyBlendFolder)
+            CopyBlendFolder = os.path.join(AppPath, 'ShaderToolsImport', Mat_Name) 
+            #CopyBlendFolder = os.path.normpath(CopyBlendFolder)
             if os.path.exists(CopyBlendFolder) == False:
                 os.makedirs(CopyBlendFolder) 
                     
             CopyBlendFolder = CopyBlendFolder + os.sep
             CopyBlendFolder = os.path.normpath(CopyBlendFolder)
-
 
         #Here I copy all files in Out Folder to ShaderToolsImport folder:
         files = os.listdir(OutPath + os.sep)
@@ -2232,8 +2350,6 @@ def ImporterSQL(Mat_Name):
             if not os.path.isdir(f):         
                 shutil.copy2(OutPath + f, CopyBlendFolder+f)
        
-    
-    
     #Now I treat textures informations
     textureNumberSlot = -1
     for values in MyTextureResult:
@@ -2866,9 +2982,7 @@ def ImporterSQL(Mat_Name):
             if v == 151:
                 Tex_type_noise_distortion_basis = val
 
-
             v = v + 1
-
 
         #Create texture :
         mytex = ""               
@@ -2876,9 +2990,6 @@ def ImporterSQL(Mat_Name):
         slot =  obj.active_material.texture_slots.add()
         slot.texture = mytex
         slot.texture.use_preview_alpha  = Tex_use_preview_alpha
-
-         
-
                 
         if Tex_Type ==  'CLOUDS' :
             slot.texture.cloud_type  = Tex_type_clouds_cloud_type
@@ -2887,7 +2998,6 @@ def ImporterSQL(Mat_Name):
             slot.texture.noise_scale  = Tex_type_clouds_noise_scale
             slot.texture.nabla  = Tex_type_clouds_nabla
             slot.texture.noise_depth  = Tex_type_clouds_noise_depth
-
                              
         if Tex_Type ==  'POINT_DENSITY' :
             slot.texture.point_density.point_source  = Tex_type_point_density_point_source
@@ -2990,10 +3100,8 @@ def ImporterSQL(Mat_Name):
 
                         v = v + 1
 
-            
                     #Here my specular ramp :
                     ramp = bpy.context.object.active_material.texture_slots[textureNumberSlot].texture
-    
                     
                     if ramp.point_density.color_source == 'PARTICLE_SPEED' or ramp.point_density.color_source == 'PARTICLE_AGE':          
                         if counter == 0:        
@@ -3027,13 +3135,6 @@ def ImporterSQL(Mat_Name):
                             #Debug first ramp and last ramp positions:
                             ramp.point_density.color_ramp.elements[0].position = RAMP_MIN_POSITION       
                             ramp.point_density.color_ramp.elements[counter].position = RAMP_MAX_POSITION     
-                            
-                            
-                             
-
-        #**************************************************************************************************************************
-
-
                 
         if Tex_Type ==  'ENVIRONMENT_MAP' :
             slot.texture.environment_map.source  = Tex_type_env_map_source
@@ -3043,12 +3144,10 @@ def ImporterSQL(Mat_Name):
             slot.texture.environment_map.resolution  = Tex_type_env_map_resolution
             slot.texture.environment_map.depth  = Tex_type_env_map_depth 
             slot.texture.environment_map.zoom  = Tex_type_env_map_zoom
-
                 
         if Tex_Type ==  'MAGIC':
             slot.texture.noise_depth  = Tex_type_magic_depth
             slot.texture.turbulence  = Tex_type_magic_turbulence
-                
                 
         if Tex_Type == 'MARBLE':
             slot.texture.marble_type  = Tex_type_marble_marble_type
@@ -3059,7 +3158,6 @@ def ImporterSQL(Mat_Name):
             slot.texture.noise_depth  = Tex_type_marble_noise_depth
             slot.texture.turbulence  = Tex_type_marble_turbulence
             slot.texture.nabla  = Tex_type_marble_nabla
-                
                 
         if Tex_Type == 'MUSGRAVE':
             slot.texture.musgrave_type  = Tex_type_musgrave_type
@@ -3073,7 +3171,6 @@ def ImporterSQL(Mat_Name):
             slot.texture.offset  = Tex_type_musgrave_offset
             slot.texture.gain  = Tex_type_musgrave_gain
                 
-                
         if Tex_Type == 'DISTORTED_NOISE':
             slot.texture.distortion  = Tex_type_noise_distortion_distortion
             slot.texture.noise_distortion  = Tex_type_noise_distortion_noise_distortion
@@ -3081,14 +3178,12 @@ def ImporterSQL(Mat_Name):
             slot.texture.nabla  = Tex_type_noise_distortion_nabla
             slot.texture.noise_scale  = Tex_type_noise_distortion_noise_scale
                 
-                
         if Tex_Type == 'STUCCI':
             slot.texture.stucci_type  = Tex_type_stucci_type
             slot.texture.noise_type  = Tex_type_stucci_noise_type
             slot.texture.noise_basis  = Tex_type_stucci_basis
             slot.texture.noise_scale  = Tex_type_stucci_noise_scale
             slot.texture.turbulence  = Tex_type_stucci_turbulence
-                
                 
         if Tex_Type == 'VORONOI':
             slot.texture.noise_intensity  = Tex_type_voronoi_intensity
@@ -3101,7 +3196,6 @@ def ImporterSQL(Mat_Name):
             slot.texture.weight_2  = Tex_type_voronoi_weight_2
             slot.texture.weight_3  = Tex_type_voronoi_weight_3
             slot.texture.weight_4  = Tex_type_voronoi_weight_4
-                
                 
         if Tex_Type == 'VOXEL_DATA':
             slot.texture.voxel_data.file_format  = Tex_type_voxel_data_file_format 
@@ -3116,7 +3210,6 @@ def ImporterSQL(Mat_Name):
             slot.texture.voxel_data.resolution[2]  = Tex_type_voxel_data_resoltion_3
             slot.texture.voxel_data.smoke_data_type  = Tex_type_voxel_data_smoke_data_type
                 
-                
         if Tex_Type == 'WOOD':
             slot.texture.noise_basis_2  = Tex_type_wood_noise_basis_2
             slot.texture.wood_type  = Tex_type_wood_wood_type
@@ -3125,13 +3218,10 @@ def ImporterSQL(Mat_Name):
             slot.texture.noise_scale  = Tex_type_wood_noise_scale
             slot.texture.nabla  = float(Tex_type_wood_nabla)
             slot.texture.turbulence  = Tex_type_wood_turbulence
-            
-                
                 
         if Tex_Type == 'BLEND':
             slot.texture.progression  = Tex_type_blend_progression
             slot.texture.use_flip_axis  = Tex_type_blend_use_flip_axis
-                        
                 
         if Tex_Type ==  'IMAGE' :           
             #I create image texture environnement:
@@ -3144,7 +3234,6 @@ def ImporterSQL(Mat_Name):
             slot.texture.image.use_premultiply  = Tex_ima_premultiply
             if Tex_ima_field_order != '': #Debug
                 slot.texture.image.field_order  = Tex_ima_field_order
-                    
                     
         slot.texture.factor_red  = Tex_colors_factor_r
         slot.texture.factor_green  = Tex_colors_factor_g
@@ -3209,9 +3298,6 @@ def ImporterSQL(Mat_Name):
         slot.bump_method  =  Tex_influence_bump_method
         slot.bump_objectspace  = Tex_influence_objectspace
       
-
-
-        #**********************************************************************************************************        
         #My colors ramp:
         MyColorRampRequest = "SELECT * FROM COLORS_RAMP WHERE Col_Num_Texture=" + str(Tex_Index)
         Connexion = ShadersToolsDatabase.cursor()                             
@@ -3238,7 +3324,6 @@ def ImporterSQL(Mat_Name):
             
                     if val == 'True':
                         val = True
-
 
                     #Affect values:
                     if v == 0:
@@ -3298,7 +3383,6 @@ def ImporterSQL(Mat_Name):
 
                     v = v + 1
 
-            
                 #Here my specular ramp :
                 ramp = bpy.context.object.active_material.texture_slots[textureNumberSlot].texture
     
@@ -3337,9 +3421,6 @@ def ImporterSQL(Mat_Name):
                     ramp.color_ramp.elements[0].position = RAMP_MIN_POSITION       
                     ramp.color_ramp.elements[counter].position = RAMP_MAX_POSITION     
             
-
-    #**************************************************************************************************************************
-
     #My diffuse ramp:
     MyDiffuseRampRequest = "SELECT * FROM DIFFUSE_RAMP WHERE Dif_Num_material=" + str(MyMaterialIndex)
     Connexion = ShadersToolsDatabase.cursor()                             
@@ -3367,7 +3448,6 @@ def ImporterSQL(Mat_Name):
             
                 if val == 'True':
                     val = True
-
 
                 #Affect values:
                 if v == 0:
@@ -3432,7 +3512,6 @@ def ImporterSQL(Mat_Name):
                     Dif_Ramp_factor = val
 
                 v = v + 1
-
             
             #Here my diffuse ramp :
             ramp = bpy.context.object.active_material
@@ -3482,9 +3561,6 @@ def ImporterSQL(Mat_Name):
                 ramp.diffuse_ramp.elements[0].position = RAMP_MIN_POSITION       
                 ramp.diffuse_ramp.elements[counter].position = RAMP_MAX_POSITION     
             
-        
-    #**********************************************************************************************************        
-
     #My specular ramp:
     MySpecularRampRequest = "SELECT * FROM SPECULAR_RAMP WHERE Spe_Num_Material=" + str(MyMaterialIndex)
     Connexion = ShadersToolsDatabase.cursor()                             
@@ -3512,7 +3588,6 @@ def ImporterSQL(Mat_Name):
             
                 if val == 'True':
                     val = True
-
 
                 #Affect values:
                 if v == 0:
@@ -3578,7 +3653,6 @@ def ImporterSQL(Mat_Name):
 
                 v = v + 1
 
-            
             #Here my specular ramp :
             ramp = bpy.context.object.active_material
     
@@ -3622,22 +3696,12 @@ def ImporterSQL(Mat_Name):
                 ramp.specular_ramp.elements[counter].color[2]  =  Spe_Color_stop_one_b
                 ramp.specular_ramp.elements[counter].color[3]  =  Spe_Color_stop_one_a 
 
-
                 #Debug first ramp and last ramp positions:
                 ramp.specular_ramp.elements[0].position = RAMP_MIN_POSITION       
                 ramp.specular_ramp.elements[counter].position = RAMP_MAX_POSITION     
 
-            
-            
-
     #I close base
     Connexion.close()   
-    
-
-
-    #**********************************************************************************************************************************
-
-        
 
 # ************************************************************************************
 # *                                         EXPORTER                                 *
@@ -3657,15 +3721,11 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
     if os.path.exists(ZipPath) == False:
         os.makedirs(ZipPath)
          
-    
     #Here I remove all files in Zip Folder:
     files = os.listdir(ZipPath + os.sep)
     for f in files:
         if not os.path.isdir(f):
-            os.remove(ZipPath+f)
-    
-    
-    
+            os.remove(os.path.join(ZipPath, f))
     
     #I create a list before export material/textures configuration :
     MY_EXPORT_INFORMATIONS = ['# ****************************************************************\n',
@@ -3797,14 +3857,6 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                               'bpy.ops.object.material_slot_add()\n',
                               'obj.material_slots[obj.material_slots.__len__() - 1].material = CreateMaterial("MAT_EXP_' +  Mat_Name + '")\n\n\n']
     
-    
-    
-    
-    
-    
-    
-    
-    
     #I treat textures :
     textureName = False
     textureNumbers = -1
@@ -3813,15 +3865,12 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
     for textureName in tex.texture_slots.values(): 
         textureNumbers = textureNumbers + 1
         
-        
         if textureName == None or obj.active_material.texture_slots[textureNumbers].name == "":
             texureName = False
-        
         
         else:
             textureName = True
             TEX_VALUES_FOR_RAMPS.append(textureNumbers)
-        
         
         if textureName: 
             mytex = ""
@@ -3832,8 +3881,6 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
             MY_EXPORT_INFORMATIONS.append('slot.texture = mytex\n')
             MY_EXPORT_INFORMATIONS.append('slot.texture.use_preview_alpha  = ' + str(tex.texture_slots[textureNumbers].texture.use_preview_alpha) +  '\n')
             
-            
-            
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'CLOUDS':
                 MY_EXPORT_INFORMATIONS.append('slot.texture.cloud_type  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.cloud_type) +  '"\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.noise_type  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_type) +  '"\n')
@@ -3841,7 +3888,6 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                 MY_EXPORT_INFORMATIONS.append('slot.texture.noise_scale  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_scale) +  '\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.nabla  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.nabla) +  '\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.noise_depth  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_depth) +  '\n')
-            
             
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'POINT_DENSITY':
                 MY_EXPORT_INFORMATIONS.append('slot.texture.point_density.point_source  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.point_source) +  '"\n')
@@ -3854,7 +3900,6 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                 MY_EXPORT_INFORMATIONS.append('slot.texture.point_density.speed_scale  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.speed_scale) +  '\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.point_density.color_source  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.color_source) +  '"\n')
             
-            
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'ENVIRONMENT_MAP':
                 MY_EXPORT_INFORMATIONS.append('slot.texture.environment_map.source  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.environment_map.source) +  '"\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.environment_map.mapping  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.environment_map.mapping) +  '"\n')
@@ -3864,12 +3909,10 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                 MY_EXPORT_INFORMATIONS.append('slot.texture.environment_map.depth  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.environment_map.depth) +  '\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.environment_map.zoom  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.environment_map.zoom) +  '\n')
             
-            
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'IMAGE':
                 print(LangageValuesDict['ErrorsMenuError001'])
                 print(LangageValuesDict['ErrorsMenuError002'])
                 print(LangageValuesDict['ErrorsMenuError003'])
-                
                 
                 if tex.texture_slots[textureNumbers].texture.image.source == 'FILE':
                     #Here create save path and  save source:    
@@ -3885,15 +3928,13 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                         IMAGE_FILEPATH = AppPath + 'error_save.jpg'
                         IMAGE_FILENAME = 'error_save.jpg'
                         print(LangageValuesDict['ErrorsMenuError013'])
-                        #print("*******************************************************************************")
-                        
                          
                     #I treat informations:
                     MY_EXPORT_INFORMATIONS.append('imagePath = scriptPath + Mat_Name + "_" + "' + IMAGE_FILENAME +  '"\n')
                     MY_EXPORT_INFORMATIONS.append('img=bpy.data.images.load(filepath=imagePath)\n')
                     
-                    save_path = ZipPath + os.sep + Mat_Name
-                    save_path = os.path.normpath(save_path)
+                    save_path = os.path.join(ZipPath, Mat_Name)
+                    #save_path = os.path.normpath(save_path)
                     
                     if '.py' in save_path:
                         save_path = save_path.replace('.py', '')
@@ -3910,7 +3951,6 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                     print(LangageValuesDict['ErrorsMenuError005'])
                     print("*******************************************************************************")
 
-
                 if tex.texture_slots[textureNumbers].texture.image.source == 'GENERATED':
                     myImg = str(obj.active_material.texture_slots[textureNumbers].texture.image.name)
                     myImg = '"' + myImg
@@ -3921,7 +3961,6 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
 
                     if '.py' in save_path:
                         save_path = save_path.replace('.py', '')
-
 
                     #Now I create file:
                     MY_EXPORT_INFORMATIONS.append('slot.texture.image  = img\n')
@@ -3942,15 +3981,10 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                                         
                     print(LangageValuesDict['ErrorsMenuError005'])
                     print("*******************************************************************************")
-                    
-                    
-                    #**********************************************************************************************************************
- 
             
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'MAGIC':
                 MY_EXPORT_INFORMATIONS.append('slot.texture.noise_depth  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_depth) +  '\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.turbulence  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.turbulence) +  '\n')
-            
             
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'MARBLE':
                 MY_EXPORT_INFORMATIONS.append('slot.texture.marble_type  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.marble_type) +  '"\n')
@@ -3962,7 +3996,6 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                 MY_EXPORT_INFORMATIONS.append('slot.texture.noise_depth  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_depth) +  '\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.turbulence  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.turbulence) +  '\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.nabla  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.nabla) +  '\n')
-            
             
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'MUSGRAVE':
                 MY_EXPORT_INFORMATIONS.append('slot.texture.musgrave_type  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.musgrave_type) +  '"\n')
@@ -3976,7 +4009,6 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                 MY_EXPORT_INFORMATIONS.append('slot.texture.offset  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.offset) +  '\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.gain  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.gain) +  '\n')
             
-            
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'DISTORTED_NOISE':
                 MY_EXPORT_INFORMATIONS.append('slot.texture.distortion  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.distortion) +  '\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.noise_distortion  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_distortion) +  '"\n')
@@ -3984,14 +4016,12 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                 MY_EXPORT_INFORMATIONS.append('slot.texture.nabla  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.nabla) +  '\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.noise_scale  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_scale) +  '\n')
             
-            
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'STUCCI':
                 MY_EXPORT_INFORMATIONS.append('slot.texture.stucci_type  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.stucci_type) +  '"\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.noise_type  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_type) +  '"\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.noise_basis  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_basis) +  '"\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.noise_scale  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_scale) +  '\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.turbulence  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.turbulence) +  '\n')
-            
             
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'VORONOI':
                 MY_EXPORT_INFORMATIONS.append('slot.texture.noise_intensity  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_intensity) +  '\n')
@@ -4004,7 +4034,6 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                 MY_EXPORT_INFORMATIONS.append('slot.texture.weight_2  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.weight_2) +  '\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.weight_3  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.weight_3) +  '\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.weight_4  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.weight_4) +  '\n')
-            
             
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'VOXEL_DATA':
                 MY_EXPORT_INFORMATIONS.append('slot.texture.voxel_data.file_format  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.file_format) +  '"\n')
@@ -4019,7 +4048,6 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                 MY_EXPORT_INFORMATIONS.append('slot.texture.voxel_data.resolution[2]  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.resolution[2]) +  '\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.voxel_data.smoke_data_type  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.smoke_data_type) +  '"\n')
             
-            
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'WOOD':
                 MY_EXPORT_INFORMATIONS.append('slot.texture.noise_basis_2  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_basis_2) +  '"\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.wood_type  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.wood_type) +  '"\n')
@@ -4029,14 +4057,9 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                 MY_EXPORT_INFORMATIONS.append('slot.texture.nabla  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.nabla) +  '\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.turbulence  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.turbulence) +  '\n')
             
-            
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'BLEND':
                 MY_EXPORT_INFORMATIONS.append('slot.texture.progression  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.progression) +  '"\n')
                 MY_EXPORT_INFORMATIONS.append('slot.texture.use_flip_axis  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.use_flip_axis) +  '"\n')
-            
-            
-            
-            
             
             MY_EXPORT_INFORMATIONS.append('slot.texture.factor_red  =  ' + str(obj.active_material.texture_slots[textureNumbers].texture.factor_red) +  ' \n')
             MY_EXPORT_INFORMATIONS.append('slot.texture.factor_green  =  ' + str(obj.active_material.texture_slots[textureNumbers].texture.factor_green) +  ' \n')
@@ -4053,7 +4076,6 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
             if obj.active_material.texture_slots[textureNumbers].texture_coords == 'OBJECT':
                 MY_EXPORT_INFORMATIONS.append('slot.use_from_original  =  ' + str(obj.active_material.texture_slots[textureNumbers].use_from_original) +  ' \n')
                               
-            
             MY_EXPORT_INFORMATIONS.append('slot.mapping_x  =  "' + str(obj.active_material.texture_slots[textureNumbers].mapping_x) +  '" \n')
             MY_EXPORT_INFORMATIONS.append('slot.mapping_y  =  "' + str(obj.active_material.texture_slots[textureNumbers].mapping_y) +  '" \n')
             MY_EXPORT_INFORMATIONS.append('slot.mapping_z  =  "' + str(obj.active_material.texture_slots[textureNumbers].mapping_z) +  '" \n')
@@ -4103,9 +4125,6 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
             MY_EXPORT_INFORMATIONS.append('slot.use_stencil  = ' + str(obj.active_material.texture_slots[textureNumbers].use_stencil) + '\n')
             MY_EXPORT_INFORMATIONS.append('slot.blend_type  =  "' + str(obj.active_material.texture_slots[textureNumbers].blend_type) +  '" \n')
     
-    
-    
-    
     #Here my diffuse ramp :
     ramp = bpy.context.object.active_material
     MY_EXPORT_INFORMATIONS.append('\n\n')
@@ -4116,7 +4135,6 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
     
     #Here my diffuse ramp :                                                                          
     if ramp.use_diffuse_ramp:
-        
         counter = 0
         loop = 0
         values = ""
@@ -4125,9 +4143,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
         for values in ramp.diffuse_ramp.elements.items():
             loop = loop + 1
         
-        
         while counter <= loop:
-            
             if counter == 0:        
                 #Here i get differentes color bands:
                 MY_EXPORT_INFORMATIONS.append('\n# diffuse ramps datas ' + str(counter) + ' :\n')
@@ -4170,16 +4186,10 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                 MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.elements[0].position = RAMP_MIN_POSITION \n')
                 MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.elements[' +  str(counter) + '].position = RAMP_MAX_POSITION \n')
             
-            
             counter = counter + 1
-    
-    
-    
-    
     
     #Here my specular ramp :                                                                          
     if ramp.use_specular_ramp:
-        
         counter = 0
         loop = 0
         values = ""
@@ -4190,9 +4200,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
         for values in ramp.specular_ramp.elements.items():
             loop = loop + 1
         
-        
         while counter <= loop:
-            
             if counter == 0:        
                 #Here i get differentes color bands:
                 MY_EXPORT_INFORMATIONS.append('\n# Specular ramps datas ' + str(counter) + ' :\n')
@@ -4206,8 +4214,6 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                 MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[' + str(counter) + '].color[1]  =  ' + str(ramp.specular_ramp.elements[counter].color[1]) +  ' \n')       
                 MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[' + str(counter) + '].color[2]  =  ' + str(ramp.specular_ramp.elements[counter].color[2]) +  ' \n')       
                 MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[' + str(counter) + '].color[3]  =  ' + str(ramp.specular_ramp.elements[counter].color[3]) +  ' \n')  
-            
-            
             
             if counter > 0 and counter < loop - 1 :        
                 #Here i get differentes color bands:
@@ -4237,12 +4243,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                 MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[0].position = RAMP_MIN_POSITION \n')
                 MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[' +  str(counter) + '].position = RAMP_MAX_POSITION \n')
             
-            
             counter = counter + 1
-    
-    
-    
-    
     
     #Here I create my textures conditions :
     textureName = False
@@ -4260,11 +4261,8 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
             textureName = True   
         
         if textureName: 
-            
-            
             #If my texture slot it's created and ramp color it's used do :
             if ramp.texture_slots[textureNumbers].texture.use_color_ramp:
-                
                 counter = 0
                 loop = 0
                 values = ""
@@ -4278,8 +4276,6 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                     else:
                         cou = cou + 1 
                 
-                
-                
                 MY_EXPORT_INFORMATIONS.append('\n# Texture color ramps datas ' + str(textureNumberSlot) + ' :\n')
                 MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.use_color_ramp = True\n')
                 MY_EXPORT_INFORMATIONS.append('RAMP_MIN_POSITION = 0.0\n')
@@ -4288,9 +4284,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                 for values in ramp.texture_slots[textureNumbers].texture.color_ramp.elements.items():
                     loop = loop + 1
                 
-                
                 while counter <= loop:
-                    
                     if counter == 0:        
                         #Here i get differentes color bands:
                         MY_EXPORT_INFORMATIONS.append('RAMP_MIN_POSITION =' +str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[0].position) + '\n')
@@ -4300,8 +4294,6 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                         MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[1]  =  ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[1]) +  ' \n')       
                         MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[2]  =  ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[2]) +  ' \n')       
                         MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[3]  =  ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[3]) +  ' \n')  
-                    
-                    
                     
                     if counter > 0 and counter < loop - 1 :        
                         #Here i get differentes color bands:
@@ -4325,9 +4317,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                         MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[0].position = RAMP_MIN_POSITION \n')
                         MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' +  str(counter) + '].position = RAMP_MAX_POSITION \n')
                     
-                    
                     counter = counter + 1
- 
     
     #Here I create my Point Density conditions :
     textureName = False
@@ -4345,17 +4335,12 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
             textureName = True   
         
         if textureName: 
-            
-            
             #If my texture slot it's created and point density ramp it's used do :
             if ramp.texture_slots[textureNumbers].texture.type == 'POINT_DENSITY':
-                
                 if ramp.texture_slots[textureNumbers].texture.point_density.color_source == 'PARTICLE_AGE' or ramp.texture_slots[textureNumbers].texture.point_density.color_source == 'PARTICLE_SPEED':
-                    
                     counter = 0
                     loop = 0
                     values = ""
-                    
                     val = 0
                     cou = 0
                     
@@ -4365,8 +4350,6 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                         else:
                             cou = cou + 1 
                     
-                    
-                    
                     MY_EXPORT_INFORMATIONS.append('\n# Texture point density ramps datas ' + str(textureNumberSlot) + ' :\n')
                     MY_EXPORT_INFORMATIONS.append('RAMP_MIN_POSITION = 0.0\n')
                     MY_EXPORT_INFORMATIONS.append('RAMP_MAX_POSITION = 1.0\n\n')
@@ -4374,9 +4357,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                     for values in ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements.items():
                         loop = loop + 1
                     
-                    
                     while counter <= loop:
-                        
                         if counter == 0:        
                             #Here i get differentes color bands:
                             MY_EXPORT_INFORMATIONS.append('RAMP_MIN_POSITION =' +str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[0].position) + '\n')
@@ -4386,8 +4367,6 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                             MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[1]  =  ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[1]) +  ' \n')       
                             MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[2]  =  ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[2]) +  ' \n')       
                             MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[3]  =  ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[3]) +  ' \n')  
-                        
-                        
                         
                         if counter > 0 and counter < loop - 1 :        
                             #Here i get differentes color bands:
@@ -4411,10 +4390,8 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                             MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[0].position = RAMP_MIN_POSITION \n')
                             MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' +  str(counter) + '].position = RAMP_MAX_POSITION \n')
                         
-                        
-                        counter = counter + 1
-    
 
+                        counter = counter + 1
     
     #I create a file on the Filepath : 
     if '.py' in File_Path:
@@ -4426,17 +4403,13 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
         Mat_Name = Mat_Name.replace('.py', '')
     
     Mat_Name = Mat_Name.replace('.', '')
-
     
     #fileExport =  File_Path + "_" + Inf_Creator + ".py"
-    fileExport =  ZipPath + Mat_Name + "_" + Inf_Creator + ".py"
-
+    fileExport =  os.path.join(ZipPath, Mat_Name + "_" + Inf_Creator + ".py")
     file = open(fileExport, "w")
-    
     
     for line in MY_EXPORT_INFORMATIONS:
         file.writelines(line)
-    
     
     file.close()
     
@@ -4448,13 +4421,11 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
     files = os.listdir(ZipPath)
     for f in files:
         if not os.path.isdir(f):
-            ZipFile_Write = ZipPath + f
+            ZipFile_Write = os.path.join(ZipPath, f)
             z.write(ZipFile_Write, os.path.basename(ZipFile_Write), zipfile.ZIP_DEFLATED)    
-    
     
     z.close()
     
-
     #I create or the preview file:
     if TakePreview:
         MyPreviewResult = TakePreviewRender(Inf_Creator, Mat_Name)        
@@ -4463,16 +4434,10 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
         imageFileJPG.write(MyPreviewResult)
         imageFileJPG.close()        
 
-
-
-
-
-
 # ************************************************************************************
 # *                                     RAW IMAGE PATH                               *
 # ************************************************************************************
 def Raw_Image_Path(Image_Path):
-    
     Image_Path = Image_Path.replace("'", "")
     SaveOriginalName = Image_Path
     
@@ -4480,7 +4445,6 @@ def Raw_Image_Path(Image_Path):
     if '..' in Image_Path or './' in Image_Path:
         Image_Path = os.path.normpath(Image_Path)
 
-            
     SaveOriginalPath = Image_Path
 
     if os.path.exists(Image_Path) == False:
@@ -4499,9 +4463,6 @@ def Raw_Image_Path(Image_Path):
     
     return Image_Path
 
-
-
-
 # ************************************************************************************
 # *                                     RAW IMAGE NAME                               *
 # ************************************************************************************
@@ -4512,10 +4473,7 @@ def Raw_Image_Name(Image_Path):
     for value in Image_Path.split(os.sep, 1024):
         Image_Name = value        
 
-
     return Image_Name
-    
-
 
 # ************************************************************************************
 # *                                   PREPARE SQL REQUEST                            *
@@ -4527,7 +4485,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
     print("*******************************************************************************")
     print("*                                   SAVE MATERIAL                             *")
     print("*******************************************************************************")
-    
     
     obj = bpy.context.object
     SSS_Mat_Name = Mat_Name
@@ -4657,8 +4614,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
     Mat_shadow_shadow_ray_bias = obj.active_material.shadow_ray_bias  
     Mat_shadow_use_cast_approximate = obj.active_material.use_cast_approximate
     
-    
-    
     #I create a material list :
     MY_MATERIAL = [Mat_Index,
                    Mat_Name,
@@ -4773,8 +4728,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                    Idx_ramp_diffuse, 
                    Idx_ramp_specular,                       
                    Idx_textures] 
-    
-    
     
     #I create a material name data list :
     MY_MATERIAL_DATABASE_NAME = ['Mat_Index',
@@ -4891,9 +4844,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                                  'Idx_ramp_specular',                       
                                  'Idx_textures'] 
     
-    
-    
-    
     #I create my request here but in first time i debug list Materials values:                    
     MY_SQL_TABLE_MATERIAL = []
     values = ""
@@ -4911,19 +4861,15 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
             
         counter = counter + 1
     
-    
     values = ""
     for values in MY_MATERIAL_DATABASE_NAME:
         MY_SQL_TABLE_MATERIAL.append(values)
-    
-    
     
     RequestValues = ""
     RequestValues = ",".join(str(c) for c in MY_SQL_TABLE_MATERIAL)
     
     RequestNewData = ""
     RequestNewData = ",".join(str(c) for c in MY_MATERIAL)
-    
     
     #Here i connect database :
     ShadersToolsDatabase = sqlite3.connect(DataBasePath)
@@ -4932,7 +4878,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
     
     #ADD materials records in table:
     Request = "INSERT INTO MATERIALS (" + RequestValues + ") VALUES (" + RequestNewData + ")"
-    #print(Request)
     
     Connexion.execute(Request)  
     ShadersToolsDatabase.commit()
@@ -4940,11 +4885,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
     #I close base
     Connexion.close()   
     
-    
-    
-    
     #************************** MY TEXTURES *****************************
-    
     #Textures values :
     tex = bpy.context.active_object.active_material
     textureName = False
@@ -4972,13 +4913,11 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
             Tex_use_preview_alpha = "'" + str(bpy.context.active_object.active_material.texture_slots[textureNumbers].texture.use_preview_alpha )+ "'"
             Tex_Type = "'" + tex.texture_slots[textureNumbers].texture.type + "'"
             
-            
             Tex_type_blend_progression = ""
             Tex_type_blend_use_flip_axis = "" 
             if tex.texture_slots[textureNumbers].texture.type == 'BLEND':     
                 Tex_type_blend_progression = "'" + tex.texture_slots[textureNumbers].texture.progression + "'"
                 Tex_type_blend_use_flip_axis = "'" + tex.texture_slots[textureNumbers].texture.use_flip_axis + "'" 
-            
             
             Tex_type_clouds_cloud_type = "''"
             Tex_type_clouds_noise_type = "''"
@@ -5013,7 +4952,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 Tex_type_point_density_falloff_speed_scale = tex.texture_slots[textureNumbers].texture.point_density.falloff_speed_scale
                 Tex_type_point_density_speed_scale = tex.texture_slots[textureNumbers].texture.point_density.speed_scale
                 Tex_type_point_density_color_source = "'" + tex.texture_slots[textureNumbers].texture.point_density.color_source + "'"
-            
             
             Tex_type_env_map_source = "''" 
             Tex_type_env_map_mapping = "''"
@@ -5065,7 +5003,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                         IMAGE_FILEPATH = AppPath + 'error_save.jpg'
                         IMAGE_FILENAME = 'error_save.jpg'
                         print(LangageValuesDict['ErrorsMenuError013'])
-                        #print("************************************************************")
                     
                     else:    
               
@@ -5076,10 +5013,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                         Tex_ima_fields = tex.texture_slots[textureNumbers].texture.image.use_fields
                         Tex_ima_premultiply = tex.texture_slots[textureNumbers].texture.image.use_premultiply
                         Tex_ima_fields_order = tex.texture_slots[textureNumbers].texture.image.field_order
-                    
-
-
-
 
                 #GENERATED IMAGE FILE (UV FILE) :
                 if tex.texture_slots[textureNumbers].texture.image.source == 'GENERATED':     
@@ -5093,10 +5026,8 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                     Tex_ima_generated_height = tex.texture_slots[textureNumbers].texture.image.generated_height                  
                     Tex_ima_float_buffer = tex.texture_slots[textureNumbers].texture.image.use_generated_float                 
                     
-                    
                     save_name = Tex_ima_name.replace("'", '')
                     save_path = AppPath + save_name.replace('.', '') + ".png" 
-                    
                     
                     if os.path.exists(save_path):
                         os.remove(save_path)                    
@@ -5123,7 +5054,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
 
                 Tex_ima_filepath = '"' + IMAGE_FILEPATH + '"'
                 
-                
                 #Now I must to update Database IMAGE_UV table:    
                 #MY  IMAGE UV LIST :
                 MY_IMAGE_UV =  [Ima_Index,    
@@ -5142,7 +5072,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                                 "?"
                                ]
 
-                               
                 #MY IMAGE_UV DATA BASE NAME LIST :
                 MY_IMAGE_UV_DATABASE_NAME =  ['Ima_Index',    
                                           'Idx_Texture',
@@ -5159,8 +5088,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                                           'Ima_Float_buffer',
                                           'Ima_Blob' 
                                          ] 
-                               
-                               
 
                 #I create my request here but in first time i debug list IMAGES/UV values:                    
                 MY_SQL_TABLE_IMAGE_UV = []
@@ -5179,12 +5106,9 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 
                     counter = counter + 1
             
-            
                 values = ""
                 for values in MY_IMAGE_UV_DATABASE_NAME:
                     MY_SQL_TABLE_IMAGE_UV.append(values)
-            
-            
             
                 RequestValues = ""
                 RequestValues = ",".join(str(c) for c in MY_SQL_TABLE_IMAGE_UV)
@@ -5192,17 +5116,12 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 RequestNewData = ""
                 RequestNewData = ",".join(str(c) for c in MY_IMAGE_UV)
             
-            
-
                 #Here i connect database :
                 ShadersToolsDatabase = sqlite3.connect(DataBasePath)
-                #ShadersToolsDatabase.row_factory = sqlite3.Row                
                 Connexion = ShadersToolsDatabase.cursor()                             
             
                 #ADD materials records in table:
-                #binary = lite.Binary(Tex_image_blob)
                 Request = "INSERT INTO IMAGE_UV (" + RequestValues + ") VALUES (" + RequestNewData + ")"
-                #print("Request = " + Request)
                 Connexion.execute(Request,(ImageBlobConversion,))  
                 ShadersToolsDatabase.commit()
             
@@ -5216,19 +5135,12 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
 
                 print(LangageValuesDict['ErrorsMenuError004'])
                 print("*******************************************************************************")
-                # *****************************************************************************************
-
-
-
-
             
             Tex_type_magic_depth = 0
             Tex_type_magic_turbulence = 0.0 
             if tex.texture_slots[textureNumbers].texture.type == 'MAGIC':     
                 Tex_type_magic_depth = tex.texture_slots[textureNumbers].texture.noise_depth
                 Tex_type_magic_turbulence = tex.texture_slots[textureNumbers].texture.turbulence
-            
-            
             
             Tex_type_marble_marble_type = "''" 
             Tex_type_marble_noise_basis_2 = "''"
@@ -5247,7 +5159,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 Tex_type_marble_noise_depth = tex.texture_slots[textureNumbers].texture.noise_depth
                 Tex_type_marble_turbulence = tex.texture_slots[textureNumbers].texture.turbulence
                 Tex_type_marble_nabla = tex.texture_slots[textureNumbers].texture.nabla
-            
             
             Tex_type_musgrave_type = "''"
             Tex_type_musgrave_dimension_max = 0.0 
@@ -5271,7 +5182,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 Tex_type_musgrave_offset = tex.texture_slots[textureNumbers].texture.offset
                 Tex_type_musgrave_gain = tex.texture_slots[textureNumbers].texture.gain
             
-            
             Tex_type_noise_distortion_distortion = "''" 
             Tex_type_noise_distortion = "''"
             Tex_type_noise_distortion_texture_distortion = 0.0
@@ -5288,7 +5198,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 Tex_type_noise_distortion_noise_distortion = "'" +  tex.texture_slots[textureNumbers].texture.noise_distortion + "'"
                 Tex_type_noise_distortion_basis = "'" +  tex.texture_slots[textureNumbers].texture.noise_basis + "'"
             
-            
             Tex_type_stucci_type = "''"
             Tex_type_stucci_noise_type = "''" 
             Tex_type_stucci_basis = "''"
@@ -5300,7 +5209,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 Tex_type_stucci_basis = "'" + tex.texture_slots[textureNumbers].texture.noise_basis + "'"
                 Tex_type_stucci_noise_scale = tex.texture_slots[textureNumbers].texture.noise_scale
                 Tex_type_stucci_turbulence = tex.texture_slots[textureNumbers].texture.turbulence
-            
             
             Tex_type_voronoi_distance_metric = "''" 
             Tex_type_voronoi_minkovsky_exponent = 0.0
@@ -5323,7 +5231,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 Tex_type_voronoi_weight_3 = tex.texture_slots[textureNumbers].texture.weight_3
                 Tex_type_voronoi_weight_4 = tex.texture_slots[textureNumbers].texture.weight_4
                 Tex_type_voronoi_intensity = tex.texture_slots[textureNumbers].texture.noise_intensity
-            
             
             Tex_type_voxel_data_file_format = "''"
             Tex_type_voxel_data_source_path = "''"
@@ -5349,7 +5256,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 Tex_type_voxel_data_resoltion_3 = tex.texture_slots[textureNumbers].texture.voxel_data.resolution[2]
                 Tex_type_voxel_data_smoke_data_type ="'" + tex.texture_slots[textureNumbers].texture.voxel_data.smoke_data_type + "'"
             
-            
             Tex_type_wood_noise_basis_2 = "''"
             Tex_type_wood_wood_type = "''"
             Tex_type_wood_noise_type = "''"
@@ -5365,7 +5271,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 Tex_type_wood_noise_scale = tex.texture_slots[textureNumbers].texture.noise_scale
                 Tex_type_wood_nabla = tex.texture_slots[textureNumbers].texture.nabla
                 Tex_type_wood_turbulence = tex.texture_slots[textureNumbers].texture.turbulence
-            
             
             Tex_colors_use_color_ramp = tex.texture_slots[textureNumbers].texture.use_color_ramp
             Tex_colors_factor_r = tex.texture_slots[textureNumbers].texture.factor_red
@@ -5435,8 +5340,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
             Tex_influence_color_a = 0
             Tex_influence_bump_method = "'" + tex.texture_slots[textureNumbers].bump_method + "'"
             Tex_influence_objectspace = "'" + tex.texture_slots[textureNumbers].bump_objectspace + "'"
-            
-            
             
             #MY TEXTURE LIST :
             MY_TEXTURE =  [Tex_Index,    
@@ -5592,10 +5495,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                            Tex_type_noise_distortion_noise_distortion,
                            Tex_type_noise_distortion_basis]
             
-            
-            
-            
-            
             #MY TEXTURE DATA BASE NAME LIST :
             MY_TEXTURE_DATABASE_NAME =  ['Tex_Index',    
                                          'Tex_Name',
@@ -5749,10 +5648,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                                          'Tex_mapping_use_from_original',
                                          'Tex_type_noise_distortion_noise_distortion',
                                          'Tex_type_noise_distortion_basis']
-
-            
-            
-            
             
             #I create my request here but in first time i debug list Textures values:                    
             MY_SQL_TABLE_TEXTURE = []
@@ -5771,19 +5666,15 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 
                 counter = counter + 1
             
-            
             values = ""
             for values in MY_TEXTURE_DATABASE_NAME:
                 MY_SQL_TABLE_TEXTURE.append(values)
-            
-            
             
             RequestValues = ""
             RequestValues = ",".join(str(c) for c in MY_SQL_TABLE_TEXTURE)
             
             RequestNewData = ""
             RequestNewData = ",".join(str(c) for c in MY_TEXTURE)
-            
             
             #Here i connect database :
             ShadersToolsDatabase = sqlite3.connect(DataBasePath)
@@ -5798,11 +5689,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
             #I close base
             Connexion.close()   
 
-
-
-
             #************************** MY TEXTURES RAMPS *****************************
-   
             #Here my diffuse ramp :
             ramp = bpy.context.object.active_material.texture_slots[textureNumbers].texture
 
@@ -5824,11 +5711,8 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
             Col_Color_stop_two_b = 0.0
             Col_Color_stop_two_a = 0.0 
     
-        
-    
             #Here my color ramp :                                                                          
             if ramp.use_color_ramp:
-        
                 counter = 0
                 loop = 0
                 values = ""
@@ -5836,10 +5720,8 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 for values in ramp.color_ramp.elements.items():
                     loop = loop + 1
         
-        
                 while counter <= loop-1:
                     Col_Idx = GetKeysDatabase()
-            
                     if counter == 0:        
                         #Here i get differentes color bands:
                         Col_Index = Col_Idx[4]                
@@ -5858,9 +5740,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                         Col_Color_stop_two_g = 0                
                         Col_Color_stop_two_b = 0                
                         Col_Color_stop_two_a = 0                
-                
-            
-            
             
                     if counter > 0 and counter < loop - 1 :        
                         #Here i get differentes color bands:
@@ -5880,8 +5759,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                         Col_Color_stop_two_g = 0                
                         Col_Color_stop_two_b = 0                
                         Col_Color_stop_two_a = 0                
-
-
             
                     if counter == loop - 1:        
                         Col_Index = Col_Idx[4]                
@@ -5900,9 +5777,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                         Col_Color_stop_two_g = 0                
                         Col_Color_stop_two_b = 0                
                         Col_Color_stop_two_a = 0                
-
-
-
 
                     #MY COLOR RAMP LIST :
                     MY_COLOR_RAMP =  [Col_Index,    
@@ -5923,7 +5797,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                                     Col_Color_stop_two_a, 
                                    ]
 
-
                     #MY COLOR RAMP DATA BASE NAME LIST :
                     MY_COLOR_RAMP_DATABASE_NAME =  ['Col_Index',    
                                             'Col_Num_Material',
@@ -5943,9 +5816,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                                             'Col_Color_stop_two_a', 
                                             ]
 
-
-
-            
                     #I create my request here but in first time i debug list Textures values:                    
                     MY_SQL_RAMP_LIST = []
                     val = ""
@@ -5963,19 +5833,15 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 
                         count = count + 1
             
-            
                     val = ""
                     for val in MY_COLOR_RAMP_DATABASE_NAME:
                         MY_SQL_RAMP_LIST.append(val)
-            
-            
             
                     RequestValues = ""
                     RequestValues = ",".join(str(c) for c in  MY_SQL_RAMP_LIST)
             
                     RequestNewData = ""
                     RequestNewData = ",".join(str(c) for c in MY_COLOR_RAMP)
-            
             
                     #Here i connect database :
                     ShadersToolsDatabase = sqlite3.connect(DataBasePath)
@@ -5992,12 +5858,8 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                     Connexion.close()
 
                     counter = counter + 1
-    
-
-
 
             #************************** MY TEXTURES RAMPS *****************************
-   
             #Here my point density ramp :
             ramp = bpy.context.object.active_material.texture_slots[textureNumbers].texture
 
@@ -6019,12 +5881,9 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
             Poi_Color_stop_two_b = 0.0
             Poi_Color_stop_two_a = 0.0 
     
-        
-    
             #Here my point density ramp :                                                                          
             if ramp.type == 'POINT_DENSITY':  
               if ramp.point_density.color_source == 'PARTICLE_SPEED' or ramp.point_density.color_source == 'PARTICLE_AGE':
-        
                 counter = 0
                 loop = 0
                 values = ""
@@ -6032,10 +5891,8 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 for values in ramp.point_density.color_ramp.elements.items():
                     loop = loop + 1
         
-        
                 while counter <= loop-1:
                     Poi_Idx = GetKeysDatabase()
-            
                     if counter == 0:        
                         #Here i get differentes color bands:
                         Poi_Index = Poi_Idx[6]                
@@ -6054,9 +5911,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                         Poi_Color_stop_two_g = 0                
                         Poi_Color_stop_two_b = 0                
                         Poi_Color_stop_two_a = 0                
-                
-            
-            
             
                     if counter > 0 and counter < loop - 1 :        
                         #Here i get differentes color bands:
@@ -6077,8 +5931,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                         Poi_Color_stop_two_b = 0                
                         Poi_Color_stop_two_a = 0                
 
-
-            
                     if counter == loop - 1:        
                         Poi_Index = Poi_Idx[6]                
                         Poi_Num_Material = Poi_Idx[1] - 1
@@ -6096,9 +5948,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                         Poi_Color_stop_two_g = 0                
                         Poi_Color_stop_two_b = 0                
                         Poi_Color_stop_two_a = 0                
-
-
-
 
                     #MY COLOR RAMP LIST :
                     MY_POINTDENSITY_RAMP =  [Poi_Index,    
@@ -6119,7 +5968,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                                     Poi_Color_stop_two_a, 
                                    ]
 
-
                     #MY DIFFUSE RAMP DATA BASE NAME LIST :
                     MY_POINTDENSITY_RAMP_DATABASE_NAME =  ['Poi_Index',    
                                             'Poi_Num_Material',
@@ -6139,9 +5987,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                                             'Poi_Color_stop_two_a', 
                                             ]
 
-
-
-            
                     #I create my request here but in first time i debug list Textures values:                    
                     MY_SQL_RAMP_LIST = []
                     val = ""
@@ -6159,19 +6004,15 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 
                         count = count + 1
             
-            
                     val = ""
                     for val in MY_POINTDENSITY_RAMP_DATABASE_NAME:
                         MY_SQL_RAMP_LIST.append(val)
-            
-            
             
                     RequestValues = ""
                     RequestValues = ",".join(str(c) for c in  MY_SQL_RAMP_LIST)
             
                     RequestNewData = ""
                     RequestNewData = ",".join(str(c) for c in MY_POINTDENSITY_RAMP)
-            
             
                     #Here i connect database :
                     ShadersToolsDatabase = sqlite3.connect(DataBasePath)
@@ -6186,13 +6027,9 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
             
                     #I close base
                     Connexion.close()
-
                     counter = counter + 1
 
-            # ***************************************************************************************************************************
-
     #************************** MY RAMPS *****************************
-   
     #Here my diffuse ramp :
     ramp = bpy.context.object.active_material
 
@@ -6216,11 +6053,8 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
     Dif_Ramp_blend = "" 
     Dif_Ramp_factor = 0.0     
     
-        
-    
     #Here my diffuse ramp :                                                                          
     if ramp.use_diffuse_ramp:
-        
         counter = 0
         loop = 0
         values = ""
@@ -6228,10 +6062,8 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
         for values in ramp.diffuse_ramp.elements.items():
             loop = loop + 1
         
-        
         while counter <= loop-1:
             Dif_Idx = GetKeysDatabase()
-            
             if counter == 0:        
                 #Here i get differentes color bands:
                 Dif_Index = Dif_Idx[5]                
@@ -6252,9 +6084,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 Dif_Ramp_input = "'" + ramp.diffuse_ramp_input + "'"
                 Dif_Ramp_blend = "'" + ramp.diffuse_ramp_blend + "'"
                 Dif_Ramp_factor = ramp.diffuse_ramp_factor
-                
-            
-            
             
             if counter > 0 and counter < loop - 1 :        
                 #Here i get differentes color bands:
@@ -6276,8 +6105,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 Dif_Ramp_input = "'" + ramp.diffuse_ramp_input + "'"
                 Dif_Ramp_blend = "'" + ramp.diffuse_ramp_blend + "'"
                 Dif_Ramp_factor = ramp.diffuse_ramp_factor
-
-
             
             if counter == loop - 1:        
                 Dif_Index = Dif_Idx[5]                
@@ -6299,12 +6126,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 Dif_Ramp_blend = "'" + ramp.diffuse_ramp_blend + "'"
                 Dif_Ramp_factor = ramp.diffuse_ramp_factor
             
-
-
-
-
-
-
             #MY DIFFUSE RAMP LIST :
             MY_DIFFUSE_RAMP =  [Dif_Index,    
                              Dif_Num_Material,
@@ -6325,7 +6146,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                              Dif_Ramp_blend, 
                              Dif_Ramp_factor 
                             ]
-
 
             #MY DIFFUSE RAMP DATA BASE NAME LIST :
             MY_DIFFUSE_RAMP_DATABASE_NAME =  ['Dif_Index',    
@@ -6348,9 +6168,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                                       'Dif_Ramp_factor'
                                      ]
 
-
-
-            
             #I create my request here but in first time i debug list Textures values:                    
             MY_SQL_RAMP_LIST = []
             val = ""
@@ -6368,19 +6185,15 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 
                 count = count + 1
             
-            
             val = ""
             for val in MY_DIFFUSE_RAMP_DATABASE_NAME:
                 MY_SQL_RAMP_LIST.append(val)
-            
-            
             
             RequestValues = ""
             RequestValues = ",".join(str(c) for c in  MY_SQL_RAMP_LIST)
             
             RequestNewData = ""
             RequestNewData = ",".join(str(c) for c in MY_DIFFUSE_RAMP)
-            
             
             #Here i connect database :
             ShadersToolsDatabase = sqlite3.connect(DataBasePath)
@@ -6395,11 +6208,9 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
             
             #I close base
             Connexion.close()
-
             counter = counter + 1
 
     # ***************************************************************************************************************************
-    
     #My values:
     Spe_Index = 0    
     Spe_Num_Material = 0
@@ -6420,8 +6231,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
     Spe_Ramp_blend = "" 
     Spe_Ramp_factor = 0.0     
     
-        
-    
     #Here my specular ramp :                                                                          
     if ramp.use_specular_ramp:
         
@@ -6432,10 +6241,8 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
         for values in ramp.specular_ramp.elements.items():
             loop = loop + 1
         
-        
         while counter <= loop-1:
             Spe_Idx = GetKeysDatabase()
-            
             if counter == 0:        
                 #Here i get Speferentes color bands:
                 Spe_Index = Spe_Idx[7]                
@@ -6457,9 +6264,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 Spe_Ramp_blend = "'" + ramp.specular_ramp_blend + "'"
                 Spe_Ramp_factor = ramp.specular_ramp_factor
                 
-            
-            
-            
             if counter > 0 and counter < loop - 1 :        
                 #Here i get Speferentes color bands:
                 Spe_Index = Spe_Idx[7]                
@@ -6480,8 +6284,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 Spe_Ramp_input = "'" + ramp.specular_ramp_input + "'"
                 Spe_Ramp_blend = "'" + ramp.specular_ramp_blend + "'"
                 Spe_Ramp_factor = ramp.specular_ramp_factor
-
-
             
             if counter == loop - 1:        
                 Spe_Index = Spe_Idx[7]                
@@ -6502,12 +6304,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 Spe_Ramp_input = "'" + ramp.specular_ramp_input + "'"
                 Spe_Ramp_blend = "'" + ramp.specular_ramp_blend + "'"
                 Spe_Ramp_factor = ramp.specular_ramp_factor
-            
-
-
-
-
-
 
             #MY specular RAMP LIST :
             MY_SPECULAR_RAMP =  [Spe_Index,    
@@ -6530,7 +6326,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                              Spe_Ramp_factor 
                             ]
 
-
             #MY specular RAMP DATA BASE NAME LIST :
             MY_SPECULAR_RAMP_DATABASE_NAME =  ['Spe_Index',    
                                       'Spe_Num_Material',
@@ -6552,9 +6347,6 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                                       'Spe_Ramp_factor'
                                      ]
 
-
-
-            
             #I create my request here but in first time i debug list Textures values:                    
             MY_SQL_RAMP_LIST = []
             val = ""
@@ -6572,19 +6364,15 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 
                 count = count + 1
             
-            
             val = ""
             for val in MY_SPECULAR_RAMP_DATABASE_NAME:
                 MY_SQL_RAMP_LIST.append(val)
-            
-            
             
             RequestValues = ""
             RequestValues = ",".join(str(c) for c in  MY_SQL_RAMP_LIST)
             
             RequestNewData = ""
             RequestNewData = ",".join(str(c) for c in MY_SPECULAR_RAMP)
-            
             
             #Here i connect database :
             ShadersToolsDatabase = sqlite3.connect(DataBasePath)
@@ -6599,21 +6387,14 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
             
             #I close base
             Connexion.close()
-
             counter = counter + 1
-    
-    
-
-
 
 # ************************************************************************************
 # *                                     GET PRIMARY KEY                              *
 # ************************************************************************************
 def GetKeysDatabase():
-    
     #My keys table :
     MY_KEYS = []
-    
     
     #Here i connect database :
     ShadersToolsDatabase = sqlite3.connect(DataBasePath)
@@ -6624,10 +6405,8 @@ def GetKeysDatabase():
     Connexion.execute("SELECT Inf_Index FROM INFORMATIONS WHERE Inf_Index = (select max(Inf_Index) from INFORMATIONS)") 
     ShadersToolsDatabase.commit()
     
-    
     for value in Connexion:
         MY_KEYS.append(value["Inf_Index"]+1)
-    
     
     #MATERIALS SQLITE Primary Key :
     Connexion.execute("SELECT Mat_Index FROM MATERIALS WHERE Mat_Index = (select max(Mat_Index) from MATERIALS)") 
@@ -6636,14 +6415,12 @@ def GetKeysDatabase():
     for value in Connexion:
         MY_KEYS.append(value["Mat_Index"]+1)
     
-    
     #TEXTURES SQLITE Primary Key :
     Connexion.execute("SELECT Tex_Index FROM TEXTURES WHERE Tex_Index = (select max(Tex_Index) from TEXTURES)") 
     ShadersToolsDatabase.commit()
     
     for value in Connexion:
         MY_KEYS.append(value["Tex_Index"]+1)
-    
     
     #ABOUT SQLITE Primary Key :
     Connexion.execute("SELECT Abo_Index FROM ABOUT WHERE Abo_Index = (select max(Abo_Index) from ABOUT)") 
@@ -6652,74 +6429,51 @@ def GetKeysDatabase():
     for value in Connexion:
         MY_KEYS.append(value["Abo_Index"]+1)
     
-    
     #COLORS_RAMP SQLITE Primary Key :
     Connexion.execute("SELECT Col_Index FROM COLORS_RAMP WHERE Col_Index = (select max(Col_Index) from COLORS_RAMP)") 
     ShadersToolsDatabase.commit()
-    
     for value in Connexion:
         MY_KEYS.append(value["Col_Index"]+1)
-    
-    
     
     #DIFFUSE_RAMP SQLITE Primary Key :
     Connexion.execute("SELECT Dif_Index FROM DIFFUSE_RAMP WHERE Dif_Index = (select max(Dif_Index) from DIFFUSE_RAMP)") 
     ShadersToolsDatabase.commit()
-    
     for value in Connexion:
         MY_KEYS.append(value["Dif_Index"]+1)
-    
     
     #POINTDENSITY_RAMP SQLITE Primary Key :
     Connexion.execute("SELECT Poi_Index FROM POINTDENSITY_RAMP WHERE Poi_Index = (select max(Poi_Index) from POINTDENSITY_RAMP)") 
     ShadersToolsDatabase.commit()
-    
     for value in Connexion:
         MY_KEYS.append(value["Poi_Index"]+1)
-    
-    
     
     #SPECULAR_RAMP SQLITE Primary Key :
     Connexion.execute("SELECT Spe_Index FROM SPECULAR_RAMP WHERE Spe_Index = (select max(Spe_Index) from SPECULAR_RAMP)") 
     ShadersToolsDatabase.commit()
-    
     for value in Connexion:      
         MY_KEYS.append(value["Spe_Index"]+1)
-    
     
     #RENDER SQLITE Primary Key :
     Connexion.execute("SELECT Ren_Index FROM RENDER WHERE Ren_Index = (select max(Ren_Index) from RENDER)") 
     ShadersToolsDatabase.commit()
-    
     for value in Connexion:      
         MY_KEYS.append(value["Ren_Index"]+1)
     
     #IMAGE_UV SQLITE Primary Key :
     Connexion.execute("SELECT Ima_Index FROM IMAGE_UV WHERE Ima_Index = (select max(Ima_Index) from IMAGE_UV)") 
     ShadersToolsDatabase.commit()
-    
     for value in Connexion:      
         MY_KEYS.append(value["Ima_Index"]+1)
-    
-    
     
     #I close base
     Connexion.close()        
     
-    
-    
     return MY_KEYS
-
-
-
-
 
 # ************************************************************************************
 # *                                TAKE OBJECT PREVIEW RENDER                        *
 # ************************************************************************************
 def TakePreviewRender(Inf_Creator, Mat_Name):
-    
-
     #Here the Preview Render
     #I must save render configuration before save preview image of object :
     ren = bpy.context.scene.render
@@ -6732,7 +6486,6 @@ def TakePreviewRender(Inf_Creator, Mat_Name):
     filepath = ren.filepath
     format = ren.image_settings.file_format
     mode = ren.image_settings.color_mode
-    
     
     #I save preview image of object :
     ren.resolution_x = int(Resolution_X)
@@ -6748,8 +6501,6 @@ def TakePreviewRender(Inf_Creator, Mat_Name):
     bpy.ops.render.render() 
     bpy.data.images['Render Result'].save_render(filepath=ren.filepath)
     
-    
-    
     #I must restore render values configuration :
     ren.resolution_x = resX
     ren.resolution_y = resY
@@ -6761,7 +6512,6 @@ def TakePreviewRender(Inf_Creator, Mat_Name):
     ren.image_settings.file_format = format
     ren.image_settings.color_mode = mode
     
-    
     #I do a preview of scene and i send render in memory:
     PreviewFileImage = open(AppPath + Mat_Name + "_" + Inf_Creator + "_preview.jpg",'rb')
     PreviewFileImageInMemory = PreviewFileImage.read()
@@ -6770,24 +6520,12 @@ def TakePreviewRender(Inf_Creator, Mat_Name):
     #Remove Preview File:
     os.remove( AppPath + Mat_Name + "_" + Inf_Creator + "_preview.jpg")
     
-
-    
     return PreviewFileImageInMemory
-
-
-
-
-
-
-
 
 # ************************************************************************************
 # *                                     UPDATE DATABASE                              *
 # ************************************************************************************
 def UpdateDatabase(Inf_Creator, Inf_Category, Inf_Description, Inf_Weblink, Inf_Email, Mat_Name):
-    
-    
-    
     #Here i connect database :
     ShadersToolsDatabase = sqlite3.connect(DataBasePath)
     ShadersToolsDatabase.row_factory = sqlite3.Row                
@@ -6810,125 +6548,92 @@ def UpdateDatabase(Inf_Creator, Inf_Category, Inf_Description, Inf_Weblink, Inf_
     Connexion.execute("INSERT INTO RENDER VALUES (?, ?, ?, ?)", (MyPrimaryKeys[8], value, PreviewImage, MyPrimaryKeys[0])) 
     ShadersToolsDatabase.commit()
     
-    
     #Here I save all shaders/textures/materials parameters :
     PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name)
-    
-    
-    
-    
     Connexion.close()  
-    
     return {'FINISHED'}      
-
-
-
-
-
-
 
 # ************************************************************************************
 # *                                     SEARCH SHADERS                               *
 # ************************************************************************************
 def SearchShaders(self, context):
-
+    searchFile = os.path.join(TempPath, "searching")
     #I must verify if search file not exist :
-    if os.path.exists(TempPath + "searching") == False:
-        
+    if os.path.exists(searchFile) == False:
         #I create file until user do not cancel or valid choice :
-        searchFile = open(TempPath + "searching", 'w')
+        searchFile = open(searchFile, 'w')
         searchFile.close
-        
         
         #Here I remove all files in the Tempory Folder:
         if os.path.exists(TempPath):
             files = os.listdir(TempPath)
             for f in files:
                 if not os.path.isdir(f) and ".jpg" in f:
-                    os.remove(TempPath+f)
+                    os.remove(os.path.join(TempPath, f))
         
         else:
-            os.mkdir(TempPath) 
-        
+            os.makedirs(TempPath) 
         
         #Here I copy all files in Base Preview Folder:
         files = os.listdir(shaderFolderPath)
         for f in files:
             if not os.path.isdir(f) and ".jpg" in f:    
-                shutil.copy2(shaderFolderPath+ os.sep + f, TempPath+f)     
-    
+                shutil.copy2(os.path.join(shaderFolderPath, f), os.path.join(TempPath, f))     
     
     #Here I remove all files in Base Preview Folder:
     files = os.listdir(shaderFolderPath)
     for f in files:
         if not os.path.isdir(f) and ".jpg" in f:
-            os.remove(shaderFolderPath+ os.sep + f)
-    
-    
-    
+            os.remove(os.path.join(shaderFolderPath, f))
     
     #Now I must copy files corresponding search entry :
     files = os.listdir(TempPath)
     for f in files:
         if not os.path.isdir(f) and ".jpg" in f:
             if self.Search.upper() in f.upper():
-                shutil.copy2(TempPath+f, shaderFolderPath+ os.sep + f)         
-    
+                shutil.copy2(os.path.join(TempPath, f), os.path.join(shaderFolderPath, f))         
     
     bpy.ops.file.refresh()
-
-
-
 
 # ************************************************************************************
 # *                                 SEARCH SHADERS HISTORY                           *
 # ************************************************************************************
 def SearchShadersEnum(self, context):
-
     #I must verify if search file not exist :
-    if os.path.exists(TempPath + "searching") == False:
-        
+    searchFile = os.path.join(TempPath, "searching")
+    if os.path.exists(searchFile) == False:
         #I create file until user do not cancel or valid choice :
-        searchFile = open(TempPath + "searching", 'w')
+        searchFile = open(searchFile, 'w')
         searchFile.close
-        
         
         #Here I remove all files in the Tempory Folder:
         if os.path.exists(TempPath):
             files = os.listdir(TempPath)
             for f in files:
                 if not os.path.isdir(f) and ".jpg" in f:
-                    os.remove(TempPath+f)
+                    os.remove(os.path.join(TempPath, f))
         
         else:
             os.makedirs(TempPath) 
-        
         
         #Here I copy all files in Base Preview Folder:
         files = os.listdir(shaderFolderPath)
         for f in files:
             if not os.path.isdir(f) and ".jpg" in f:    
-                shutil.copy2(shaderFolderPath + os.sep + f, TempPath + os.sep + f)     
-    
+                shutil.copy2(os.path.join(shaderFolderPath, f), os.path.join(TempPath, f))     
     
     #Here I remove all files in Base Preview Folder:
     files = os.listdir(shaderFolderPath)
     for f in files:
         if not os.path.isdir(f) and ".jpg" in f:
-            os.remove(shaderFolderPath + os.sep + f)
-    
-    
-    
+            os.remove(os.path.join(shaderFolderPath, f))
     
     #Now I must copy files corresponding search entry :
     files = os.listdir(TempPath)
     for f in files:
         if not os.path.isdir(f) and ".jpg" in f:
             if self.History.upper() in f.upper():
-                shutil.copy2(TempPath+f, shaderFolderPath + os.sep + f)         
-    
-    
-    
+                shutil.copy2(os.path.join(TempPath, f), os.path.join(shaderFolderPath, f))         
 
     bpy.ops.file.refresh()
 
@@ -6941,17 +6646,8 @@ class OpenShaders(bpy.types.Operator):
     bl_label = LangageValuesDict['OpenMenuTitle']
     bl_options = {'REGISTER', 'UNDO'}
     
-    
-    
-
-    
- 
-    
     filename = bpy.props.StringProperty(subtype="FILENAME")
-    
     Search = bpy.props.StringProperty(name='', update=SearchShaders) 
-    
-    
     History = bpy.props.EnumProperty(
                                      
                                      name='',
@@ -6985,34 +6681,24 @@ class OpenShaders(bpy.types.Operator):
 
     def draw(self, context):
         layout = self.layout
-        
-        
         row = layout.row(align=True)
         row.label(icon ='NEWFOLDER' ,text=" " + LangageValuesDict['OpenMenuLabel08'] + " : ")
         row = layout.row(align=True)
         row.prop(self, 'Search')
-        
         row = layout.row(align=True)
         row.label(text=500 * "-")
-
         row = layout.row(align=True)
-        
         row.label(icon ='MATERIAL', text=LangageValuesDict['OpenMenuLabel09'] + " :")
         row = layout.row(align=True)
         row.prop(self, 'History', text ='')
         row = layout.row(align=True)
     
-    
-    
     def execute(self, context):
         selectedFile = self.filename.replace('.jpg', '')
-      
-        if os.path.exists(TempPath + "searching"): 
-            os.remove(TempPath + "searching")
-        
+        if os.path.exists(os.path.join(TempPath, "searching")): 
+            os.remove(os.path.join(TempPath, "searching"))
         
         #I update history file (in config file):
-        #print(AppPath + "history")
         History_save = []
         if os.path.exists(HistoryPath) and selectedFile is not '' and selectedFile is not '\n':
             history = open(HistoryPath,'r')
@@ -7060,17 +6746,12 @@ class OpenShaders(bpy.types.Operator):
         
                 history.close()                   
         
-        
         ImporterSQL(self.filename)
-        bpy.ops.script.python_file_run(filepath=AppPath + "__init__.py")
+        bpy.ops.script.python_file_run(filepath=os.path.join(AppPath, "__init__.py"))
         
         return {'FINISHED'}
-
-    
     
     def invoke(self, context, event):
-
-                
         # IN THIS PART I SEARCH CORRECT VALUES IN THE DATABASE: 
         #Here i connect database :
         ShadersToolsDatabase = sqlite3.connect(DataBasePath)            
@@ -7084,8 +6765,6 @@ class OpenShaders(bpy.types.Operator):
                 if value[0] > 1 and value[1] is not '\n' and value[1] is not '':
                     MY_RENDER_TABLE.append(value)        
             
-        
-        
         #I select Material Table informations :  
         value = ""
         Connexion.execute("SELECT Mat_Index, Mat_Name FROM MATERIALS") 
@@ -7093,10 +6772,6 @@ class OpenShaders(bpy.types.Operator):
             if value[0] > 1 and value[1] is not '\n' and value[1] is not '':
                 MY_MATERIAL_TABLE.append(value)
                                 
-        
-        
-        
-        
         #I select Information Table informations :  
         value = ""
         Connexion.execute("SELECT * FROM INFORMATIONS") 
@@ -7105,7 +6780,6 @@ class OpenShaders(bpy.types.Operator):
                 MY_INFORMATION_TABLE.append(value)
         
         Connexion.close()        
-        
         
         # NOW I MUST CREATE THUMBNAILS IN THE SHADERS TEMPORY FOLDER: 
         value = ""
@@ -7120,7 +6794,6 @@ class OpenShaders(bpy.types.Operator):
         val2 = ""
         
         for value in MY_MATERIAL_TABLE:
-            
             value2 = ""
             NameFileJPG = ""
             c = 0
@@ -7139,8 +6812,6 @@ class OpenShaders(bpy.types.Operator):
                             if val2 == value2:
                                 x = 1
                 
-                
-                
                 else:
                     Name = value2 
                 
@@ -7148,28 +6819,21 @@ class OpenShaders(bpy.types.Operator):
             
             NameFileJPG = Name + "_Ind_" + Indice + ".jpg"
             NameFileJPG = NameFileJPG.replace('MAT_PRE_', '')
-            NameFileJPG = shaderFolderPath + os.sep + NameFileJPG 
+            NameFileJPG = os.path.join(shaderFolderPath, NameFileJPG) 
             imageFileJPG = open(NameFileJPG,'wb')
             imageFileJPG.write(Render)
             imageFileJPG.close()
-        
-                
-        
 
-        if os.path.exists(AppPath + "first"):    
+        if os.path.exists(os.path.join(AppPath, "first")):    
             bpy.ops.object.warning('INVOKE_DEFAULT')
-            os.remove(AppPath + "first")
+            os.remove(os.path.join(AppPath, "first"))
             time.sleep(1)
         
         else:
             wm = context.window_manager
             wm.fileselect_add(self)
         
-        
         return {'RUNNING_MODAL'}
-
-
-
 
 # ************************************************************************************
 # *                                          CREDITS                                 *
@@ -7178,12 +6842,9 @@ class Credits(bpy.types.Operator):
     bl_idname = "object.credits"
     bl_label = "Credits"
     
-    
     @classmethod
     def poll(cls, context):
         return context.object is not None
-
-
     
     def draw(self, context):
         layout = self.layout          
@@ -7235,23 +6896,13 @@ class Credits(bpy.types.Operator):
         row.label(" ")    
         row.label("killpatate")    
         row = layout.row(align=True)             
-
-
-
-    
     
     def invoke(self, context, event):
         wm = context.window_manager
         return wm.invoke_popup(self, width = 400)
     
-    
     def execute(self, context):
         return {'FINISHED'}
-
-
-
-
-
 
 # ************************************************************************************
 # *                                           HELP                                   *
@@ -7260,13 +6911,10 @@ class Help(bpy.types.Operator):
     bl_idname = "object.help"
     bl_label = LangageValuesDict['HelpMenuTitle']
     
-    
     @classmethod
     def poll(cls, context):
         return context.object is not None
 
-
-    
     def draw(self, context):
         layout = self.layout          
         row = layout.row(align=True)             
@@ -7350,24 +6998,18 @@ class Help(bpy.types.Operator):
         #row = layout.row(align=True)             
         #row.label(LangageValuesDict['HelpMenuLabel40'])    
         #row = layout.row(align=True)             
- 
- 
     
     def invoke(self, context, event):
         wm = context.window_manager
         return wm.invoke_popup(self, width=900, height=768)
     
-    
     def execute(self, context):
         return {'FINISHED'}
-
-
 
 # ************************************************************************************
 # *                                       IMPORTER                                   *
 # ************************************************************************************
 def Importer(File_Path, Mat_Name):
-    
     #Import Path:
     ImportPath = os.path.dirname(bpy.data.filepath) + os.sep
     ImportPath = os.path.normpath(ImportPath)
@@ -7380,7 +7022,6 @@ def Importer(File_Path, Mat_Name):
     #Here I verify if Zip Folder exists:
     if os.path.exists(ZipPath) == False:
         os.makedirs(ZipPath)
-         
     
     #Here I remove all files in Zip Folder:
     files = os.listdir(ZipPath)
@@ -7388,37 +7029,33 @@ def Importer(File_Path, Mat_Name):
         if not os.path.isdir(f):
             os.remove(ZipPath+f)
     
-    
-    
     def unzip(ZipFile_Name, BlendDestination = ''):
         if BlendDestination == '': BlendDestination = os.getcwd()  
         zfile = zipfile.ZipFile(ZipFile_Name, 'r')
         for z in zfile.namelist():  
             if os.path.isdir(z):   
-                try: os.makedirs(os.path.normpath(BlendDestination + os.sep + z))
+                try: os.makedirs(os.path.join(BlendDestination, z))
                 except: pass
             else:
-                try: os.makedirs(os.path.normpath(BlendDestination + os.sep + os.path.dirname(z)))
+                try: os.makedirs(os.path.join(BlendDestination, os.path.dirname(z)))
                 except: pass
                 data = zfile.read(z)                   
-                fp = open(os.path.normpath(BlendDestination + os.sep + z), "wb")  
+                fp = open(os.path.join(BlendDestination, z), "wb")  
                 fp.write(data)                         
                 fp.close()
         zfile.close()
 
     unzip(File_Path, ZipPath)
 
-
     #I must create a Folder in .blend Path :
     #Here i verify if ShaderToolsImport Folder exists:
-    CopyBlendFolder = os.path.normpath(ImportPath + os.sep + 'ShaderToolsImport' + os.sep)
+    CopyBlendFolder = os.path.join(ImportPath, 'ShaderToolsImport') + os.sep
  
     if os.path.exists(CopyBlendFolder) == False:
         os.makedirs(CopyBlendFolder)
         
-        
     #Here i verify if Material Name Folder exists:
-    CopyMatFolder = os.path.normpath(ImportPath + os.sep + 'ShaderToolsImport' + os.sep + Mat_Name + os.sep)
+    CopyMatFolder = os.path.join(ImportPath, 'ShaderToolsImport', Mat_Name) + os.sep
     CopyMatFolder = CopyMatFolder.replace('.blex', '')
     Mat_Name_folder = Mat_Name.replace('.blex', '')
  
@@ -7429,18 +7066,16 @@ def Importer(File_Path, Mat_Name):
         c = 1
         CopyMatFolder = CopyMatFolder + os.sep
         while os.path.exists(CopyMatFolder):
-            CopyMatFolder = os.path.normpath(ImportPath + os.sep +'ShaderToolsImport' + os.sep + Mat_Name_folder + '_' + str(c) + os.sep)
+            CopyMatFolder = os.path.join(ImportPath, 'ShaderToolsImport', Mat_Name_folder + '_' + str(c)) + os.sep
             c = c + 1
             
         os.makedirs(CopyMatFolder)
     
-        
     #Now I can copy Zip Files in new Material Folder:
     files = os.listdir(ZipPath)
     for f in files:
         if not os.path.isdir(f):  
-            shutil.copy2(ZipPath+f, CopyMatFolder + os.sep + f)     
-    
+            shutil.copy2(os.path.join(ZipPath, f), os.path.join(CopyMatFolder, f))     
     
     #Here I must find .py script:
     script_name = ''
@@ -7449,7 +7084,6 @@ def Importer(File_Path, Mat_Name):
         if not os.path.isdir(f) and '.py' in f:  
             script_name = f     
     
-    
     if script_name == '':
         print(LangageValuesDict['ErrorsMenuError008'])
         
@@ -7457,9 +7091,7 @@ def Importer(File_Path, Mat_Name):
         
         #Here I save script in a list:
         MY_SCRIPT_LIST = []
-        
-        env_file = open(CopyMatFolder + os.sep + script_name,'r')
-        
+        env_file = open(os.path.join(CopyMatFolder, script_name,'r'))
         for values in env_file:
             if values == "!*- environnement path -*!" or values == "!*- environnement path -*!\n":
                 NewEnvPath = os.path.normpath(CopyMatFolder)
@@ -7479,10 +7111,9 @@ def Importer(File_Path, Mat_Name):
 
         env_file.close()
         
-            
         #I remove old script and I create a new script in Material Folder:
-        os.remove(CopyMatFolder + os.sep + script_name)
-        new_script = open(CopyMatFolder + os.sep + script_name, "w")
+        os.remove(os.path.join(CopyMatFolder, script_name))
+        new_script = open(os.path.join(CopyMatFolder, script_name), "w")
         
         c = 0
         for values in MY_SCRIPT_LIST:
@@ -7491,42 +7122,11 @@ def Importer(File_Path, Mat_Name):
 
         new_script.close()
 
-            
-        
         #Now I execute the zip script file:
-        ScriptPath = CopyMatFolder + os.sep + script_name
-        bpy.ops.script.python_file_run(filepath=ScriptPath)
-        
-   
+        bpy.ops.script.python_file_run(filepath=os.path.join(CopyMatFolder, script_name))
    
     print(LangageValuesDict['ErrorsMenuError007'])
     print("*******************************************************")
-
-
-# ************************************************************************************
-# *                                       FIND IMAGE                                 *
-# ************************************************************************************
-class FindImage(bpy.types.Operator):
-    bl_idname = "object.findimage"
-    bl_label = LangageValuesDict['FindImageMenuName']
-    
-
-    filepath = bpy.props.StringProperty(subtype="FILE_PATH") 
-    
-    def invoke(self, context, event):
-        wm = context.window_manager
-        wm.fileselect_add(self)       
-        return {'FINISHED'}
-    
-    
-    def execute(self, context):
-        return {'FINISHED'}
-
-
-
-
-
-
 
 # ************************************************************************************
 # *                                           IMPORT                                 *
@@ -7535,23 +7135,17 @@ class Import(bpy.types.Operator):
     bl_idname = "object.import"
     bl_label = LangageValuesDict['ImportMenuTitle']
     
-
     filename = bpy.props.StringProperty(subtype="FILENAME")
     filepath = bpy.props.StringProperty(subtype="FILE_PATH") 
     
     def invoke(self, context, event):
         wm = context.window_manager
         wm.fileselect_add(self)       
-        
         return {'RUNNING_MODAL'}
-    
     
     def execute(self, context):  
         Importer(self.filepath, self.filename)
         return {'FINISHED'}
-
-
-
 
 # ************************************************************************************
 # *                                           EXPORT                                 *
@@ -7560,9 +7154,7 @@ class Export(bpy.types.Operator):
     bl_idname = "object.export"
     bl_label = LangageValuesDict['ExportMenuTitle']
     
-    
     DefaultCreator = DefaultCreator.replace('\n', '')
-
     filename = bpy.props.StringProperty(subtype="FILENAME")
     filepath = bpy.props.StringProperty(subtype="FILE_PATH") 
     
@@ -7570,7 +7162,6 @@ class Export(bpy.types.Operator):
     Inf_Creator = bpy.props.StringProperty(name=LangageValuesDict['ExportMenuCreator'], default=DefaultCreator)        
     Take_a_preview = BoolProperty(name=LangageValuesDict['ExportMenuTakePreview'], default=False)
 
-  
     def draw(self, context):
         layout = self.layout          
         row = layout.row(align=True)             
@@ -7581,23 +7172,14 @@ class Export(bpy.types.Operator):
         row.prop(self, "Take_a_preview")
         row = layout.row(align=True)             
     
-    
-    
     def invoke(self, context, event):
         wm = context.window_manager
         wm.fileselect_add(self)       
-        
         return {'RUNNING_MODAL'}
     
-    
     def execute(self, context):
-        
         Exporter(self.filepath, self.filename, self.Inf_Creator, self.Take_a_preview)
         return {'FINISHED'}
-
-
-
-
 
 # ************************************************************************************
 # *                                    SAVE CURRENT SHADER                           *
@@ -7645,21 +7227,10 @@ class SaveCurrentConfiguration(bpy.types.Operator):
                                           default= DefaultCategory
                                           )
     
-    
     Inf_Description = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuDescriptionLabel'], default=DefaultDescription)
     Inf_Weblink = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuWebLinkLabel'], default=DefaultWeblink)
     Inf_Email = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuEmailLabel'], default=DefaultEmail)
-
-    if NAME_ACTIVE_MATERIAL:
-        Mat_Name = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuName'], default=bpy.context.object.active_material.name)
-    
-    else:
-        Mat_Name = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuName'], default=DefaultMaterialName)
-        
-
-    
-    
-    
+    Mat_Name = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuName'], default=DefaultMaterialName)
     
     def draw(self, context):
         layout = self.layout          
@@ -7679,7 +7250,6 @@ class SaveCurrentConfiguration(bpy.types.Operator):
         row = layout.row(align=True)             
         row.prop(self, "Inf_Email")
     
-    
     def invoke(self, context, event):
         #I verify if an object it's selected :
         wm = context.window_manager
@@ -7691,15 +7261,10 @@ class SaveCurrentConfiguration(bpy.types.Operator):
         UpdateDatabase(self.Inf_Creator, self.Inf_Category, self.Inf_Description, self.Inf_Weblink, self.Inf_Email,self.Mat_Name)
         return {'FINISHED'}
 
-
-
-
-
 # ************************************************************************************
 # *                            UPDATE MATERIAL INFORMATIONS                          *
 # ************************************************************************************
 def InformationsUpdateInformations(info):
-    
     #Here i connect database :
     ShadersToolsDatabase = sqlite3.connect(DataBasePath)            
     Connexion = ShadersToolsDatabase.cursor()                             
@@ -7708,12 +7273,10 @@ def InformationsUpdateInformations(info):
     value = ""
     Connexion.execute("SELECT " + info + " FROM INFORMATIONS") 
     for value in Connexion.fetchall():
-        #print(value)
         w = 0
         
     Connexion.close()                        
     return info
-
 
 # ************************************************************************************
 # *                                  UPDATE WARNING                                  *
@@ -7721,9 +7284,6 @@ def InformationsUpdateInformations(info):
 class UpdateWarning(bpy.types.Operator):
     bl_idname = "object.warning"
     bl_label = LangageValuesDict['WarningWinTitle']
-    
-    
-    
     
     def draw(self, context):
         layout = self.layout
@@ -7735,17 +7295,13 @@ class UpdateWarning(bpy.types.Operator):
         row.label(LangageValuesDict['WarningWinLabel03'])           
         row = layout.row(align=True)          
     
-    
     def invoke(self, context, event):
         #I verify if an object it's selected :
         wm = context.window_manager
         return wm.invoke_props_dialog(self, width=500, height=480)
     
-    
     def execute(self, context): 
         return {'FINISHED'}
-
-
 
 # ************************************************************************************
 # *                                      CONFIGURATION                               *
@@ -7765,14 +7321,11 @@ class Configuration(bpy.types.Operator):
     Resolution_Y = str(Resolution_Y)
     Resolution_X = str(Resolution_X.replace('\n', ''))
     Resolution_Y = str(Resolution_Y.replace('\n', ''))
-    
-
-
+    DefaultLangage = DefaultLangage.replace('\n', '')
 
     #I prepare the window :
     DataBasePathFile = bpy.props.StringProperty(name=LangageValuesDict['ConfigurationMenuDataBasePath'], default=DataBasePath)    
     Inf_Creator = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuCreator'], default=DefaultCreator)
-            
     Inf_Category = bpy.props.EnumProperty(
                                           
                                           name=LangageValuesDict['SaveCategoryTitle'],
@@ -7802,23 +7355,33 @@ class Configuration(bpy.types.Operator):
                                           default= DefaultCategory
                                           )
     
-    
     Inf_Description = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuDescriptionLabel'], default=DefaultDescription)
     Inf_Weblink = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuWebLinkLabel'], default=DefaultWeblink)
     Inf_Email = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuEmailLabel'], default=DefaultEmail)
-
-    if NAME_ACTIVE_MATERIAL:
-        Mat_Name = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuName'], default=bpy.context.object.active_material.name)
-    
-    else:
-        Mat_Name = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuName'], default=DefaultMaterialName)
-        
-
+    Mat_Name = bpy.props.StringProperty(name=LangageValuesDict['SaveMenuName'], default=DefaultMaterialName)
     Inf_ResolutionX = bpy.props.StringProperty(name=LangageValuesDict['ConfigurationMenuResolutionPreviewX'], default=Resolution_X)
     Inf_ResolutionY = bpy.props.StringProperty(name=LangageValuesDict['ConfigurationMenuResolutionPreviewY'], default=Resolution_Y)
+
+    Inf_Langage = bpy.props.EnumProperty(
+                                          
+                                          name=LangageValuesDict['ConfigurationMenuLabel05'],
+                                          items=(('en_US', 'English', ""),
+                                                 ('fr_FR', 'French', ""),
+                                                 ('de_DE', 'Deutsch', ""),
+                                                 ('es_ES', 'Spanish', ""),
+                                                 ),
+                                          default= DefaultLangage
+                                          )
+
+
     
     def draw(self, context):
         layout = self.layout          
+        row = layout.row(align=True)             
+        row.label(LangageValuesDict['ConfigurationMenuLabel04'] + ":")    
+        row = layout.row(align=True)             
+        row.prop(self, "Inf_Langage")
+        row = layout.row(align=True)             
         row = layout.row(align=True)             
         row.label(LangageValuesDict['ConfigurationMenuLabel02'] + ":")    
         row = layout.row(align=True)             
@@ -7848,13 +7411,11 @@ class Configuration(bpy.types.Operator):
         row = layout.row(align=True)             
         row.prop(self, "Inf_ResolutionY")
         row = layout.row(align=True)             
-
     
     def invoke(self, context, event):
         #I verify if an object it's selected :
         wm = context.window_manager
         return wm.invoke_props_dialog(self, width=500)
-    
     
     def execute(self, context): 
         #Delete configuration file:
@@ -7872,16 +7433,11 @@ class Configuration(bpy.types.Operator):
         config.writelines(self.Inf_Email + '\n')
         config.writelines(self.Inf_ResolutionX + '\n')
         config.writelines(self.Inf_ResolutionY + '\n')
- 
+        config.writelines(self.Inf_Langage + '\n')
         config.close()
 
-        bpy.ops.script.python_file_run(filepath=AppPath + "__init__.py")
-        
+        bpy.ops.script.python_file_run(filepath=os.path.join(AppPath, "__init__.py"))
         return {'FINISHED'}
-
-
-
-
 
 # ************************************************************************************
 # *                                     CREATE NEW                                   *
@@ -7891,14 +7447,12 @@ class CreateNew(bpy.types.Operator):
     bl_label = "New"    
     
     def execute(self, context): 
-        
         #I delete old modele and I copy new empty modele:
-        if os.path.exists(AppPath + "env_base_save.blend"):
-            os.remove(AppPath + "env_base_save.blend")
+        if os.path.exists(os.path.join(AppPath, "env_base_save.blend")):
+            os.remove(os.path.join(AppPath, "env_base_save.blend"))
         
-        if os.path.exists(AppPath + "env_base_save"):
-            shutil.copy2(AppPath + "env_base_save", AppPath + "env_base_save.blend")                    
-        
+        if os.path.exists(os.path.join(AppPath,"env_base_save")):
+            shutil.copy2(os.path.join(AppPath, "env_base_save"), os.path.join(AppPath, "env_base_save.blend"))                    
         
         #I open modele file:
         if platform.system() == 'Windows':
@@ -7909,13 +7463,8 @@ class CreateNew(bpy.types.Operator):
         
         if platform.system() == 'Linux':
             env_base_save= os.popen(bpy.app.binary_path + " '" + AppPath + "env_base_save.blend'") 
-
         
         return {'FINISHED'}
-
-
-
-
 
 # ************************************************************************************
 # *                                           MAIN                                   *
@@ -7927,9 +7476,6 @@ class PreconfiguredShadersPanel(bpy.types.Panel):
     bl_region_type = "WINDOW"
     bl_context = "material"
     
-
-    
-    
     def draw(self, context):
         layout = self.layout
         row = layout.row()        
@@ -7937,7 +7483,6 @@ class PreconfiguredShadersPanel(bpy.types.Panel):
         row.operator("object.saveconfiguration", text=LangageValuesDict['ButtonsSave'], icon="MATERIAL" )
         row.operator("object.export", text=LangageValuesDict['ButtonsExport'], icon="SCRIPTWIN" )
         row.operator("object.import", text=LangageValuesDict['ButtonsImport'], icon="SCRIPTWIN" )
-        
         row = layout.row()
         row.operator("object.createnew", text=LangageValuesDict['ButtonsCreate'], icon="BLENDER" )
         row.operator("object.configuration", text=LangageValuesDict['ButtonsConfiguration'], icon="TEXT" )
@@ -7945,11 +7490,6 @@ class PreconfiguredShadersPanel(bpy.types.Panel):
         row.operator("object.credits", text="Credits", icon="QUESTION")
         row = layout.row()
         
-
-    
-    
-
-
 def register():
     bpy.utils.register_class(SaveCurrentConfiguration)
     bpy.utils.register_class(PreconfiguredShadersPanel)
@@ -7957,12 +7497,10 @@ def register():
     bpy.utils.register_class(OpenShaders)
     bpy.utils.register_class(Configuration)
     bpy.utils.register_class(Export)
-    bpy.utils.register_class(FindImage)
     bpy.utils.register_class(Import)
     bpy.utils.register_class(Credits)
     bpy.utils.register_class(CreateNew)
     bpy.utils.register_class(Help)
-
 
 def unregister():
     bpy.utils.unregister_class(SaveCurrentConfiguration)
@@ -7970,16 +7508,11 @@ def unregister():
     bpy.utils.unregister_class(UpdateWarning)
     bpy.utils.unregister_class(OpenShaders)
     bpy.utils.unregister_class(Configuration)
-    bpy.utils.unregister_class(FindImage)
     bpy.utils.unregister_class(Export)
     bpy.utils.unregister_class(Import)
     bpy.utils.unregister_class(Credits)
     bpy.utils.unregister_class(CreateNew)
     bpy.utils.unregister_class(Help)
-
-
-
-
 
 # ************************************************************************************
 # *                           UPDATE BOOKMARKS INFORMATIONS                          *
@@ -7987,145 +7520,66 @@ def unregister():
 
 #Create a new configuration file:
 #Bookmarks USER
+shaderFolderPath = os.path.join(AppPath, LangageValuesDict['BookmarksMenuName']) + os.sep
+
 if os.path.exists(BookmarksPathUser):
-    
     shutil.copy2(BookmarksPathUser, BookmarksPathUser+"_2") 
     value = ""
     bookmarks_category = False
-    shaderFolderPath = ""
     updateInformation = True
     MY_BOOKMARKS_FILE = []
-    
-    shaderFolderPath = os.path.normpath(AppPath + os.sep + LangageValuesDict['BookmarksMenuName']  + os.sep)
-    
+  
     #I verify Shader tempory File is correcly created:
     if os.path.exists(shaderFolderPath) == False :
         os.makedirs(shaderFolderPath)       
-    
-    
-    
     
     #Here I copy bookmarks and i verify if Shader Tempory folder exist:
     bookmarkspathfile = open(BookmarksPathUser,'r')    
     for value in bookmarkspathfile:
         MY_BOOKMARKS_FILE.append(value)
         
-        
-        
         if value=='[Bookmarks]' or value=='[Bookmarks]\n':                
             bookmarks_category = True                
         
         if value=='[Recent]' or value=='[Recent]\n':                
             bookmarks_category = False                
         
-        
         if bookmarks_category:
-            
-            
-            if value in shaderFolderPath or value == shaderFolderPath + "\n":
-                #No Upade necessary
-                updateInformation = False
+            if shaderFolderPath in value:
+                updateInformation = False #No update necessary
     
     bookmarkspathfile.close()
     
-    #I create new bookmarks file and I active windows warning:
+    #I create new bookmarks:
     if updateInformation:
+        print("I update")
         os.remove(BookmarksPathUser)
         bookmarkspathfile = open(BookmarksPathUser,'w')    
-        for value in MY_BOOKMARKS_FILE:
+        for value in MY_BOOKMARKS_FILE:      
             
             if value=='[Bookmarks]' or value=='[Bookmarks]\n':                                
                 bookmarkspathfile.writelines(value)
-                bookmarkspathfile.writelines(shaderFolderPath+ os.sep + "\n")
+                bookmarkspathfile.writelines(shaderFolderPath + "\n")
             
             else: 
                 bookmarkspathfile.writelines(value)
         
-        
         bookmarkspathfile.close()
-
-        if os.path.exists(AppPath + "first") == False:
-            firstFile = open(AppPath + "first",'w')
+       
+        if os.path.exists(os.path.join(AppPath, "first")) == False:
+            firstFile = open(os.path.join(AppPath, "first"),'w')
+            firstFile.writelines("update bookmarks\n")
             firstFile.close()
-
-
-
-
-#Bookmarks SYSTEM
-if os.path.exists(BookmarksPathSystem):
-    
-    shutil.copy2(BookmarksPathSystem, BookmarksPathSystem+"_2") 
-    value = ""
-    bookmarks_category = False
-    shaderFolderPath = ""
-    updateInformation = True
-    MY_BOOKMARKS_FILE = []
-    
-    shaderFolderPath = os.path.normpath(AppPath + os.sep + LangageValuesDict['BookmarksMenuName']  + os.sep) 
-    
-    #I verify Shader tempory File is correcly created:
-    if os.path.exists(shaderFolderPath) == False :
-        os.mkdir(shaderFolderPath)       
-    
-    
-    
-    #Here I copy bookmarks and i verify if Shader Tempory folder exist:
-    bookmarkspathfile = open(BookmarksPathSystem,'r')    
-    for value in bookmarkspathfile:
-        MY_BOOKMARKS_FILE.append(value)
-        
-        
-        
-        if value=='[Bookmarks]' or value=='[Bookmarks]\n':                
-            bookmarks_category = True                
-        
-        if value=='[Recent]' or value=='[Recent]\n':                
-            bookmarks_category = False                
-        
-        
-        if bookmarks_category:
             
-            
-            if value in shaderFolderPath or value == shaderFolderPath + "\n":
-                #No Upade necessary
-                updateInformation = False
-    
-    bookmarkspathfile.close()
-    
-    #I create new bookmarks file and I active windows warning:
-    if updateInformation:
-        os.remove(BookmarksPathUser)
-        bookmarkspathfile = open(BookmarksPathUser,'w')    
-        for value in MY_BOOKMARKS_FILE:
-            
-            if value=='[Bookmarks]' or value=='[Bookmarks]\n':                                
-                bookmarkspathfile.writelines(value)
-                bookmarkspathfile.writelines(shaderFolderPath+ os.sep + "\n")
-            
-            else: 
-                bookmarkspathfile.writelines(value)
-        
-        
-        bookmarkspathfile.close()
-
-        if os.path.exists(AppPath + "first") == False:
-            firstFile = open(AppPath + "first",'w')
-            firstFile.close()
-
-
-
-
-
-#Delete Bookmark Preview Jpg:
-if os.path.exists(shaderFolderPath):
-    files = os.listdir(shaderFolderPath)
+#Delete Preview Jpg:
+if os.path.exists(shaderFolderPath + os.sep):
+    files = os.listdir(shaderFolderPath + os.sep)
     for f in files:
         if not os.path.isdir(f) and ".jpg" in f:
-            os.remove(shaderFolderPath+ os.sep + f)
+            os.remove(os.path.join(shaderFolderPath, f))
         
         else:
-            os.remove(shaderFolderPath+ os.sep + f)    
-
+            os.remove(os.path.join(shaderFolderPath, f))    
 
 
 if __name__ == "__main__":
