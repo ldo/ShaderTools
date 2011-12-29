@@ -61,7 +61,6 @@ MaterialCategories = \
 # ************************************************************************************
 MY_RENDER_TABLE = []
 MY_MATERIAL_TABLE = []
-MY_INFORMATION_TABLE = []
 
 # ************************************************************************************
 # *                                     HERE I UPDATE PATH                           *
@@ -4227,13 +4226,6 @@ class OpenShaders(bpy.types.Operator):
         for value in Connexion.fetchall():
             if value[0] > 1 and value[1] is not '\n' and value[1] is not '':
                 MY_MATERIAL_TABLE.append(value)
-
-        #I select Information Table informations :
-        value = ""
-        Connexion.execute("SELECT * FROM INFORMATIONS")
-        for value in Connexion.fetchall():
-            if value[6] > 1 and value[0] > 1 :
-                MY_INFORMATION_TABLE.append(value)
 
         Connexion.close()
 
