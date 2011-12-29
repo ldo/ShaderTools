@@ -918,29 +918,25 @@ def ImporterSQL(SearchName):
             if include(field) :
                 attr = fielddefs[field].get("attr")
                 if attr != None :
+                    idx = None
                     if len(attr) > 1 :
-                        if "." in attr[0] :
-                            idx = attr[1]
-                            attr = attr[0].split(".")
-                            subobj = obj
-                            for name in attr[:-1] :
-                                subobj = getattr(subobj, name)
-                            #end of
-                            getattr(subobj, attr[-1])[idx] = fields[field]
-                        else :
-                            getattr(obj, attr[0])[attr[1]] = fields[field]
-                        #end if
+                        attr, idx = attr
                     else :
-                        if "." in attr[0] :
-                            attr = attr[0].split(".")
-                            subobj = obj
-                            for name in attr[:-1] :
-                                subobj = getattr(subobj, name)
-                            #end for
-                            setattr(subobj, attr[-1], fields[field])
-                        else :
-                            setattr(obj, attr[0], fields[field])
-                        #end if
+                        attr = attr[0]
+                    #end if
+                    attr = attr.split(".")
+                    if idx == None :
+                        attrtoset = attr[-1]
+                        attr = attr[:-1]
+                    #end if
+                    subobj = obj
+                    for name in attr :
+                        subobj = getattr(subobj, name)
+                    #end for
+                    if idx != None :
+                        subobj[idx] = fields[field]
+                    else :
+                        setattr(subobj, attrtoset, fields[field])
                     #end if
                 #end if
             #end if
