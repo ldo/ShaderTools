@@ -1025,34 +1025,26 @@ def ImporterSQL(SearchName):
     print(LanguageValuesDict['ErrorsMenuError001'])
     print(LanguageValuesDict['ErrorsMenuError006'])
 
-    if Render_exists : #I verify if an image exists
-        CopyBlendFolder = os.path.join(BlendPath, "ShaderToolsImport", Mat_Name)
-
-        if not os.path.exists(CopyBlendFolder) :
-            os.makedirs(CopyBlendFolder)
-        else:
-            c = 1
-            while os.path.exists(CopyBlendFolder) :
-                CopyBlendFolder = os.path.join(BlendPath, "ShaderToolsImport", Mat_Name + "_" + str(c))
-                c = c + 1
-            os.makedirs(CopyBlendFolder)
-
-        #Debug
-        if not os.path.exists(CopyBlendFolder) :
-            CopyBlendFolder = os.path.join(AppPath, "ShaderToolsImport")
+    if Render_exists :
+        # generate a unique folder name to hold the files
+        c = 0
+        while True :
+            CopyBlendFolder = os.path.join(BlendPath, "ShaderToolsImport", Mat_Name + ("", "_%d" % c)[c != 0])
             if not os.path.exists(CopyBlendFolder) :
+                # found unused name
                 os.makedirs(CopyBlendFolder)
-
-            CopyBlendFolder = os.path.join(AppPath, "ShaderToolsImport", Mat_Name)
-            if not os.path.exists(CopyBlendFolder) :
-                os.makedirs(CopyBlendFolder)
+                break
+            #end if
+            # already exists, try another name
+            c += 1
+        #end while
 
         #Here I copy all files in Out Folder to ShaderToolsImport folder:
         files = os.listdir(OutPath)
-
         for f in files:
             if not os.path.isdir(f):
                 shutil.copy2(os.path.join(OutPath, f), os.path.join(CopyBlendFolder, f))
+    #end if
 
     #Now I treat textures informations
     for textureNumberSlot, ThisTexture in enumerate(MyTextureResult) :
