@@ -923,7 +923,7 @@ def ImporterSQL(SearchName):
                             subobj = obj
                             for name in attr[:-1] :
                                 subobj = getattr(subobj, name)
-                            #end of
+                            #end for
                             setattr(subobj, attr[-1], fields[field])
                         else :
                             setattr(obj, attr[0], fields[field])
