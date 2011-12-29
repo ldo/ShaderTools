@@ -40,6 +40,14 @@ import zipfile
 import time
 import sys
 
+def stripext(name, ext) :
+    # returns name with ext stripped off if it occurs at end.
+    if name.endswith(ext) :
+        name = name[:- len(ext)]
+    #end if
+    return name
+#end stripext
+
 MaterialCategories = \
     (
         "CarPaint", "Dirt", "FabricClothes", "Fancy", "FibreFur",
@@ -878,7 +886,7 @@ def ImporterSQL(SearchName):
     #I split material name and i return material index
     for value in SearchName.split('_Ind_', 255):
         if value.endswith('.jpg'):
-            MyMaterialIndex = value.replace('.jpg', '')
+            MyMaterialIndex = stripext(value, '.jpg')
 
     Material = GetRecords \
       (
@@ -1484,11 +1492,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                     MY_EXPORT_INFORMATIONS.append('imagePath = os.path.join(scriptPath, Mat_Name + "_" + "' + IMAGE_FILENAME +  '")\n')
                     MY_EXPORT_INFORMATIONS.append('img=bpy.data.images.load(filepath=imagePath)\n')
 
-                    save_path = os.path.join(ZipPath, Mat_Name)
-
-
-                    if save_path.endswith('.py'):
-                        save_path = save_path.replace('.py', '')
+                    save_path = stripext(os.path.join(ZipPath, Mat_Name), '.py')
 
                     #Now I create file:
                     MY_EXPORT_INFORMATIONS.append('slot.texture.image  = img\n')
@@ -1511,8 +1515,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
 
                     save_path = os.path.join(ZipPath, Mat_Name)
 
-                    if save_path.endswith('.py'):
-                        save_path = save_path.replace('.py', '')
+                    save_path = stripext(save_path, '.py')
 
                     #Now I create file:
                     MY_EXPORT_INFORMATIONS.append('slot.texture.image  = img\n')
@@ -1933,14 +1936,9 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                         counter = counter + 1
 
     #I create a file on the Filepath :
-    if File_Path.endswith('.py'):
-        File_Path = File_Path.replace('.py', '')
-
+    File_Path = stripext(File_Path, '.py')
     File_Path = File_Path.replace('.', '')
-
-    if Mat_Name.endswith('.py'):
-        Mat_Name = Mat_Name.replace('.py', '')
-
+    Mat_Name = stripext(Mat_Name, '.py')
     Mat_Name = Mat_Name.replace('.', '')
 
     #fileExport =  File_Path + "_" + Inf_Creator + ".py"
@@ -4196,7 +4194,7 @@ class OpenShaders(bpy.types.Operator):
 
     def execute(self, context):
         global HISTORY_FILE
-        selectedFile = self.filename.replace('.jpg', '')
+        selectedFile = stripext(self.filename, '.jpg')
         if os.path.exists(os.path.join(TempPath, "searching")) :
             os.remove(os.path.join(TempPath, "searching"))
         #I update history file:
@@ -4513,8 +4511,8 @@ def Importer(File_Path, Mat_Name):
 
     #Here i verify if Material Name Folder exists:
     CopyMatFolder = os.path.join(ImportPath, "ShaderToolsImport", Mat_Name)
-    CopyMatFolder = CopyMatFolder.replace('.blex', '')
-    Mat_Name_folder = Mat_Name.replace('.blex', '')
+    CopyMatFolder = stripext(CopyMatFolder, '.blex')
+    Mat_Name_folder = stripext(Mat_Name, '.blex')
 
     # generate a unique folder name to hold the files
     c = 0
