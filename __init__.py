@@ -57,12 +57,6 @@ MaterialCategories = \
     )
 
 # ************************************************************************************
-# *                                     MY GLOBAL VALUES                             *
-# ************************************************************************************
-MY_RENDER_TABLE = []
-MY_MATERIAL_TABLE = []
-
-# ************************************************************************************
 # *                                     HERE I UPDATE PATH                           *
 # ************************************************************************************
 BlendPath = os.path.dirname(bpy.data.filepath)
@@ -4213,6 +4207,7 @@ class OpenShaders(bpy.types.Operator):
         Connexion = ShadersToolsDatabase.cursor()
 
         #I begin to select Render Table informations :
+        MY_RENDER_TABLE = []
         value = ""
         Connexion.execute("SELECT Mat_Index, Ren_Preview_Object FROM RENDER")
         for value in Connexion.fetchall():
@@ -4221,6 +4216,7 @@ class OpenShaders(bpy.types.Operator):
                     MY_RENDER_TABLE.append(value)
 
         #I select Material Table informations :
+        MY_MATERIAL_TABLE = []
         value = ""
         Connexion.execute("SELECT Mat_Index, Mat_Name FROM MATERIALS")
         for value in Connexion.fetchall():
