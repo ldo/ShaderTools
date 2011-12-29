@@ -359,6 +359,9 @@ image_uv_fields = \
         "Ima_Blob",
     )
 
+# fixme: "RENDER" and "INFORMATIONS" tables seem to always have 1:1 record correspondence
+# with "MATERIALS" table: this suggests they should not be separate tables, instead
+# their fields should be put into "MATERIALS".
 
 # ************************************************************************************
 # *                                    IMPORTER SQL                                  *
