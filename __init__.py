@@ -1936,7 +1936,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
 
     #I create a file on the Filepath :
     File_Path = stripext(File_Path, '.py')
-    File_Path = File_Path.replace('.', '')
+    #File_Path = File_Path.replace('.', '')
     Mat_Name = stripext(Mat_Name, '.py')
     Mat_Name = Mat_Name.replace('.', '')
 
