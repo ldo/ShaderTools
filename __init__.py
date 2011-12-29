@@ -909,7 +909,6 @@ def ImporterSQL(SearchName):
       # won't be None, because this script is only invocable via a custom panel
       # in the Materials tab in the Properties window, and that tab only appears
       # when something is selected that can take a material.
-    tex = bpy.context.active_object.active_material
 
     def SetupObject(obj, fields, fielddefs, include = lambda field : True) :
         # common routine for converting field values into new attribute
