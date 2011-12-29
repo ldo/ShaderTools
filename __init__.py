@@ -283,8 +283,18 @@ def SQLString(s) :
 def GetEachRecord(Conn, TableName, Fields, Condition = None, Values = None, Extra = None) :
     """generator which does an SQL query which can return 0 or more
     result rows, yielding each record in turn as a mapping from field
-    name to field value. Extra allows specification of order/group
-    clauses."""
+    name to field value. TableName can be a single table name, or a
+    comma-separated list of names for a join. Extra allows
+    specification of order/group clauses."""
+    FieldNames = []
+    for Field in Fields :
+        Components = Field.split(" as ", 1)
+        if len(Components) == 2 :
+            FieldNames.append(Components[1].lstrip())
+        else :
+            FieldNames.append(Field)
+        #end if
+    #end for
     Cmd = \
       (
             "select "
@@ -320,7 +330,7 @@ def GetEachRecord(Conn, TableName, Fields, Condition = None, Values = None, Extr
       (
         Conn = Conn,
         Cmd = Cmd,
-        MapFn = lambda Row : dict(zip(Fields, Row))
+        MapFn = lambda Row : dict(zip(FieldNames, Row))
       )
 #end GetEachRecord
 
@@ -4204,72 +4214,33 @@ class OpenShaders(bpy.types.Operator):
         return {'FINISHED'}
 
     def invoke(self, context, event):
-        # IN THIS PART I SEARCH CORRECT VALUES IN THE DATABASE:
-        #Here i connect database :
-        ShadersToolsDatabase = sqlite3.connect(DataBasePath)
-        Connexion = ShadersToolsDatabase.cursor()
-
-        #I begin to select Render Table informations :
-        MY_RENDER_TABLE = []
-        value = ""
-        Connexion.execute("SELECT Mat_Index, Ren_Preview_Object FROM RENDER")
-        for value in Connexion.fetchall():
-            if value[0] is not None:
-                if value[0] > 1 and value[1] is not '\n' and value[1] is not '':
-                    MY_RENDER_TABLE.append(value)
-
-        #I select Material Table informations :
-        MY_MATERIAL_TABLE = []
-        value = ""
-        Connexion.execute("SELECT Mat_Index, Mat_Name FROM MATERIALS")
-        for value in Connexion.fetchall():
-            if value[0] > 1 and value[1] is not '\n' and value[1] is not '':
-                MY_MATERIAL_TABLE.append(value)
-
-        Connexion.close()
-
+        ShaderToolsDatabase = sqlite3.connect(DataBasePath)
         # NOW I MUST CREATE THUMBNAILS IN THE SHADERS TEMPORY FOLDER:
-        value = ""
-        value2 = ""
-        NameFileJPG = ""
-        Name = ""
-        Render = ""
-        Indice = 0
-        c = 0
-        x = 0
-        val = ""
-        val2 = ""
-
-        for value in MY_MATERIAL_TABLE:
-            value2 = ""
-            NameFileJPG = ""
-            c = 0
-
-            for value2 in value:
-                if c == 0:
-                    Indice = str(value2)
-                    x = 0
-                    #Search Blob Render image:
-                    for val in MY_RENDER_TABLE:
-                        for val2 in val:
-                            if x == 1:
-                                Render = val2
-                                x = 0
-
-                            if val2 == value2:
-                                x = 1
-
-                else:
-                    Name = value2
-
-                c = c + 1
-
-            NameFileJPG = Name + "_Ind_" + Indice + ".jpg"
+        for \
+            Material \
+        in \
+            GetEachRecord \
+              (
+                Conn = ShaderToolsDatabase,
+                TableName = "MATERIALS inner join RENDER on MATERIALS.Mat_Index = RENDER.Mat_Index",
+                Fields = 
+                    (
+                        "MATERIALS.Mat_Index as Mat_Index",
+                        "MATERIALS.Mat_Name as Mat_Name",
+                        "RENDER.Ren_Preview_Object as Ren_Preview_Object",
+                    ),
+                Condition = "MATERIALS.Mat_Index > 1 and RENDER.Ren_Preview_Object is not null"
+              ) \
+        :
+            NameFileJPG = Material["Mat_Name"] + "_Ind_%d.jpg" % Material["Mat_Index"]
             NameFileJPG = NameFileJPG.replace('MAT_PRE_', '')
             NameFileJPG = os.path.join(shaderFolderPath, NameFileJPG)
             imageFileJPG = open(NameFileJPG,'wb')
-            imageFileJPG.write(Render)
+            imageFileJPG.write(Material["Ren_Preview_Object"])
+            imageFileJPG.flush()
             imageFileJPG.close()
+        #end for
+        ShaderToolsDatabase.close()
 
         if os.path.exists(os.path.join(AppPath, "first")) :
             bpy.ops.object.shadertools_warning('INVOKE_DEFAULT')
