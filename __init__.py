@@ -4700,23 +4700,6 @@ class SaveCurrentConfiguration(bpy.types.Operator):
         return {'FINISHED'}
 
 # ************************************************************************************
-# *                            UPDATE MATERIAL INFORMATIONS                          *
-# ************************************************************************************
-def InformationsUpdateInformations(info):
-    #Here i connect database :
-    ShadersToolsDatabase = sqlite3.connect(DataBasePath)
-    Connexion = ShadersToolsDatabase.cursor()
-
-    #I select Information Table informations :
-    value = ""
-    Connexion.execute("SELECT " + info + " FROM INFORMATIONS")
-    for value in Connexion.fetchall():
-        w = 0
-
-    Connexion.close()
-    return info
-
-# ************************************************************************************
 # *                                  UPDATE WARNING                                  *
 # ************************************************************************************
 class UpdateWarning(bpy.types.Operator):
