@@ -4513,20 +4513,21 @@ def Importer(File_Path, Mat_Name):
 
     #Here i verify if Material Name Folder exists:
     CopyMatFolder = os.path.join(ImportPath, "ShaderToolsImport", Mat_Name)
-
     CopyMatFolder = CopyMatFolder.replace('.blex', '')
     Mat_Name_folder = Mat_Name.replace('.blex', '')
 
-    if not os.path.exists(CopyMatFolder) :
-        os.makedirs(CopyMatFolder)
-
-    else:
-        c = 1
-        while os.path.exists(CopyMatFolder) :
-            CopyMatFolder = os.path.join(ImportPath, "ShaderToolsImport", Mat_Name_folder + '_' + str(c))
-            c = c + 1
-
-        os.makedirs(CopyMatFolder)
+    # generate a unique folder name to hold the files
+    c = 0
+    while True :
+        CopyMatFolder = os.path.join(ImportPath, "ShaderToolsImport", Mat_Name_folder + ("", "_%d" % c)[c != 0])
+        if not os.path.exists(CopyMatFolder) :
+            # found unused name
+            os.makedirs(CopyMatFolder)
+            break
+        #end if
+        # already exists, try another name
+        c += 1
+    #end while
 
     #Now I can copy Zip Files in new Material Folder:
     files = os.listdir(ZipPath)
