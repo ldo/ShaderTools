@@ -115,7 +115,7 @@ config.close()
 if os.path.exists(TempPath) :
     files = os.listdir(TempPath)
     for f in files:
-        if not os.path.isdir(f) and ".jpg" in f:
+        if not os.path.isdir(f) and f.endswith(".jpg"):
             os.remove(os.path.join(TempPath, f))
         else:
             os.remove(os.path.join(TempPath, f))
@@ -877,7 +877,7 @@ def ImporterSQL(SearchName):
     MyMaterialIndex = 2 # default to lowest valid value in database
     #I split material name and i return material index
     for value in SearchName.split('_Ind_', 255):
-        if '.jpg' in value:
+        if value.endswith('.jpg'):
             MyMaterialIndex = value.replace('.jpg', '')
 
     Material = GetRecords \
@@ -1487,7 +1487,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                     save_path = os.path.join(ZipPath, Mat_Name)
 
 
-                    if '.py' in save_path:
+                    if save_path.endswith('.py'):
                         save_path = save_path.replace('.py', '')
 
                     #Now I create file:
@@ -1511,7 +1511,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
 
                     save_path = os.path.join(ZipPath, Mat_Name)
 
-                    if '.py' in save_path:
+                    if save_path.endswith('.py'):
                         save_path = save_path.replace('.py', '')
 
                     #Now I create file:
@@ -1933,12 +1933,12 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                         counter = counter + 1
 
     #I create a file on the Filepath :
-    if '.py' in File_Path:
+    if File_Path.endswith('.py'):
         File_Path = File_Path.replace('.py', '')
 
     File_Path = File_Path.replace('.', '')
 
-    if '.py' in Mat_Name:
+    if Mat_Name.endswith('.py'):
         Mat_Name = Mat_Name.replace('.py', '')
 
     Mat_Name = Mat_Name.replace('.', '')
@@ -4081,7 +4081,7 @@ def SearchShaders(self, context):
         if os.path.exists(TempPath) :
             files = os.listdir(TempPath)
             for f in files:
-                if not os.path.isdir(f) and ".jpg" in f:
+                if not os.path.isdir(f) and f.endswith(".jpg"):
                     os.remove(os.path.join(TempPath, f))
 
         else:
@@ -4090,20 +4090,20 @@ def SearchShaders(self, context):
         #Here I copy all files in Base Preview Folder:
         files = os.listdir(shaderFolderPath)
         for f in files:
-            if not os.path.isdir(f) and ".jpg" in f:
+            if not os.path.isdir(f) and f.endswith(".jpg"):
                 shutil.copy2(os.path.join(shaderFolderPath, f), os.path.join(TempPath, f))
 
 
     #Here I remove all files in Base Preview Folder:
     files = os.listdir(shaderFolderPath)
     for f in files:
-        if not os.path.isdir(f) and ".jpg" in f:
+        if not os.path.isdir(f) and f.endswith(".jpg"):
             os.remove(os.path.join(shaderFolderPath, f))
 
     #Now I must copy files corresponding search entry :
     files = os.listdir(TempPath)
     for f in files:
-        if not os.path.isdir(f) and ".jpg" in f:
+        if not os.path.isdir(f) and f.endswith(".jpg"):
             if self.Search.upper() in f.upper():
                 shutil.copy2(os.path.join(TempPath, f), os.path.join(shaderFolderPath, f))
 
@@ -4129,7 +4129,7 @@ def SearchShadersEnum(self, context):
         if os.path.exists(TempPath) :
             files = os.listdir(TempPath)
             for f in files:
-                if not os.path.isdir(f) and ".jpg" in f:
+                if not os.path.isdir(f) and f.endswith(".jpg"):
                     os.remove(os.path.join(TempPath, f))
         else:
             os.makedirs(TempPath)
@@ -4137,19 +4137,19 @@ def SearchShadersEnum(self, context):
         #Here I copy all files in Base Preview Folder:
         files = os.listdir(shaderFolderPath)
         for f in files:
-            if not os.path.isdir(f) and ".jpg" in f:
+            if not os.path.isdir(f) and f.endswith(".jpg"):
                 shutil.copy2(os.path.join(shaderFolderPath, f), os.path.join(TempPath, f))
 
     #Here I remove all files in Base Preview Folder:
     files = os.listdir(shaderFolderPath)
     for f in files:
-        if not os.path.isdir(f) and ".jpg" in f:
+        if not os.path.isdir(f) and f.endswith(".jpg"):
             os.remove(os.path.join(shaderFolderPath, f))
 
     #Now I must copy files corresponding search entry :
     files = os.listdir(TempPath)
     for f in files:
-        if not os.path.isdir(f) and ".jpg" in f:
+        if not os.path.isdir(f) and f.endswith(".jpg"):
             if True in map(lambda h : os.path.normcase(f) == os.path.normcase(h), HISTORY_FILE) :
                 shutil.copy2(os.path.join(TempPath, f), os.path.join(shaderFolderPath, f))
 
@@ -4540,7 +4540,7 @@ def Importer(File_Path, Mat_Name):
     script_name = ''
     files = os.listdir(ZipPath)
     for f in files:
-        if not os.path.isdir(f) and '.py' in f:
+        if not os.path.isdir(f) and f.endswith('.py'):
             script_name = f
 
     if script_name == '':
@@ -5000,7 +5000,7 @@ if os.path.exists(BookmarksPathUser) :
 if os.path.exists(shaderFolderPath) :
     files = os.listdir(shaderFolderPath)
     for f in files:
-        if not os.path.isdir(f) and ".jpg" in f:
+        if not os.path.isdir(f) and f.endswith(".jpg"):
             os.remove(os.path.join(shaderFolderPath, f))
 
         else:
