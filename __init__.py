@@ -4074,7 +4074,7 @@ def SearchShaders(self, context):
 
         #I create file until user do not cancel or valid choice :
         searchFile = open(os.path.join(TempPath, "searching"), 'w')
-        searchFile.close
+        searchFile.close()
 
         #Here I remove all files in the Tempory Folder:
         if os.path.exists(TempPath) :
@@ -4122,7 +4122,7 @@ def SearchShadersEnum(self, context):
 
         #I create file until user do not cancel or valid choice :
         searchFile = open(os.path.join(TempPath, "searching"), 'w')
-        searchFile.close
+        searchFile.close()
 
         #Here I remove all files in the Tempory Folder:
         if os.path.exists(TempPath) :
