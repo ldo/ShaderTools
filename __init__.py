@@ -342,14 +342,520 @@ def GetRecords(Conn, TableName, Fields = None, Condition = None, Values = None, 
     if FieldDefs != None :
         for record in Result :
             for field in record :
-                if "convert" in FieldDefs[field] :
-                    record[field] = FieldDefs[field]["convert"](record[field])
+                if "convert_in" in FieldDefs[field] :
+                    record[field] = FieldDefs[field]["convert_in"](record[field])
                 #end if
             #end for
         #end for
     #end if
     return Result
 #end GetRecords
+
+tobool = lambda x : x == 1 # inbound convertor for boolean-valued fields
+frombool = lambda x : int(x) # outbound convertor for boolean-valued fields
+material_fields = \
+    { # key is database field name, value is dict with following fields:
+      # "attr" : identifies Blender object attribute corresponding to this field value
+      # "convert_in", "convert_out" : optional type conversion functions
+        "Mat_Index" : {},
+        "Mat_Name" : {},
+        "Mat_Type" : {},
+        # entries below with no "attr" keys in their dicts are unused!
+        "Mat_Preview_render_type" : {},
+        "Mat_diffuse_color_r" : {"attr" : ("diffuse_color", 0)},
+        "Mat_diffuse_color_g" : {"attr" : ("diffuse_color", 1)},
+        "Mat_diffuse_color_b" : {"attr" : ("diffuse_color", 2)},
+        "Mat_diffuse_color_a" : {},
+        "Mat_diffuse_shader" : {"attr" : ("diffuse_shader",)},
+        "Mat_diffuse_intensity" : {"attr" : ("diffuse_intensity",)},
+        "Mat_use_diffuse_ramp" : {},
+        "Mat_diffuse_roughness" : {"attr" : ("roughness",)},
+        "Mat_diffuse_toon_size" : {"attr" : ("diffuse_toon_size",)},
+        "Mat_diffuse_toon_smooth" : {"attr" : ("diffuse_toon_smooth",)},
+        "Mat_diffuse_darkness" : {"attr" : ("darkness",)},
+        "Mat_diffuse_fresnel" : {"attr" : ("diffuse_fresnel",)},
+        "Mat_diffuse_fresnel_factor" : {"attr" : ("diffuse_fresnel_factor",)},
+        "Mat_specular_color_r" : {"attr" : ("specular_color", 0)},
+        "Mat_specular_color_g" : {"attr" : ("specular_color", 1)},
+        "Mat_specular_color_b" : {"attr" : ("specular_color", 2)},
+        "Mat_specular_color_a" : {},
+        "Mat_specular_shader" : {"attr" : ("specular_shader",)},
+        "Mat_specular_intensity" : {"attr" : ("specular_intensity",)},
+        "Mat_specular_ramp" : {},
+        "Mat_specular_hardness" : {"attr" : ("specular_hardness",)},
+        "Mat_specular_ior" : {"attr" : ("specular_ior",)},
+        "Mat_specular_toon_size" : {"attr" : ("specular_toon_size",)},
+        "Mat_specular_toon_smooth" : {"attr" : ("specular_toon_smooth",)},
+        "Mat_shading_emit" : {"attr" : ("emit",)},
+        "Mat_shading_ambient" : {"attr" : ("ambient",)},
+        "Mat_shading_translucency" : {"attr" : ("translucency",)},
+        "Mat_shading_use_shadeless" : {"attr" : ("use_shadeless",)},
+        "Mat_shading_use_tangent_shading" : {"attr" : ("use_tangent_shading",)},
+        "Mat_shading_use_cubic" : {},
+        "Mat_transparency_use_transparency" : {"attr" : ("use_transparency",)},
+        "Mat_transparency_method" : {"attr" : ("transparency_method",)},
+        "Mat_transparency_alpha" : {"attr" : ("alpha",)},
+        "Mat_transparency_fresnel" : {"attr" : ("raytrace_transparency.fresnel",)},
+        "Mat_transparency_specular_alpha" : {"attr" : ("specular_alpha",)},
+        "Mat_transparency_fresnel_factor" : {"attr" : ("raytrace_transparency.fresnel_factor",)},
+        "Mat_transparency_ior" : {"attr" : ("raytrace_transparency.ior",)},
+        "Mat_transparency_filter" : {"attr" : ("raytrace_transparency.filter",)},
+        "Mat_transparency_falloff" : {"attr" : ("raytrace_transparency.falloff",)},
+        "Mat_transparency_depth_max" : {"attr" : ("raytrace_transparency.depth_max",)},
+        "Mat_transparency_depth" : {"attr" : ("raytrace_transparency.depth",)},
+        "Mat_transparency_gloss_factor" : {"attr" : ("raytrace_transparency.gloss_factor",)},
+        "Mat_transparency_gloss_threshold" : {"attr" : ("raytrace_transparency.gloss_threshold",)},
+        "Mat_transparency_gloss_samples" : {"attr" : ("raytrace_transparency.gloss_samples",)},
+        "Mat_raytracemirror_use" : {"attr" : ("raytrace_mirror.use",)},
+        "Mat_raytracemirror_reflect_factor" : {"attr" : ("raytrace_mirror.reflect_factor",)},
+        "Mat_raytracemirror_fresnel" : {"attr" : ("raytrace_mirror.fresnel",)},
+        "Mat_raytracemirror_color_r" : {"attr" : ("mirror_color", 0)},
+        "Mat_raytracemirror_color_g" : {"attr" : ("mirror_color", 1)},
+        "Mat_raytracemirror_color_b" : {"attr" : ("mirror_color", 2)},
+        "Mat_raytracemirror_color_a" : {},
+        "Mat_raytracemirror_fresnel_factor" : {"attr" : ("raytrace_mirror.fresnel_factor",)},
+        "Mat_raytracemirror_depth" : {"attr" : ("raytrace_mirror.depth",)},
+        "Mat_raytracemirror_distance" : {"attr" : ("raytrace_mirror.distance",)},
+        "Mat_raytracemirror_fade_to" : {"attr" : ("raytrace_mirror.fade_to",)},
+        "Mat_raytracemirror_gloss_factor" : {"attr" : ("raytrace_mirror.gloss_factor",)},
+        "Mat_raytracemirror_gloss_threshold" : {"attr" : ("raytrace_mirror.gloss_threshold",)},
+        "Mat_raytracemirror_gloss_samples" : {"attr" : ("raytrace_mirror.gloss_samples",)},
+        "Mat_raytracemirror_gloss_anisotropic" : {"attr" : ("raytrace_mirror.gloss_anisotropic",)},
+        "Mat_subsurfacescattering_use" : {"attr" : ("subsurface_scattering.use",)},
+        "Mat_subsurfacescattering_presets" : {},
+        "Mat_subsurfacescattering_ior" : {"attr" : ("subsurface_scattering.ior",)},
+        "Mat_subsurfacescattering_scale" : {"attr" : ("subsurface_scattering.scale",)},
+        "Mat_subsurfacescattering_color_r" : {"attr" : ("subsurface_scattering.color", 0)},
+        "Mat_subsurfacescattering_color_g" : {"attr" : ("subsurface_scattering.color", 1)},
+        "Mat_subsurfacescattering_color_b" : {"attr" : ("subsurface_scattering.color", 2)},
+        "Mat_subsurfacescattering_color_a" : {},
+        "Mat_subsurfacescattering_color_factor" : {"attr" : ("subsurface_scattering.color_factor",)},
+        "Mat_subsurfacescattering_texture_factor" : {"attr" : ("subsurface_scattering.texture_factor",)},
+        "Mat_subsurfacescattering_radius_one" : {"attr" : ("subsurface_scattering.radius", 0)},
+        "Mat_subsurfacescattering_radius_two" : {"attr" : ("subsurface_scattering.radius", 1)},
+        "Mat_subsurfacescattering_radius_three" : {"attr" : ("subsurface_scattering.radius", 2)},
+        "Mat_subsurfacescattering_front" : {"attr" : ("subsurface_scattering.front",)},
+        "Mat_subsurfacescattering_back" : {"attr" : ("subsurface_scattering.back",)},
+        "Mat_subsurfacescattering_error_threshold" : {"attr" : ("subsurface_scattering.error_threshold",)},
+        "Mat_strand_root_size" : {"attr" : ("strand.root_size",)},
+        "Mat_strand_tip_size" : {"attr" : ("strand.tip_size",)},
+        "Mat_strand_size_min" : {"attr" : ("strand.size_min",)},
+        "Mat_strand_blender_units" : {"attr" : ("strand.use_blender_units",)},
+        "Mat_strand_use_tangent_shading" : {"attr" : ("strand.use_tangent_shading",)},
+        "Mat_strand_shape" : {"attr" : ("strand.shape",)},
+        "Mat_strand_width_fade" : {"attr" : ("strand.width_fade",)},
+        "Mat_strand_blend_distance" : {"attr" : ("strand.blend_distance",)},
+        "Mat_options_use_raytrace" : {"attr" : ("use_raytrace",)},
+        "Mat_options_use_full_oversampling" : {"attr" : ("use_full_oversampling",)},
+        "Mat_options_use_sky" : {"attr" : ("use_sky",)},
+        "Mat_options_use_mist" : {"attr" : ("use_mist",)},
+        "Mat_options_invert_z" : {"attr" : ("invert_z",)},
+        "Mat_options_offset_z" : {"attr" : ("offset_z",)},
+        "Mat_options_use_face_texture" : {"attr" : ("use_face_texture",)},
+        "Mat_options_use_texture_alpha" : {"attr" : ("use_face_texture_alpha",)},
+        "Mat_options_use_vertex_color_paint" : {"attr" : ("use_vertex_color_paint",)},
+        "Mat_options_use_vertex_color_light" : {"attr" : ("use_vertex_color_light",)},
+        "Mat_options_use_object_color" : {"attr" : ("use_object_color",)},
+        "Mat_options_pass_index" : {"attr" : ("pass_index",)},
+        "Mat_shadow_use_shadows" : {"attr" : ("use_shadows",)},
+        "Mat_shadow_use_transparent_shadows" : {"attr" : ("use_transparent_shadows",)},
+        "Mat_shadow_use_cast_shadows_only" : {"attr" : ("use_cast_shadows_only",)},
+        "Mat_shadow_shadow_cast_alpha" : {"attr" : ("shadow_cast_alpha",)},
+        "Mat_shadow_use_only_shadow" : {"attr" : ("use_only_shadow",)},
+        "Mat_shadow_shadow_only_type" : {"attr" : ("shadow_only_type",)},
+        "Mat_shadow_use_cast_buffer_shadows" : {"attr" : ("use_cast_buffer_shadows",)},
+        "Mat_shadow_shadow_buffer_bias" : {"attr" : ("shadow_buffer_bias",)},
+        "Mat_shadow_use_ray_shadow_bias" : {"attr" : ("use_ray_shadow_bias",)},
+        "Mat_shadow_shadow_ray_bias" : {"attr" : ("shadow_ray_bias",)},
+        "Mat_shadow_use_cast_approximate" : {"attr" : ("use_cast_approximate",)},
+        # entries above with no "attr" keys in their dicts are unused!
+        "Idx_ramp_diffuse" : {},
+        "Idx_ramp_specular" : {},
+        "Idx_textures" : {},
+    }
+for \
+    field \
+in \
+    (
+        "Mat_use_diffuse_ramp",
+        "Mat_specular_ramp",
+        "Mat_shading_use_shadeless",
+        "Mat_shading_use_cubic",
+        "Mat_shading_use_tangent_shading",
+        "Mat_shading_use_cubic",
+        "Mat_transparency_use_transparency",
+        "Mat_raytracemirror_use",
+        "Mat_subsurfacescattering_use",
+        "Mat_strand_blender_units",
+        "Mat_strand_use_tangent_shading",
+        "Mat_options_use_raytrace",
+        "Mat_options_use_full_oversampling",
+        "Mat_options_use_sky",
+        "Mat_options_use_mist",
+        "Mat_options_invert_z",
+        "Mat_options_use_face_texture",
+        "Mat_options_use_texture_alpha",
+        "Mat_options_use_vertex_color_paint",
+        "Mat_options_use_vertex_color_light",
+        "Mat_options_use_object_color",
+        "Mat_shadow_use_shadows",
+        "Mat_shadow_use_transparent_shadows",
+        "Mat_shadow_use_cast_shadows_only",
+        "Mat_shadow_use_only_shadow",
+        "Mat_shadow_use_cast_buffer_shadows",
+    ) \
+:
+    material_fields[field]["convert_in"] = tobool
+    material_fields[field]["convert_out"] = frombool
+#end for
+
+texture_fields = \
+    { # key is database field name, value is dict with following fields:
+      # "attr" : identifies Blender object attribute corresponding to this field value
+      # "convert_in", "convert_out" : optional type conversion function
+      # "type": optional field indicating attribute is specific to a texture type
+        "Tex_Index" : {},
+        "Tex_Name" : {},
+        "Tex_Type" : {},
+        "Tex_Preview_type" : {},
+        "Tex_use_preview_alpha" : {"attr" : ("texture.use_preview_alpha",)},
+        "Tex_type_blend_progression" : {"attr" : ("texture.progression",)},
+        "Tex_type_blend_use_flip_axis" : {"attr" : ("texture.use_flip_axis",)},
+        "Tex_type_clouds_cloud_type" : {"attr" : ("texture.cloud_type",)},
+        "Tex_type_clouds_noise_type" : {"attr" : ("texture.noise_type",)},
+        "Tex_type_clouds_noise_basis" : {"attr" : ("texture.noise_basis",)},
+        "Tex_type_noise_distortion" : {}, # unused?
+        "Tex_type_env_map_source" : {"attr" : ("texture.environment_map.source",)},
+        "Tex_type_env_map_mapping" : {"attr" : ("texture.environment_map.mapping",)},
+        "Tex_type_env_map_clip_start" : {"attr" : ("texture.environment_map.clip_start",)},
+        "Tex_type_env_map_clip_end" : {"attr" : ("texture.environment_map.clip_end",)},
+        "Tex_type_env_map_resolution" : {"attr" : ("texture.environment_map.resolution",)},
+        "Tex_type_env_map_depth" : {"attr" : ("texture.environment_map.depth",)},
+        "Tex_type_env_map_image_file" : {}, # unused?
+        "Tex_type_env_map_zoom" : {"attr" : ("texture.environment_map.zoom",)},
+        "Tex_type_magic_depth" : {"attr" : ("texture.noise_depth",)},
+        "Tex_type_magic_turbulence" : {"attr" : ("texture.turbulence",)},
+        "Tex_type_marble_marble_type" : {"attr" : ("texture.marble_type",)},
+        "Tex_type_marble_noise_basis_2" : {"attr" : ("texture.noise_basis_2",)},
+        "Tex_type_marble_noise_type" : {"attr" : ("texture.noise_type",)},
+        "Tex_type_marble_noise_basis" : {"attr" : ("texture.noise_basis",)},
+        "Tex_type_marble_noise_scale" : {"attr" : ("texture.noise_scale",)},
+        "Tex_type_marble_noise_depth" : {"attr" : ("texture.noise_depth",)},
+        "Tex_type_marble_turbulence" : {"attr" : ("texture.turbulence",)},
+        "Tex_type_marble_nabla" : {"attr" : ("texture.nabla",)},
+        "Tex_type_musgrave_type" : {"attr" : ("texture.musgrave_type",)},
+        "Tex_type_musgrave_dimension_max" : {"attr" : ("texture.dimension_max",)},
+        "Tex_type_musgrave_lacunarity" : {"attr" : ("texture.lacunarity",)},
+        "Tex_type_musgrave_octaves" : {"attr" : ("texture.octaves",)},
+        "Tex_type_musgrave_noise_intensity" : {"attr" : ("texture.noise_intensity",)},
+        "Tex_type_musgrave_noise_basis" : {"attr" : ("texture.noise_basis",)},
+        "Tex_type_musgrave_noise_scale" : {"attr" : ("texture.noise_scale",)},
+        "Tex_type_musgrave_nabla" : {"attr" : ("texture.nabla",)},
+        "Tex_type_musgrave_offset" : {"attr" : ("texture.offset",)},
+        "Tex_type_musgrave_gain" : {"attr" : ("texture.gain",)},
+        "Tex_type_clouds_noise_scale" : {"attr" : ("texture.noise_scale",)},
+        "Tex_type_clouds_nabla" : {"attr" : ("texture.nabla",)},
+        "Tex_type_clouds_noise_depth" : {"attr" : ("texture.noise_depth",)},
+        "Tex_type_noise_distortion_distortion" : {"attr" : ("texture.distortion",)},
+        "Tex_type_noise_distortion_texture_distortion" : {}, # unused?
+        "Tex_type_noise_distortion_nabla" : {"attr" : ("texture.nabla",)},
+        "Tex_type_noise_distortion_noise_scale" : {"attr" : ("texture.noise_scale",)},
+        "Tex_type_noise_distortion_noise_distortion" : {"attr" : ("texture.noise_distortion",)},
+        "Tex_type_noise_distortion_basis" : {"attr" : ("texture.noise_basis",)},
+        "Tex_type_point_density_point_source" : {"attr" : ("texture.point_density.point_source",)},
+        "Tex_type_point_density_radius" : {"attr" : ("texture.point_density.radius",)},
+        "Tex_type_point_density_particule_cache_space" : {"attr" : ("texture.point_density.particle_cache_space",)},
+        "Tex_type_point_density_falloff" : {"attr" : ("texture.point_density.falloff",)},
+        "Tex_type_point_density_use_falloff_curve" : {"attr" : ("texture.point_density.use_falloff_curve",)},
+        "Tex_type_point_density_falloff_soft" : {"attr" : ("texture.point_density.falloff_soft",)},
+        "Tex_type_point_density_falloff_speed_scale" : {"attr" : ("texture.point_density.falloff_speed_scale",)},
+        "Tex_type_point_density_speed_scale" : {"attr" : ("texture.point_density.speed_scale",)},
+        "Tex_type_point_density_color_source" : {"attr" : ("texture.point_density.color_source",)},
+        "Tex_type_stucci_type" : {"attr" : ("texture.stucci_type",)},
+        "Tex_type_stucci_noise_type" : {"attr" : ("texture.noise_type",)},
+        "Tex_type_stucci_basis" : {"attr" : ("texture.noise_basis",)},
+        "Tex_type_stucci_noise_scale" : {"attr" : ("texture.noise_scale",)},
+        "Tex_type_stucci_turbulence" : {"attr" : ("texture.turbulence",)},
+        "Tex_type_voronoi_distance_metric" : {"attr" : ("texture.distance_metric",)},
+        "Tex_type_voronoi_minkovsky_exponent" : {"attr" : ("texture.minkovsky_exponent",)},
+        "Tex_type_voronoi_color_mode" : {"attr" : ("texture.color_mode",)},
+        "Tex_type_voronoi_noise_scale" : {"attr" : ("texture.noise_scale",)},
+        "Tex_type_voronoi_nabla" : {"attr" : ("texture.nabla",)},
+        "Tex_type_voronoi_weight_1" : {"attr" : ("texture.weight_1",)},
+        "Tex_type_voronoi_weight_2" : {"attr" : ("texture.weight_2",)},
+        "Tex_type_voronoi_weight_3" : {"attr" : ("texture.weight_3",)},
+        "Tex_type_voronoi_weight_4" : {"attr" : ("texture.weight_4",)},
+        "Tex_type_voronoi_intensity" : {"attr" : ("texture.noise_intensity",)},
+        "Tex_type_voxel_data_file_format" : {"attr" : ("texture.voxel_data.file_format",)},
+        "Tex_type_voxel_data_source_path" : {"attr" : ("texture.voxel_data.filepath",)},
+        "Tex_type_voxel_data_use_still_frame" : {"attr" : ("texture.voxel_data.use_still_frame",)},
+        "Tex_type_voxel_data_still_frame" : {"attr" : ("texture.voxel_data.still_frame",)},
+        "Tex_type_voxel_data_interpolation" : {"attr" : ("texture.voxel_data.interpolation",)},
+        "Tex_type_voxel_data_extension" : {"attr" : ("texture.voxel_data.extension",)},
+        "Tex_type_voxel_data_intensity" : {"attr" : ("texture.voxel_data.intensity",)},
+        "Tex_type_voxel_data_resolution_1" : {"attr" : ("texture.voxel_data.resolution", 0)},
+        "Tex_type_voxel_data_resolution_2" : {"attr" : ("texture.voxel_data.resolution", 1)},
+        "Tex_type_voxel_data_resoltion_3" : {"attr" : ("texture.voxel_data.resolution", 2)},
+        "Tex_type_voxel_data_smoke_data_type" : {"attr" : ("texture.voxel_data.smoke_data_type",)},
+        "Tex_type_wood_noise_basis_2" : {"attr" : ("texture.noise_basis_2",)},
+        "Tex_type_wood_wood_type" : {"attr" : ("texture.wood_type",)},
+        "Tex_type_wood_noise_type" : {"attr" : ("texture.noise_type",)},
+        "Tex_type_wood_basis" : {"attr" : ("texture.noise_basis",)},
+        "Tex_type_wood_noise_scale" : {"attr" : ("texture.noise_scale",)},
+        "Tex_type_wood_nabla" : {"attr" : ("texture.nabla",)},
+        "Tex_type_wood_turbulence" : {"attr" : ("texture.turbulence",)},
+        "Tex_influence_use_map_diffuse" : {"attr" : ("use_map_diffuse",)},
+        "Tex_influence_use_map_color_diffuse" : {"attr" : ("use_map_color_diffuse",)},
+        "Tex_influence_use_map_alpha" : {"attr" : ("use_map_alpha",)},
+        "Tex_influence_use_map_translucency" : {"attr" : ("use_map_translucency",)},
+        "Tex_influence_use_map_specular" : {"attr" : ("use_map_specular",)},
+        "Tex_influence_use_map_color_spec" : {"attr" : ("use_map_color_spec",)},
+        "Tex_influence_use_map_map_hardness" : {"attr" : ("use_map_hardness",)},
+        "Tex_influence_use_map_ambient" : {"attr" : ("use_map_ambient",)},
+        "Tex_influence_use_map_emit" : {"attr" : ("use_map_emit",)},
+        "Tex_influence_use_map_mirror" : {"attr" : ("use_map_mirror",)},
+        "Tex_influence_use_map_raymir" : {"attr" : ("use_map_raymir",)},
+        "Tex_influence_use_map_normal" : {"attr" : ("use_map_normal",)},
+        "Tex_influence_use_map_warp" : {"attr" : ("use_map_warp",)},
+        "Tex_influence_use_map_displacement" : {"attr" : ("use_map_displacement",)},
+        "Tex_influence_use_map_rgb_to_intensity" : {"attr" : ("use_rgb_to_intensity",)},
+        "Tex_influence_map_invert" : {"attr" : ("invert",)},
+        "Tex_influence_use_stencil" : {"attr" : ("use_stencil",)},
+        "Tex_influence_diffuse_factor" : {"attr" : ("diffuse_factor",)},
+        "Tex_influence_color_factor" : {"attr" : ("diffuse_color_factor",)},
+        "Tex_influence_alpha_factor" : {"attr" : ("alpha_factor",)},
+        "Tex_influence_translucency_factor" : {"attr" : ("translucency_factor",)},
+        "Tex_influence_specular_factor" : {"attr" : ("specular_factor",)},
+        "Tex_influence_specular_color_factor" : {"attr" : ("specular_color_factor",)},
+        "Tex_influence_hardness_factor" : {"attr" : ("hardness_factor",)},
+        "Tex_influence_ambiant_factor" : {"attr" : ("ambient_factor",)},
+        "Tex_influence_emit_factor" : {"attr" : ("emit_factor",)},
+        "Tex_influence_mirror_factor" : {"attr" : ("mirror_factor",)},
+        "Tex_influence_raymir_factor" : {"attr" : ("raymir_factor",)},
+        "Tex_influence_normal_factor" : {"attr" : ("normal_factor",)},
+        "Tex_influence_warp_factor" : {"attr" : ("warp_factor",)},
+        "Tex_influence_displacement_factor" : {"attr" : ("displacement_factor",)},
+        "Tex_influence_default_value" : {"attr" : ("default_value",)},
+        "Tex_influence_blend_type" : {"attr" : ("blend_type",)},
+        "Tex_influence_color_r" : {"attr" : ("color", 0)},
+        "Tex_influence_color_g" : {"attr" : ("color", 1)},
+        "Tex_influence_color_b" : {"attr" : ("color", 2)},
+        "Tex_influence_color_a" : {}, # unused?
+        "Tex_influence_bump_method" : {"attr" : ("bump_method",)},
+        "Tex_influence_objectspace" : {"attr" : ("bump_objectspace",)},
+        "Tex_mapping_texture_coords" : {"attr" : ("texture_coords",)},
+        "Tex_mapping_mapping" : {"attr" : ("mapping",)},
+        "Tex_mapping_use_from_dupli" : {}, # attr handled specially below
+        "Tex_mapping_mapping_x" : {"attr" : ("mapping_x",)},
+        "Tex_mapping_mapping_y" : {"attr" : ("mapping_y",)},
+        "Tex_mapping_mapping_z" : {"attr" : ("mapping_z",)},
+        "Tex_mapping_offset_x" : {"attr" : ("offset", 0)},
+        "Tex_mapping_offset_y" : {"attr" : ("offset", 1)},
+        "Tex_mapping_offset_z" : {"attr" : ("offset", 2)},
+        "Tex_mapping_scale_x" : {"attr" : ("scale", 0)},
+        "Tex_mapping_scale_y" : {"attr" : ("scale", 1)},
+        "Tex_mapping_scale_z" : {"attr" : ("scale", 2)},
+        "Tex_mapping_use_from_original" : {}, # attr handled specially below
+        "Tex_colors_use_color_ramp" : {}, # unused?
+        "Tex_colors_factor_r" : {"attr" : ("texture.factor_red",)},
+        "Tex_colors_factor_g" : {"attr" : ("texture.factor_green",)},
+        "Tex_colors_factor_b" : {"attr" : ("texture.factor_blue",)},
+        "Tex_colors_intensity" : {"attr" : ("texture.intensity",)},
+        "Tex_colors_contrast" : {"attr" : ("texture.contrast",)},
+        "Tex_colors_saturation" : {"attr" : ("texture.saturation",)},
+        "Mat_Idx" : {},
+        "Poi_Idx" : {},
+        "Col_Idx" : {},
+    }
+for \
+    field \
+in \
+    (
+        "Tex_use_preview_alpha",
+        "Tex_type_point_density_use_falloff_curve",
+        "Tex_type_voxel_data_use_still_frame",
+        "Tex_influence_use_map_diffuse",
+        "Tex_influence_use_map_color_diffuse",
+        "Tex_influence_use_map_alpha",
+        "Tex_influence_use_map_translucency",
+        "Tex_influence_use_map_specular",
+        "Tex_influence_use_map_color_spec",
+        "Tex_influence_use_map_map_hardness",
+        "Tex_influence_use_map_ambient",
+        "Tex_influence_use_map_emit",
+        "Tex_influence_use_map_mirror",
+        "Tex_influence_use_map_raymir",
+        "Tex_influence_use_map_normal",
+        "Tex_influence_use_map_warp",
+        "Tex_influence_use_map_displacement",
+        "Tex_influence_use_map_rgb_to_intensity",
+        "Tex_influence_map_invert",
+        "Tex_influence_use_stencil",
+        "Tex_mapping_use_from_dupli",
+        "Tex_colors_use_color_ramp",
+        "Tex_mapping_use_from_original",
+    ) \
+:
+    texture_fields[field]["convert_in"] = tobool
+    texture_fields[field]["convert_out"] = frombool
+#end for
+for \
+    tex_type, tex_name \
+in \
+    ( # luckily type-specific fields are named in a systematic way
+        ("ENVIRONMENT_MAP", "env_map"),
+        ("MAGIC", "magic"),
+        ("MARBLE", "marble"),
+        ("MUSGRAVE", "musgrave"),
+        ("DISTORTED_NOISE", "noise_distortion"),
+        ("STUCCI", "stucci"),
+        ("VORONOI", "voronoi"),
+        ("VOXEL_DATA", "voxel_data"),
+        ("WOOD", "wood"),
+        ("BLEND", "blend"),
+        ("POINT_DENSITY", "point_density"),
+        # IMAGE handled specially below
+        ("CLOUDS", "clouds"),
+    ) \
+:
+    for field in texture_fields :
+        if field.startswith("Tex_type_" + tex_name + "_") :
+            texture_fields[field]["type"] = tex_type
+        #end for
+    #end for
+#end for
+
+color_ramp_fields = \
+    {
+        "Col_Index" : {},
+        "Col_Num_Material" : {},
+        "Col_Num_Texture" : {},
+        "Col_Flip" : {},
+        "Col_Active_color_stop" : {},
+        "Col_Between_color_stop" : {},
+        "Col_Interpolation" : {},
+        "Col_Position" : {},
+        "Col_Color_stop_one_r" : {},
+        "Col_Color_stop_one_g" : {},
+        "Col_Color_stop_one_b" : {},
+        "Col_Color_stop_one_a" : {},
+        "Col_Color_stop_two_r" : {},
+        "Col_Color_stop_two_g" : {},
+        "Col_Color_stop_two_b" : {},
+        "Col_Color_stop_two_a" : {},
+        # also in database schema, but not used:
+        # "Col_Ramp_input",
+        # "Col_Ramp_blend",
+        # "Col_Ramp_factor",
+    }
+for \
+    field \
+in \
+    (
+        "Col_Flip",
+    ) \
+:
+    color_ramp_fields[field]["convert_in"] = tobool
+    color_ramp_fields[field]["convert_out"] = frombool
+#end for
+
+pointdensity_ramp_fields = \
+    {
+        "Poi_Index" : {},
+        "Poi_Num_Material" : {},
+        "Poi_Num_Texture" : {},
+        "Poi_Flip" : {},
+        "Poi_Active_color_stop" : {},
+        "Poi_Between_color_stop" : {},
+        "Poi_Interpolation" : {},
+        "Poi_Position" : {},
+        "Poi_Color_stop_one_r" : {},
+        "Poi_Color_stop_one_g" : {},
+        "Poi_Color_stop_one_b" : {},
+        "Poi_Color_stop_one_a" : {},
+        "Poi_Color_stop_two_r" : {},
+        "Poi_Color_stop_two_g" : {},
+        "Poi_Color_stop_two_b" : {},
+        "Poi_Color_stop_two_a" : {},
+        # also in database schema, but not used:
+        # "Poi_Ramp_input",
+        # "Poi_Ramp_blend",
+        # "Poi_Ramp_factor",
+    }
+for \
+    field \
+in \
+    (
+        "Poi_Flip",
+    ) \
+:
+    pointdensity_ramp_fields[field]["convert_in"] = tobool
+    pointdensity_ramp_fields[field]["convert_out"] = frombool
+#end for
+
+diffuse_ramp_fields = \
+    {
+        "Dif_Index" : {},
+        "Dif_Num_material" : {},
+        "Dif_Flip" : {},
+        "Dif_Active_color_stop" : {},
+        "Dif_Between_color_stop" : {},
+        "Dif_Interpolation" : {},
+        "Dif_Position" : {},
+        "Dif_Color_stop_one_r" : {},
+        "Dif_Color_stop_one_g" : {},
+        "Dif_Color_stop_one_b" : {},
+        "Dif_Color_stop_one_a" : {},
+        "Dif_Color_stop_two_r" : {},
+        "Dif_Color_stop_two_g" : {},
+        "Dif_Color_stop_two_b" : {},
+        "Dif_Color_stop_two_a" : {},
+        "Dif_Ramp_input" : {},
+        "Dif_Ramp_blend" : {},
+        "Dif_Ramp_factor" : {},
+    }
+for \
+    field \
+in \
+    (
+        "Dif_Flip",
+    ) \
+:
+    diffuse_ramp_fields[field]["convert_in"] = tobool
+    diffuse_ramp_fields[field]["convert_out"] = frombool
+#end for
+
+specular_ramp_fields = \
+    {
+        "Spe_Index" : {},
+        "Spe_Num_Material" : {},
+        "Spe_Flip" : {},
+        "Spe_Active_color_stop" : {},
+        "Spe_Between_color_stop" : {},
+        "Spe_Interpolation" : {},
+        "Spe_Position" : {},
+        "Spe_Color_stop_one_r" : {},
+        "Spe_Color_stop_one_g" : {},
+        "Spe_Color_stop_one_b" : {},
+        "Spe_Color_stop_one_a" : {},
+        "Spe_Color_stop_two_r" : {},
+        "Spe_Color_stop_two_g" : {},
+        "Spe_Color_stop_two_b" : {},
+        "Spe_Color_stop_two_a" : {},
+        "Spe_Ramp_input" : {},
+        "Spe_Ramp_blend" : {},
+        "Spe_Ramp_factor" : {},
+    }
+for \
+    field \
+in \
+    (
+        "Spe_Flip",
+    ) \
+:
+    specular_ramp_fields[field]["convert_in"] = tobool
+    specular_ramp_fields[field]["convert_out"] = frombool
+#end for
 
 image_uv_fields = \
     (
@@ -369,6 +875,8 @@ image_uv_fields = \
         "Ima_Blob",
     )
 
+del tobool, frombool
+
 # fixme: "RENDER" and "INFORMATIONS" tables seem to always have 1:1 record correspondence
 # with "MATERIALS" table: this suggests they should not be separate tables, instead
 # their fields should be put into "MATERIALS".
@@ -386,505 +894,6 @@ def ImporterSQL(SearchName):
     print("*******************************************************************************")
     print("*                                IMPORT BASE MATERIAL                         *")
     print("*******************************************************************************")
-
-    tobool = lambda x : x == 1 # convertor for boolean-valued fields
-    material_fields = \
-        { # key is database field name, value is dict with following fields:
-          # "attr" : identifies Blender object attribute corresponding to this field value
-          # "convert" : optional type conversion function
-            "Mat_Index" : {},
-            "Mat_Name" : {},
-            "Mat_Type" : {},
-            # entries below with no "attr" keys in their dicts are unused!
-            "Mat_Preview_render_type" : {},
-            "Mat_diffuse_color_r" : {"attr" : ("diffuse_color", 0)},
-            "Mat_diffuse_color_g" : {"attr" : ("diffuse_color", 1)},
-            "Mat_diffuse_color_b" : {"attr" : ("diffuse_color", 2)},
-            "Mat_diffuse_color_a" : {},
-            "Mat_diffuse_shader" : {"attr" : ("diffuse_shader",)},
-            "Mat_diffuse_intensity" : {"attr" : ("diffuse_intensity",)},
-            "Mat_use_diffuse_ramp" : {},
-            "Mat_diffuse_roughness" : {"attr" : ("roughness",)},
-            "Mat_diffuse_toon_size" : {"attr" : ("diffuse_toon_size",)},
-            "Mat_diffuse_toon_smooth" : {"attr" : ("diffuse_toon_smooth",)},
-            "Mat_diffuse_darkness" : {"attr" : ("darkness",)},
-            "Mat_diffuse_fresnel" : {"attr" : ("diffuse_fresnel",)},
-            "Mat_diffuse_fresnel_factor" : {"attr" : ("diffuse_fresnel_factor",)},
-            "Mat_specular_color_r" : {"attr" : ("specular_color", 0)},
-            "Mat_specular_color_g" : {"attr" : ("specular_color", 1)},
-            "Mat_specular_color_b" : {"attr" : ("specular_color", 2)},
-            "Mat_specular_color_a" : {},
-            "Mat_specular_shader" : {"attr" : ("specular_shader",)},
-            "Mat_specular_intensity" : {"attr" : ("specular_intensity",)},
-            "Mat_specular_ramp" : {},
-            "Mat_specular_hardness" : {"attr" : ("specular_hardness",)},
-            "Mat_specular_ior" : {"attr" : ("specular_ior",)},
-            "Mat_specular_toon_size" : {"attr" : ("specular_toon_size",)},
-            "Mat_specular_toon_smooth" : {"attr" : ("specular_toon_smooth",)},
-            "Mat_shading_emit" : {"attr" : ("emit",)},
-            "Mat_shading_ambient" : {"attr" : ("ambient",)},
-            "Mat_shading_translucency" : {"attr" : ("translucency",)},
-            "Mat_shading_use_shadeless" : {"attr" : ("use_shadeless",)},
-            "Mat_shading_use_tangent_shading" : {"attr" : ("use_tangent_shading",)},
-            "Mat_shading_use_cubic" : {},
-            "Mat_transparency_use_transparency" : {"attr" : ("use_transparency",)},
-            "Mat_transparency_method" : {"attr" : ("transparency_method",)},
-            "Mat_transparency_alpha" : {"attr" : ("alpha",)},
-            "Mat_transparency_fresnel" : {"attr" : ("raytrace_transparency.fresnel",)},
-            "Mat_transparency_specular_alpha" : {"attr" : ("specular_alpha",)},
-            "Mat_transparency_fresnel_factor" : {"attr" : ("raytrace_transparency.fresnel_factor",)},
-            "Mat_transparency_ior" : {"attr" : ("raytrace_transparency.ior",)},
-            "Mat_transparency_filter" : {"attr" : ("raytrace_transparency.filter",)},
-            "Mat_transparency_falloff" : {"attr" : ("raytrace_transparency.falloff",)},
-            "Mat_transparency_depth_max" : {"attr" : ("raytrace_transparency.depth_max",)},
-            "Mat_transparency_depth" : {"attr" : ("raytrace_transparency.depth",)},
-            "Mat_transparency_gloss_factor" : {"attr" : ("raytrace_transparency.gloss_factor",)},
-            "Mat_transparency_gloss_threshold" : {"attr" : ("raytrace_transparency.gloss_threshold",)},
-            "Mat_transparency_gloss_samples" : {"attr" : ("raytrace_transparency.gloss_samples",)},
-            "Mat_raytracemirror_use" : {"attr" : ("raytrace_mirror.use",)},
-            "Mat_raytracemirror_reflect_factor" : {"attr" : ("raytrace_mirror.reflect_factor",)},
-            "Mat_raytracemirror_fresnel" : {"attr" : ("raytrace_mirror.fresnel",)},
-            "Mat_raytracemirror_color_r" : {"attr" : ("mirror_color", 0)},
-            "Mat_raytracemirror_color_g" : {"attr" : ("mirror_color", 1)},
-            "Mat_raytracemirror_color_b" : {"attr" : ("mirror_color", 2)},
-            "Mat_raytracemirror_color_a" : {},
-            "Mat_raytracemirror_fresnel_factor" : {"attr" : ("raytrace_mirror.fresnel_factor",)},
-            "Mat_raytracemirror_depth" : {"attr" : ("raytrace_mirror.depth",)},
-            "Mat_raytracemirror_distance" : {"attr" : ("raytrace_mirror.distance",)},
-            "Mat_raytracemirror_fade_to" : {"attr" : ("raytrace_mirror.fade_to",)},
-            "Mat_raytracemirror_gloss_factor" : {"attr" : ("raytrace_mirror.gloss_factor",)},
-            "Mat_raytracemirror_gloss_threshold" : {"attr" : ("raytrace_mirror.gloss_threshold",)},
-            "Mat_raytracemirror_gloss_samples" : {"attr" : ("raytrace_mirror.gloss_samples",)},
-            "Mat_raytracemirror_gloss_anisotropic" : {"attr" : ("raytrace_mirror.gloss_anisotropic",)},
-            "Mat_subsurfacescattering_use" : {"attr" : ("subsurface_scattering.use",)},
-            "Mat_subsurfacescattering_presets" : {},
-            "Mat_subsurfacescattering_ior" : {"attr" : ("subsurface_scattering.ior",)},
-            "Mat_subsurfacescattering_scale" : {"attr" : ("subsurface_scattering.scale",)},
-            "Mat_subsurfacescattering_color_r" : {"attr" : ("subsurface_scattering.color", 0)},
-            "Mat_subsurfacescattering_color_g" : {"attr" : ("subsurface_scattering.color", 1)},
-            "Mat_subsurfacescattering_color_b" : {"attr" : ("subsurface_scattering.color", 2)},
-            "Mat_subsurfacescattering_color_a" : {},
-            "Mat_subsurfacescattering_color_factor" : {"attr" : ("subsurface_scattering.color_factor",)},
-            "Mat_subsurfacescattering_texture_factor" : {"attr" : ("subsurface_scattering.texture_factor",)},
-            "Mat_subsurfacescattering_radius_one" : {"attr" : ("subsurface_scattering.radius", 0)},
-            "Mat_subsurfacescattering_radius_two" : {"attr" : ("subsurface_scattering.radius", 1)},
-            "Mat_subsurfacescattering_radius_three" : {"attr" : ("subsurface_scattering.radius", 2)},
-            "Mat_subsurfacescattering_front" : {"attr" : ("subsurface_scattering.front",)},
-            "Mat_subsurfacescattering_back" : {"attr" : ("subsurface_scattering.back",)},
-            "Mat_subsurfacescattering_error_threshold" : {"attr" : ("subsurface_scattering.error_threshold",)},
-            "Mat_strand_root_size" : {"attr" : ("strand.root_size",)},
-            "Mat_strand_tip_size" : {"attr" : ("strand.tip_size",)},
-            "Mat_strand_size_min" : {"attr" : ("strand.size_min",)},
-            "Mat_strand_blender_units" : {"attr" : ("strand.use_blender_units",)},
-            "Mat_strand_use_tangent_shading" : {"attr" : ("strand.use_tangent_shading",)},
-            "Mat_strand_shape" : {"attr" : ("strand.shape",)},
-            "Mat_strand_width_fade" : {"attr" : ("strand.width_fade",)},
-            "Mat_strand_blend_distance" : {"attr" : ("strand.blend_distance",)},
-            "Mat_options_use_raytrace" : {"attr" : ("use_raytrace",)},
-            "Mat_options_use_full_oversampling" : {"attr" : ("use_full_oversampling",)},
-            "Mat_options_use_sky" : {"attr" : ("use_sky",)},
-            "Mat_options_use_mist" : {"attr" : ("use_mist",)},
-            "Mat_options_invert_z" : {"attr" : ("invert_z",)},
-            "Mat_options_offset_z" : {"attr" : ("offset_z",)},
-            "Mat_options_use_face_texture" : {"attr" : ("use_face_texture",)},
-            "Mat_options_use_texture_alpha" : {"attr" : ("use_face_texture_alpha",)},
-            "Mat_options_use_vertex_color_paint" : {"attr" : ("use_vertex_color_paint",)},
-            "Mat_options_use_vertex_color_light" : {"attr" : ("use_vertex_color_light",)},
-            "Mat_options_use_object_color" : {"attr" : ("use_object_color",)},
-            "Mat_options_pass_index" : {"attr" : ("pass_index",)},
-            "Mat_shadow_use_shadows" : {"attr" : ("use_shadows",)},
-            "Mat_shadow_use_transparent_shadows" : {"attr" : ("use_transparent_shadows",)},
-            "Mat_shadow_use_cast_shadows_only" : {"attr" : ("use_cast_shadows_only",)},
-            "Mat_shadow_shadow_cast_alpha" : {"attr" : ("shadow_cast_alpha",)},
-            "Mat_shadow_use_only_shadow" : {"attr" : ("use_only_shadow",)},
-            "Mat_shadow_shadow_only_type" : {"attr" : ("shadow_only_type",)},
-            "Mat_shadow_use_cast_buffer_shadows" : {"attr" : ("use_cast_buffer_shadows",)},
-            "Mat_shadow_shadow_buffer_bias" : {"attr" : ("shadow_buffer_bias",)},
-            "Mat_shadow_use_ray_shadow_bias" : {"attr" : ("use_ray_shadow_bias",)},
-            "Mat_shadow_shadow_ray_bias" : {"attr" : ("shadow_ray_bias",)},
-            "Mat_shadow_use_cast_approximate" : {"attr" : ("use_cast_approximate",)},
-            # entries above with no "attr" keys in their dicts are unused!
-            "Idx_ramp_diffuse" : {},
-            "Idx_ramp_specular" : {},
-            "Idx_textures" : {},
-        }
-    for \
-        field \
-    in \
-        (
-            "Mat_use_diffuse_ramp",
-            "Mat_specular_ramp",
-            "Mat_shading_use_shadeless",
-            "Mat_shading_use_cubic",
-            "Mat_shading_use_tangent_shading",
-            "Mat_shading_use_cubic",
-            "Mat_transparency_use_transparency",
-            "Mat_raytracemirror_use",
-            "Mat_subsurfacescattering_use",
-            "Mat_strand_blender_units",
-            "Mat_strand_use_tangent_shading",
-            "Mat_options_use_raytrace",
-            "Mat_options_use_full_oversampling",
-            "Mat_options_use_sky",
-            "Mat_options_use_mist",
-            "Mat_options_invert_z",
-            "Mat_options_use_face_texture",
-            "Mat_options_use_texture_alpha",
-            "Mat_options_use_vertex_color_paint",
-            "Mat_options_use_vertex_color_light",
-            "Mat_options_use_object_color",
-            "Mat_shadow_use_shadows",
-            "Mat_shadow_use_transparent_shadows",
-            "Mat_shadow_use_cast_shadows_only",
-            "Mat_shadow_use_only_shadow",
-            "Mat_shadow_use_cast_buffer_shadows",
-        ) \
-    :
-        material_fields[field]["convert"] = tobool
-    #end for
-
-    texture_fields = \
-        { # key is database field name, value is dict with following fields:
-          # "attr" : identifies Blender object attribute corresponding to this field value
-          # "convert" : optional type conversion function
-          # "type": optional field indicating attribute is specific to a texture type
-            "Tex_Index" : {},
-            "Tex_Name" : {},
-            "Tex_Type" : {},
-            "Tex_Preview_type" : {},
-            "Tex_use_preview_alpha" : {"attr" : ("texture.use_preview_alpha",)},
-            "Tex_type_blend_progression" : {"attr" : ("texture.progression",)},
-            "Tex_type_blend_use_flip_axis" : {"attr" : ("texture.use_flip_axis",)},
-            "Tex_type_clouds_cloud_type" : {"attr" : ("texture.cloud_type",)},
-            "Tex_type_clouds_noise_type" : {"attr" : ("texture.noise_type",)},
-            "Tex_type_clouds_noise_basis" : {"attr" : ("texture.noise_basis",)},
-            "Tex_type_noise_distortion" : {}, # unused?
-            "Tex_type_env_map_source" : {"attr" : ("texture.environment_map.source",)},
-            "Tex_type_env_map_mapping" : {"attr" : ("texture.environment_map.mapping",)},
-            "Tex_type_env_map_clip_start" : {"attr" : ("texture.environment_map.clip_start",)},
-            "Tex_type_env_map_clip_end" : {"attr" : ("texture.environment_map.clip_end",)},
-            "Tex_type_env_map_resolution" : {"attr" : ("texture.environment_map.resolution",)},
-            "Tex_type_env_map_depth" : {"attr" : ("texture.environment_map.depth",)},
-            "Tex_type_env_map_image_file" : {}, # unused?
-            "Tex_type_env_map_zoom" : {"attr" : ("texture.environment_map.zoom",)},
-            "Tex_type_magic_depth" : {"attr" : ("texture.noise_depth",)},
-            "Tex_type_magic_turbulence" : {"attr" : ("texture.turbulence",)},
-            "Tex_type_marble_marble_type" : {"attr" : ("texture.marble_type",)},
-            "Tex_type_marble_noise_basis_2" : {"attr" : ("texture.noise_basis_2",)},
-            "Tex_type_marble_noise_type" : {"attr" : ("texture.noise_type",)},
-            "Tex_type_marble_noise_basis" : {"attr" : ("texture.noise_basis",)},
-            "Tex_type_marble_noise_scale" : {"attr" : ("texture.noise_scale",)},
-            "Tex_type_marble_noise_depth" : {"attr" : ("texture.noise_depth",)},
-            "Tex_type_marble_turbulence" : {"attr" : ("texture.turbulence",)},
-            "Tex_type_marble_nabla" : {"attr" : ("texture.nabla",)},
-            "Tex_type_musgrave_type" : {"attr" : ("texture.musgrave_type",)},
-            "Tex_type_musgrave_dimension_max" : {"attr" : ("texture.dimension_max",)},
-            "Tex_type_musgrave_lacunarity" : {"attr" : ("texture.lacunarity",)},
-            "Tex_type_musgrave_octaves" : {"attr" : ("texture.octaves",)},
-            "Tex_type_musgrave_noise_intensity" : {"attr" : ("texture.noise_intensity",)},
-            "Tex_type_musgrave_noise_basis" : {"attr" : ("texture.noise_basis",)},
-            "Tex_type_musgrave_noise_scale" : {"attr" : ("texture.noise_scale",)},
-            "Tex_type_musgrave_nabla" : {"attr" : ("texture.nabla",)},
-            "Tex_type_musgrave_offset" : {"attr" : ("texture.offset",)},
-            "Tex_type_musgrave_gain" : {"attr" : ("texture.gain",)},
-            "Tex_type_clouds_noise_scale" : {"attr" : ("texture.noise_scale",)},
-            "Tex_type_clouds_nabla" : {"attr" : ("texture.nabla",)},
-            "Tex_type_clouds_noise_depth" : {"attr" : ("texture.noise_depth",)},
-            "Tex_type_noise_distortion_distortion" : {"attr" : ("texture.distortion",)},
-            "Tex_type_noise_distortion_texture_distortion" : {}, # unused?
-            "Tex_type_noise_distortion_nabla" : {"attr" : ("texture.nabla",)},
-            "Tex_type_noise_distortion_noise_scale" : {"attr" : ("texture.noise_scale",)},
-            "Tex_type_noise_distortion_noise_distortion" : {"attr" : ("texture.noise_distortion",)},
-            "Tex_type_noise_distortion_basis" : {"attr" : ("texture.noise_basis",)},
-            "Tex_type_point_density_point_source" : {"attr" : ("texture.point_density.point_source",)},
-            "Tex_type_point_density_radius" : {"attr" : ("texture.point_density.radius",)},
-            "Tex_type_point_density_particule_cache_space" : {"attr" : ("texture.point_density.particle_cache_space",)},
-            "Tex_type_point_density_falloff" : {"attr" : ("texture.point_density.falloff",)},
-            "Tex_type_point_density_use_falloff_curve" : {"attr" : ("texture.point_density.use_falloff_curve",)},
-            "Tex_type_point_density_falloff_soft" : {"attr" : ("texture.point_density.falloff_soft",)},
-            "Tex_type_point_density_falloff_speed_scale" : {"attr" : ("texture.point_density.falloff_speed_scale",)},
-            "Tex_type_point_density_speed_scale" : {"attr" : ("texture.point_density.speed_scale",)},
-            "Tex_type_point_density_color_source" : {"attr" : ("texture.point_density.color_source",)},
-            "Tex_type_stucci_type" : {"attr" : ("texture.stucci_type",)},
-            "Tex_type_stucci_noise_type" : {"attr" : ("texture.noise_type",)},
-            "Tex_type_stucci_basis" : {"attr" : ("texture.noise_basis",)},
-            "Tex_type_stucci_noise_scale" : {"attr" : ("texture.noise_scale",)},
-            "Tex_type_stucci_turbulence" : {"attr" : ("texture.turbulence",)},
-            "Tex_type_voronoi_distance_metric" : {"attr" : ("texture.distance_metric",)},
-            "Tex_type_voronoi_minkovsky_exponent" : {"attr" : ("texture.minkovsky_exponent",)},
-            "Tex_type_voronoi_color_mode" : {"attr" : ("texture.color_mode",)},
-            "Tex_type_voronoi_noise_scale" : {"attr" : ("texture.noise_scale",)},
-            "Tex_type_voronoi_nabla" : {"attr" : ("texture.nabla",)},
-            "Tex_type_voronoi_weight_1" : {"attr" : ("texture.weight_1",)},
-            "Tex_type_voronoi_weight_2" : {"attr" : ("texture.weight_2",)},
-            "Tex_type_voronoi_weight_3" : {"attr" : ("texture.weight_3",)},
-            "Tex_type_voronoi_weight_4" : {"attr" : ("texture.weight_4",)},
-            "Tex_type_voronoi_intensity" : {"attr" : ("texture.noise_intensity",)},
-            "Tex_type_voxel_data_file_format" : {"attr" : ("texture.voxel_data.file_format",)},
-            "Tex_type_voxel_data_source_path" : {"attr" : ("texture.voxel_data.filepath",)},
-            "Tex_type_voxel_data_use_still_frame" : {"attr" : ("texture.voxel_data.use_still_frame",)},
-            "Tex_type_voxel_data_still_frame" : {"attr" : ("texture.voxel_data.still_frame",)},
-            "Tex_type_voxel_data_interpolation" : {"attr" : ("texture.voxel_data.interpolation",)},
-            "Tex_type_voxel_data_extension" : {"attr" : ("texture.voxel_data.extension",)},
-            "Tex_type_voxel_data_intensity" : {"attr" : ("texture.voxel_data.intensity",)},
-            "Tex_type_voxel_data_resolution_1" : {"attr" : ("texture.voxel_data.resolution", 0)},
-            "Tex_type_voxel_data_resolution_2" : {"attr" : ("texture.voxel_data.resolution", 1)},
-            "Tex_type_voxel_data_resoltion_3" : {"attr" : ("texture.voxel_data.resolution", 2)},
-            "Tex_type_voxel_data_smoke_data_type" : {"attr" : ("texture.voxel_data.smoke_data_type",)},
-            "Tex_type_wood_noise_basis_2" : {"attr" : ("texture.noise_basis_2",)},
-            "Tex_type_wood_wood_type" : {"attr" : ("texture.wood_type",)},
-            "Tex_type_wood_noise_type" : {"attr" : ("texture.noise_type",)},
-            "Tex_type_wood_basis" : {"attr" : ("texture.noise_basis",)},
-            "Tex_type_wood_noise_scale" : {"attr" : ("texture.noise_scale",)},
-            "Tex_type_wood_nabla" : {"attr" : ("texture.nabla",)},
-            "Tex_type_wood_turbulence" : {"attr" : ("texture.turbulence",)},
-            "Tex_influence_use_map_diffuse" : {"attr" : ("use_map_diffuse",)},
-            "Tex_influence_use_map_color_diffuse" : {"attr" : ("use_map_color_diffuse",)},
-            "Tex_influence_use_map_alpha" : {"attr" : ("use_map_alpha",)},
-            "Tex_influence_use_map_translucency" : {"attr" : ("use_map_translucency",)},
-            "Tex_influence_use_map_specular" : {"attr" : ("use_map_specular",)},
-            "Tex_influence_use_map_color_spec" : {"attr" : ("use_map_color_spec",)},
-            "Tex_influence_use_map_map_hardness" : {"attr" : ("use_map_hardness",)},
-            "Tex_influence_use_map_ambient" : {"attr" : ("use_map_ambient",)},
-            "Tex_influence_use_map_emit" : {"attr" : ("use_map_emit",)},
-            "Tex_influence_use_map_mirror" : {"attr" : ("use_map_mirror",)},
-            "Tex_influence_use_map_raymir" : {"attr" : ("use_map_raymir",)},
-            "Tex_influence_use_map_normal" : {"attr" : ("use_map_normal",)},
-            "Tex_influence_use_map_warp" : {"attr" : ("use_map_warp",)},
-            "Tex_influence_use_map_displacement" : {"attr" : ("use_map_displacement",)},
-            "Tex_influence_use_map_rgb_to_intensity" : {"attr" : ("use_rgb_to_intensity",)},
-            "Tex_influence_map_invert" : {"attr" : ("invert",)},
-            "Tex_influence_use_stencil" : {"attr" : ("use_stencil",)},
-            "Tex_influence_diffuse_factor" : {"attr" : ("diffuse_factor",)},
-            "Tex_influence_color_factor" : {"attr" : ("diffuse_color_factor",)},
-            "Tex_influence_alpha_factor" : {"attr" : ("alpha_factor",)},
-            "Tex_influence_translucency_factor" : {"attr" : ("translucency_factor",)},
-            "Tex_influence_specular_factor" : {"attr" : ("specular_factor",)},
-            "Tex_influence_specular_color_factor" : {"attr" : ("specular_color_factor",)},
-            "Tex_influence_hardness_factor" : {"attr" : ("hardness_factor",)},
-            "Tex_influence_ambiant_factor" : {"attr" : ("ambient_factor",)},
-            "Tex_influence_emit_factor" : {"attr" : ("emit_factor",)},
-            "Tex_influence_mirror_factor" : {"attr" : ("mirror_factor",)},
-            "Tex_influence_raymir_factor" : {"attr" : ("raymir_factor",)},
-            "Tex_influence_normal_factor" : {"attr" : ("normal_factor",)},
-            "Tex_influence_warp_factor" : {"attr" : ("warp_factor",)},
-            "Tex_influence_displacement_factor" : {"attr" : ("displacement_factor",)},
-            "Tex_influence_default_value" : {"attr" : ("default_value",)},
-            "Tex_influence_blend_type" : {"attr" : ("blend_type",)},
-            "Tex_influence_color_r" : {"attr" : ("color", 0)},
-            "Tex_influence_color_g" : {"attr" : ("color", 1)},
-            "Tex_influence_color_b" : {"attr" : ("color", 2)},
-            "Tex_influence_color_a" : {}, # unused?
-            "Tex_influence_bump_method" : {"attr" : ("bump_method",)},
-            "Tex_influence_objectspace" : {"attr" : ("bump_objectspace",)},
-            "Tex_mapping_texture_coords" : {"attr" : ("texture_coords",)},
-            "Tex_mapping_mapping" : {"attr" : ("mapping",)},
-            "Tex_mapping_use_from_dupli" : {}, # attr handled specially below
-            "Tex_mapping_mapping_x" : {"attr" : ("mapping_x",)},
-            "Tex_mapping_mapping_y" : {"attr" : ("mapping_y",)},
-            "Tex_mapping_mapping_z" : {"attr" : ("mapping_z",)},
-            "Tex_mapping_offset_x" : {"attr" : ("offset", 0)},
-            "Tex_mapping_offset_y" : {"attr" : ("offset", 1)},
-            "Tex_mapping_offset_z" : {"attr" : ("offset", 2)},
-            "Tex_mapping_scale_x" : {"attr" : ("scale", 0)},
-            "Tex_mapping_scale_y" : {"attr" : ("scale", 1)},
-            "Tex_mapping_scale_z" : {"attr" : ("scale", 2)},
-            "Tex_mapping_use_from_original" : {}, # attr handled specially below
-            "Tex_colors_use_color_ramp" : {}, # unused?
-            "Tex_colors_factor_r" : {"attr" : ("texture.factor_red",)},
-            "Tex_colors_factor_g" : {"attr" : ("texture.factor_green",)},
-            "Tex_colors_factor_b" : {"attr" : ("texture.factor_blue",)},
-            "Tex_colors_intensity" : {"attr" : ("texture.intensity",)},
-            "Tex_colors_contrast" : {"attr" : ("texture.contrast",)},
-            "Tex_colors_saturation" : {"attr" : ("texture.saturation",)},
-            "Mat_Idx" : {},
-            "Poi_Idx" : {},
-            "Col_Idx" : {},
-        }
-    for \
-        field \
-    in \
-        (
-            "Tex_use_preview_alpha",
-            "Tex_type_point_density_use_falloff_curve",
-            "Tex_type_voxel_data_use_still_frame",
-            "Tex_influence_use_map_diffuse",
-            "Tex_influence_use_map_color_diffuse",
-            "Tex_influence_use_map_alpha",
-            "Tex_influence_use_map_translucency",
-            "Tex_influence_use_map_specular",
-            "Tex_influence_use_map_color_spec",
-            "Tex_influence_use_map_map_hardness",
-            "Tex_influence_use_map_ambient",
-            "Tex_influence_use_map_emit",
-            "Tex_influence_use_map_mirror",
-            "Tex_influence_use_map_raymir",
-            "Tex_influence_use_map_normal",
-            "Tex_influence_use_map_warp",
-            "Tex_influence_use_map_displacement",
-            "Tex_influence_use_map_rgb_to_intensity",
-            "Tex_influence_map_invert",
-            "Tex_influence_use_stencil",
-            "Tex_mapping_use_from_dupli",
-            "Tex_colors_use_color_ramp",
-            "Tex_mapping_use_from_original",
-        ) \
-    :
-        texture_fields[field]["convert"] = tobool
-    #end for
-    for \
-        tex_type, tex_name \
-    in \
-        ( # luckily type-specific fields are named in a systematic way
-            ("ENVIRONMENT_MAP", "env_map"),
-            ("MAGIC", "magic"),
-            ("MARBLE", "marble"),
-            ("MUSGRAVE", "musgrave"),
-            ("DISTORTED_NOISE", "noise_distortion"),
-            ("STUCCI", "stucci"),
-            ("VORONOI", "voronoi"),
-            ("VOXEL_DATA", "voxel_data"),
-            ("WOOD", "wood"),
-            ("BLEND", "blend"),
-            ("POINT_DENSITY", "point_density"),
-            # IMAGE handled specially below
-            ("CLOUDS", "clouds"),
-        ) \
-    :
-        for field in texture_fields :
-            if field.startswith("Tex_type_" + tex_name + "_") :
-                texture_fields[field]["type"] = tex_type
-            #end for
-        #end for
-    #end for
-
-    color_ramp_fields = \
-        {
-            "Col_Index" : {},
-            "Col_Num_Material" : {},
-            "Col_Num_Texture" : {},
-            "Col_Flip" : {},
-            "Col_Active_color_stop" : {},
-            "Col_Between_color_stop" : {},
-            "Col_Interpolation" : {},
-            "Col_Position" : {},
-            "Col_Color_stop_one_r" : {},
-            "Col_Color_stop_one_g" : {},
-            "Col_Color_stop_one_b" : {},
-            "Col_Color_stop_one_a" : {},
-            "Col_Color_stop_two_r" : {},
-            "Col_Color_stop_two_g" : {},
-            "Col_Color_stop_two_b" : {},
-            "Col_Color_stop_two_a" : {},
-            # also in database schema, but not used:
-            # "Col_Ramp_input",
-            # "Col_Ramp_blend",
-            # "Col_Ramp_factor",
-        }
-    for \
-        field \
-    in \
-        (
-            "Col_Flip",
-        ) \
-    :
-        color_ramp_fields[field]["convert"] = tobool
-    #end for
-
-    pointdensity_ramp_fields = \
-        {
-            "Poi_Index" : {},
-            "Poi_Num_Material" : {},
-            "Poi_Num_Texture" : {},
-            "Poi_Flip" : {},
-            "Poi_Active_color_stop" : {},
-            "Poi_Between_color_stop" : {},
-            "Poi_Interpolation" : {},
-            "Poi_Position" : {},
-            "Poi_Color_stop_one_r" : {},
-            "Poi_Color_stop_one_g" : {},
-            "Poi_Color_stop_one_b" : {},
-            "Poi_Color_stop_one_a" : {},
-            "Poi_Color_stop_two_r" : {},
-            "Poi_Color_stop_two_g" : {},
-            "Poi_Color_stop_two_b" : {},
-            "Poi_Color_stop_two_a" : {},
-            # also in database schema, but not used:
-            # "Poi_Ramp_input",
-            # "Poi_Ramp_blend",
-            # "Poi_Ramp_factor",
-        }
-    for \
-        field \
-    in \
-        (
-            "Poi_Flip",
-        ) \
-    :
-        pointdensity_ramp_fields[field]["convert"] = tobool
-    #end for
-
-    diffuse_ramp_fields = \
-        {
-            "Dif_Index" : {},
-            "Dif_Num_material" : {},
-            "Dif_Flip" : {},
-            "Dif_Active_color_stop" : {},
-            "Dif_Between_color_stop" : {},
-            "Dif_Interpolation" : {},
-            "Dif_Position" : {},
-            "Dif_Color_stop_one_r" : {},
-            "Dif_Color_stop_one_g" : {},
-            "Dif_Color_stop_one_b" : {},
-            "Dif_Color_stop_one_a" : {},
-            "Dif_Color_stop_two_r" : {},
-            "Dif_Color_stop_two_g" : {},
-            "Dif_Color_stop_two_b" : {},
-            "Dif_Color_stop_two_a" : {},
-            "Dif_Ramp_input" : {},
-            "Dif_Ramp_blend" : {},
-            "Dif_Ramp_factor" : {},
-        }
-    for \
-        field \
-    in \
-        (
-            "Dif_Flip",
-        ) \
-    :
-        diffuse_ramp_fields[field]["convert"] = tobool
-    #end for
-
-    specular_ramp_fields = \
-        {
-            "Spe_Index" : {},
-            "Spe_Num_Material" : {},
-            "Spe_Flip" : {},
-            "Spe_Active_color_stop" : {},
-            "Spe_Between_color_stop" : {},
-            "Spe_Interpolation" : {},
-            "Spe_Position" : {},
-            "Spe_Color_stop_one_r" : {},
-            "Spe_Color_stop_one_g" : {},
-            "Spe_Color_stop_one_b" : {},
-            "Spe_Color_stop_one_a" : {},
-            "Spe_Color_stop_two_r" : {},
-            "Spe_Color_stop_two_g" : {},
-            "Spe_Color_stop_two_b" : {},
-            "Spe_Color_stop_two_a" : {},
-            "Spe_Ramp_input" : {},
-            "Spe_Ramp_blend" : {},
-            "Spe_Ramp_factor" : {},
-        }
-    for \
-        field \
-    in \
-        (
-            "Spe_Flip",
-        ) \
-    :
-        specular_ramp_fields[field]["convert"] = tobool
-    #end for
 
     ShaderToolsDatabase = sqlite3.connect(DataBasePath)
 
