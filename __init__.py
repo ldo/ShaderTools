@@ -2414,7 +2414,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
     ShadersToolsDatabase.commit()
 
     #I close base
-    Connexion.close()
+    ShadersToolsDatabase.close()
 
     #************************** MY TEXTURES *****************************
     #Textures values :
@@ -2630,7 +2630,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                 ShadersToolsDatabase.commit()
 
                 #I close base
-                Connexion.close()
+                ShadersToolsDatabase.close()
 
                 Tex_ima_filepath = Tex_ima_filepath.replace("'", "")
 
@@ -3192,7 +3192,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
             ShadersToolsDatabase.commit()
 
             #I close base
-            Connexion.close()
+            ShadersToolsDatabase.close()
 
             #************************** MY TEXTURES RAMPS *****************************
 
@@ -3360,7 +3360,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                     ShadersToolsDatabase.commit()
 
                     #I close base
-                    Connexion.close()
+                    ShadersToolsDatabase.close()
 
                     counter = counter + 1
 
@@ -3531,7 +3531,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
                     ShadersToolsDatabase.commit()
 
                     #I close base
-                    Connexion.close()
+                    ShadersToolsDatabase.close()
                     counter = counter + 1
 
     #************************** MY RAMPS *****************************
@@ -3711,7 +3711,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
             ShadersToolsDatabase.commit()
 
             #I close base
-            Connexion.close()
+            ShadersToolsDatabase.close()
             counter = counter + 1
 
     # ***************************************************************************************************************************
@@ -3890,7 +3890,7 @@ def PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name):
             ShadersToolsDatabase.commit()
 
             #I close base
-            Connexion.close()
+            ShadersToolsDatabase.close()
             counter = counter + 1
 
 # ************************************************************************************
@@ -3977,7 +3977,7 @@ def GetKeysDatabase():
         MY_KEYS.append(value["Ima_Index"]+1)
 
     #I close base
-    Connexion.close()
+    ShadersToolsDatabase.close()
 
     return MY_KEYS
 
@@ -4061,7 +4061,7 @@ def UpdateDatabase(Inf_Creator, Inf_Category, Inf_Description, Inf_Weblink, Inf_
 
     #Here I save all shaders/textures/materials parameters :
     PrepareSqlUpdateSaveRequest(MyPrimaryKeys, Mat_Name)
-    Connexion.close()
+    ShadersToolsDatabase.close()
     return {'FINISHED'}
 
 # ************************************************************************************
