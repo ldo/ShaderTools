@@ -273,7 +273,11 @@ def SQLIter(Conn, Cmd, MapFn = lambda x : x) :
 def SQLString(s) :
     """returns an sqlite string literal that evalutes to s."""
     if s != None :
-        q = "'" + str(s).replace("'", "''") + "'"
+        if type(s) == bytes :
+            q = "X'" + "".join("%02X" % b for b in s) + "'"
+        else :
+            q = "'" + str(s).replace("'", "''") + "'"
+        #end if
     else :
         q = "null"
     #end if
@@ -2057,16 +2061,13 @@ def Raw_Image_Name(Image_Path):
 # ************************************************************************************
 # *                                   PREPARE SQL REQUEST                            *
 # ************************************************************************************
-def PrepareSqlUpdateSaveRequest(Mat_Name):
+def PrepareSqlUpdateSaveRequest(ShaderToolsDatabase, Cursor, Mat_Name):
     print()
     print("                                        *****                         ")
     print()
     print("*******************************************************************************")
     print("*                                   SAVE MATERIAL                             *")
     print("*******************************************************************************")
-
-    ShaderToolsDatabase = sqlite3.connect(DataBasePath)
-    Cursor = ShaderToolsDatabase.cursor()
 
     obj = bpy.context.object
     SSS_Mat_Name = Mat_Name
@@ -2353,97 +2354,9 @@ def PrepareSqlUpdateSaveRequest(Mat_Name):
         #end for
     #end if
 
-    ShaderToolsDatabase.commit()
-    ShaderToolsDatabase.close()
+    # ShaderToolsDatabase.commit() # leave to caller to do
+    return Mat_Index
 #end PrepareSqlUpdateSaveRequest
-
-# ************************************************************************************
-# *                                     GET PRIMARY KEY                              *
-# ************************************************************************************
-def GetKeysDatabase():
-    #My keys table :
-    MY_KEYS = []
-
-    #Here i connect database :
-    ShadersToolsDatabase = sqlite3.connect(DataBasePath)
-    ShadersToolsDatabase.row_factory = sqlite3.Row
-    Connexion = ShadersToolsDatabase.cursor()
-
-    #INFORMATIONS SQLITE Primary Key :
-    Connexion.execute("SELECT Inf_Index FROM INFORMATIONS WHERE Inf_Index = (select max(Inf_Index) from INFORMATIONS)")
-    ShadersToolsDatabase.commit()
-
-    for value in Connexion:
-        MY_KEYS.append(value["Inf_Index"]+1)
-
-    #MATERIALS SQLITE Primary Key :
-    Connexion.execute("SELECT Mat_Index FROM MATERIALS WHERE Mat_Index = (select max(Mat_Index) from MATERIALS)")
-    ShadersToolsDatabase.commit()
-
-    for value in Connexion:
-        MY_KEYS.append(value["Mat_Index"]+1)
-
-
-    #TEXTURES SQLITE Primary Key :
-    Connexion.execute("SELECT Tex_Index FROM TEXTURES WHERE Tex_Index = (select max(Tex_Index) from TEXTURES)")
-    ShadersToolsDatabase.commit()
-
-    for value in Connexion:
-        MY_KEYS.append(value["Tex_Index"]+1)
-
-    #ABOUT SQLITE Primary Key :
-    Connexion.execute("SELECT Abo_Index FROM ABOUT WHERE Abo_Index = (select max(Abo_Index) from ABOUT)")
-    ShadersToolsDatabase.commit()
-
-    for value in Connexion:
-        MY_KEYS.append(value["Abo_Index"]+1)
-
-    #COLORS_RAMP SQLITE Primary Key :
-    Connexion.execute("SELECT Col_Index FROM COLORS_RAMP WHERE Col_Index = (select max(Col_Index) from COLORS_RAMP)")
-    ShadersToolsDatabase.commit()
-
-    for value in Connexion:
-        MY_KEYS.append(value["Col_Index"]+1)
-
-    #DIFFUSE_RAMP SQLITE Primary Key :
-    Connexion.execute("SELECT Dif_Index FROM DIFFUSE_RAMP WHERE Dif_Index = (select max(Dif_Index) from DIFFUSE_RAMP)")
-    ShadersToolsDatabase.commit()
-
-    for value in Connexion:
-        MY_KEYS.append(value["Dif_Index"]+1)
-
-    #POINTDENSITY_RAMP SQLITE Primary Key :
-    Connexion.execute("SELECT Poi_Index FROM POINTDENSITY_RAMP WHERE Poi_Index = (select max(Poi_Index) from POINTDENSITY_RAMP)")
-    ShadersToolsDatabase.commit()
-
-    for value in Connexion:
-        MY_KEYS.append(value["Poi_Index"]+1)
-
-    #SPECULAR_RAMP SQLITE Primary Key :
-    Connexion.execute("SELECT Spe_Index FROM SPECULAR_RAMP WHERE Spe_Index = (select max(Spe_Index) from SPECULAR_RAMP)")
-    ShadersToolsDatabase.commit()
-
-    for value in Connexion:
-        MY_KEYS.append(value["Spe_Index"]+1)
-
-    #RENDER SQLITE Primary Key :
-    Connexion.execute("SELECT Ren_Index FROM RENDER WHERE Ren_Index = (select max(Ren_Index) from RENDER)")
-    ShadersToolsDatabase.commit()
-
-    for value in Connexion:
-        MY_KEYS.append(value["Ren_Index"]+1)
-
-    #IMAGE_UV SQLITE Primary Key :
-    Connexion.execute("SELECT Ima_Index FROM IMAGE_UV WHERE Ima_Index = (select max(Ima_Index) from IMAGE_UV)")
-    ShadersToolsDatabase.commit()
-
-    for value in Connexion:
-        MY_KEYS.append(value["Ima_Index"]+1)
-
-    #I close base
-    ShadersToolsDatabase.close()
-
-    return MY_KEYS
 
 # ************************************************************************************
 # *                                TAKE OBJECT PREVIEW RENDER                        *
@@ -2493,7 +2406,7 @@ def TakePreviewRender(Inf_Creator, Mat_Name):
     PreviewFileImage.close()
 
     #Remove Preview File:
-    os.remove( os.path.join(AppPath, Mat_Name + "_" + Inf_Creator + "_preview.jpg"))
+    os.remove(os.path.join(AppPath, Mat_Name + "_" + Inf_Creator + "_preview.jpg"))
 
     return PreviewFileImageInMemory
 
@@ -2501,30 +2414,38 @@ def TakePreviewRender(Inf_Creator, Mat_Name):
 # *                                     UPDATE DATABASE                              *
 # ************************************************************************************
 def UpdateDatabase(Inf_Creator, Inf_Category, Inf_Description, Inf_Weblink, Inf_Email, Mat_Name):
-    #Here i connect database :
-    ShadersToolsDatabase = sqlite3.connect(DataBasePath)
-    ShadersToolsDatabase.row_factory = sqlite3.Row
-    Connexion = ShadersToolsDatabase.cursor()
-
-    #Here I must get primary keys from Database :
-    MyPrimaryKeys = GetKeysDatabase()
-
-    #I begin to insert informations NameCreator, Category ... :
-    Connexion.execute("INSERT INTO INFORMATIONS VALUES (?, ?, ?, ?, ?, ?, ?)", (MyPrimaryKeys[0], Inf_Creator, Inf_Category, Inf_Description, Inf_Weblink, Inf_Email, MyPrimaryKeys[1]))
-
-    #I insert Render Preview in the base :
-    value = 0
-    if bpy.context.scene.render.use_color_management :
-        value = 1
-
-    PreviewImage = TakePreviewRender(Inf_Creator, Mat_Name)
-
-    Connexion.execute("INSERT INTO RENDER VALUES (?, ?, ?, ?)", (MyPrimaryKeys[8], value, PreviewImage, MyPrimaryKeys[0]))
-    ShadersToolsDatabase.commit()
-    ShadersToolsDatabase.close()
-    #Here I save all shaders/textures/materials parameters :
-    PrepareSqlUpdateSaveRequest(Mat_Name)
+    ShaderToolsDatabase = sqlite3.connect(DataBasePath)
+    Cursor = ShaderToolsDatabase.cursor()
+    Mat_Index = PrepareSqlUpdateSaveRequest(ShaderToolsDatabase, Cursor, Mat_Name)
+    InsertRecord \
+      (
+        Cursor = Cursor,
+        TableName = "INFORMATIONS",
+        Fields =
+            {
+                "Inf_Creator" : Inf_Creator,
+                "Inf_Category" : Inf_Category,
+                "Inf_Description" : Inf_Description,
+                "Inf_Weblink" : Inf_Weblink,
+                "Inf_Email" : Inf_Email,
+                "Mat_Index" : Mat_Index,
+            }
+      )
+    InsertRecord \
+      (
+        Cursor = Cursor,
+        TableName = "RENDER",
+        Fields =
+            {
+                "Ren_Color_Management" : int(bpy.context.scene.render.use_color_management),
+                "Ren_Preview_Object" : TakePreviewRender(Inf_Creator, Mat_Name),
+                "Mat_Index" : Mat_Index,
+            }
+      )
+    ShaderToolsDatabase.commit()
+    ShaderToolsDatabase.close()
     return {'FINISHED'}
+#end UpdateDatabase
 
 # ************************************************************************************
 # *                                     SEARCH SHADERS                               *
