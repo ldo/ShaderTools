@@ -996,7 +996,7 @@ def ImporterSQL(SearchName):
 
     # Create Material :
     bpy.ops.object.material_slot_add()
-    obj.material_slots[obj.material_slots.__len__() - 1].material = SetupObject \
+    obj.material_slots[-1].material = SetupObject \
       (
         bpy.data.materials.new(Mat_Name),
         Material,
@@ -1466,7 +1466,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                               '\treturn mat\n',
                               '\n',
                               'bpy.ops.object.material_slot_add()\n',
-                              'obj.material_slots[obj.material_slots.__len__() - 1].material = CreateMaterial("MAT_EXP_' +  Mat_Name + '")\n\n\n']
+                              'obj.material_slots[-1].material = CreateMaterial("MAT_EXP_' +  Mat_Name + '")\n\n\n']
 
     #I treat textures :
     textureName = False
