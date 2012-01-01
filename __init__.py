@@ -1068,7 +1068,7 @@ def ImporterSQL(SearchName):
                                 c = 1
 
                             else:
-                                adresse = os.path.join(OutPath, ThisImage["Ima_Name"] + "." +  ThisImage["Ima_Fileformat"])
+                                adresse = os.path.join(OutPath, ThisImage["Ima_Name"] + "." + ThisImage["Ima_Fileformat"])
                             #end if
                         #end if
                     #end for
@@ -1154,7 +1154,7 @@ def ImporterSQL(SearchName):
                             ramp.point_density.color_ramp.elements[0].position = RAMP_MIN_POSITION
                             ramp.point_density.color_ramp.elements[counter].position = RAMP_MAX_POSITION
                         #end if
-                        ramp.point_density.color_ramp.interpolation  = values["Poi_Interpolation"]
+                        ramp.point_density.color_ramp.interpolation = values["Poi_Interpolation"]
                         ramp.point_density.color_ramp.elements[counter].color[0] = values["Poi_Color_stop_one_r"]
                         ramp.point_density.color_ramp.elements[counter].color[1] = values["Poi_Color_stop_one_g"]
                         ramp.point_density.color_ramp.elements[counter].color[2] = values["Poi_Color_stop_one_b"]
@@ -1302,7 +1302,7 @@ def ImporterSQL(SearchName):
             ramp.specular_ramp_blend = values["Spe_Ramp_blend"]
             ramp.specular_ramp_input = values["Spe_Ramp_input"]
             ramp.specular_ramp_factor = values["Spe_Ramp_factor"]
-            ramp.specular_ramp.interpolation  = values["Spe_Interpolation"]
+            ramp.specular_ramp.interpolation = values["Spe_Interpolation"]
             ramp.specular_ramp.elements[counter].color[0] = values["Spe_Color_stop_one_r"]
             ramp.specular_ramp.elements[counter].color[1] = values["Spe_Color_stop_one_g"]
             ramp.specular_ramp.elements[counter].color[2] = values["Spe_Color_stop_one_b"]
@@ -1339,136 +1339,139 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
             os.remove(os.path.join(ZipPath, f))
 
     #I create a list before export material/textures configuration :
-    MY_EXPORT_INFORMATIONS = ['# ****************************************************************',
-                              '# Material name : ' + Mat_Name,
-                              '# Created by ' + Inf_Creator,
-                              '#           With Blender3D and BlenderShadersTools Add-on',
-                              '# ****************************************************************',
-                              '',
-                              '# Imports :',
-                              'import bpy',
-                              'import os',
-                              '',
-                              '# Context :',
-                              'obj = bpy.context.object',
-                              'tex = bpy.context.active_object.active_material',
-                              '',
-                              '# Script Path :',
-                              'Mat_Name = "' + Mat_Name + '"',
-                              'Inf_Creator = "' + Inf_Creator + '"',
-                              '!*- environnement path -*!',
-                              '',
-                              'test = Mat_Name + "_" + Inf_Creator + ".py"',
-                              'scriptPath = scriptPath.replace(test, "")',
-                              '',
-                              '# Create Material :',
-                              'def CreateMaterial(Mat_Name):',
-                              '\t# Materials Values :',
-                              '\tmat = bpy.data.materials.new(Mat_Name)',
-                              '\tmat.diffuse_color[0] = ' + str(obj.active_material.diffuse_color[0]),
-                              '\tmat.diffuse_color[1] = ' + str(obj.active_material.diffuse_color[1]),
-                              '\tmat.diffuse_color[2] = ' + str(obj.active_material.diffuse_color[2]),
-                              '\tmat.diffuse_shader = "' + str(obj.active_material.diffuse_shader) + '"',
-                              '\tmat.diffuse_intensity = ' + str(obj.active_material.diffuse_intensity),
-                              '\tmat.roughness = ' + str(obj.active_material.roughness),
-                              '\tmat.diffuse_toon_size = ' + str(obj.active_material.diffuse_toon_size),
-                              '\tmat.diffuse_toon_smooth = ' + str(obj.active_material.diffuse_toon_smooth),
-                              '\tmat.darkness  = ' + str(obj.active_material.darkness),
-                              '\tmat.diffuse_fresnel = ' + str(obj.active_material.diffuse_fresnel),
-                              '\tmat.diffuse_fresnel_factor  = ' + str(obj.active_material.diffuse_fresnel_factor),
-                              '\tmat.specular_shader  = "' + str(obj.active_material.specular_shader) + '"',
-                              '\tmat.specular_color[0] = ' + str(obj.active_material.specular_color[0]),
-                              '\tmat.specular_color[1] = ' + str(obj.active_material.specular_color[1]),
-                              '\tmat.specular_color[2] = ' + str(obj.active_material.specular_color[2]),
-                              '\tmat.specular_intensity = ' + str(obj.active_material.specular_intensity),
-                              '\tmat.specular_hardness = ' + str(obj.active_material.specular_hardness),
-                              '\tmat.specular_ior = ' + str(obj.active_material.specular_ior),
-                              '\tmat.specular_toon_size = ' + str(obj.active_material.specular_toon_size),
-                              '\tmat.specular_toon_smooth = ' + str(obj.active_material.specular_toon_smooth),
-                              '\tmat.emit = ' + str(obj.active_material.emit),
-                              '\tmat.ambient  = ' + str(obj.active_material.ambient),
-                              '\tmat.translucency = ' + str(obj.active_material.translucency),
-                              '\tmat.use_shadeless = ' + str(obj.active_material.use_shadeless),
-                              '\tmat.use_tangent_shading = ' + str(obj.active_material.use_tangent_shading),
-                              '\tmat.use_transparency = ' + str(obj.active_material.use_transparency),
-                              '\tmat.transparency_method = "' + str(obj.active_material.transparency_method) + '"',
-                              '\tmat.alpha = ' + str(obj.active_material.alpha),
-                              '\tmat.raytrace_transparency.fresnel = ' + str(obj.active_material.raytrace_transparency.fresnel),
-                              '\tmat.specular_alpha = ' + str(obj.active_material.specular_alpha),
-                              '\tmat.raytrace_transparency.fresnel_factor = ' + str(obj.active_material.raytrace_transparency.fresnel_factor),
-                              '\tmat.raytrace_transparency.ior = ' + str(obj.active_material.raytrace_transparency.ior),
-                              '\tmat.raytrace_transparency.filter = ' + str(obj.active_material.raytrace_transparency.filter),
-                              '\tmat.raytrace_transparency.falloff = ' + str(obj.active_material.raytrace_transparency.falloff),
-                              '\tmat.raytrace_transparency.depth_max = ' + str(obj.active_material.raytrace_transparency.depth_max),
-                              '\tmat.raytrace_transparency.depth = ' + str(obj.active_material.raytrace_transparency.depth),
-                              '\tmat.raytrace_transparency.gloss_factor = ' + str(obj.active_material.raytrace_transparency.gloss_factor),
-                              '\tmat.raytrace_transparency.gloss_threshold = ' + str(obj.active_material.raytrace_transparency.gloss_threshold),
-                              '\tmat.raytrace_transparency.gloss_samples = ' + str(obj.active_material.raytrace_transparency.gloss_samples),
-                              '\tmat.raytrace_mirror.use = ' + str(obj.active_material.raytrace_mirror.use),
-                              '\tmat.raytrace_mirror.reflect_factor = ' + str(obj.active_material.raytrace_mirror.reflect_factor),
-                              '\tmat.raytrace_mirror.fresnel = ' + str(obj.active_material.raytrace_mirror.fresnel),
-                              '\tmat.mirror_color[0] = ' + str(obj.active_material.mirror_color[0]),
-                              '\tmat.mirror_color[1] = ' + str(obj.active_material.mirror_color[1]),
-                              '\tmat.mirror_color[2] = ' + str(obj.active_material.mirror_color[2]),
-                              '\tmat.raytrace_mirror.fresnel_factor = ' + str(obj.active_material.raytrace_mirror.fresnel_factor),
-                              '\tmat.raytrace_mirror.depth = ' + str(obj.active_material.raytrace_mirror.depth),
-                              '\tmat.raytrace_mirror.distance = ' + str(obj.active_material.raytrace_mirror.distance),
-                              '\tmat.raytrace_mirror.fade_to = "' + str(obj.active_material.raytrace_mirror.fade_to) + '"',
-                              '\tmat.raytrace_mirror.gloss_factor = ' + str(obj.active_material.raytrace_mirror.gloss_factor),
-                              '\tmat.raytrace_mirror.gloss_threshold = ' + str(obj.active_material.raytrace_mirror.gloss_threshold),
-                              '\tmat.raytrace_mirror.gloss_samples = ' + str(obj.active_material.raytrace_mirror.gloss_samples),
-                              '\tmat.raytrace_mirror.gloss_anisotropic = ' + str(obj.active_material.raytrace_mirror.gloss_anisotropic),
-                              '\tmat.subsurface_scattering.use  = ' + str(obj.active_material.subsurface_scattering.use ),
-                              '\tmat.subsurface_scattering.ior = ' + str(obj.active_material.subsurface_scattering.ior),
-                              '\tmat.subsurface_scattering.scale = ' + str(obj.active_material.subsurface_scattering.scale),
-                              '\tmat.subsurface_scattering.color[0] = ' + str(obj.active_material.subsurface_scattering.color[0]),
-                              '\tmat.subsurface_scattering.color[1] = ' + str(obj.active_material.subsurface_scattering.color[1]),
-                              '\tmat.subsurface_scattering.color[2] = ' + str(obj.active_material.subsurface_scattering.color[2]),
-                              '\tmat.subsurface_scattering.color_factor = ' + str(obj.active_material.subsurface_scattering.color_factor),
-                              '\tmat.subsurface_scattering.texture_factor = ' + str(obj.active_material.subsurface_scattering.texture_factor),
-                              '\tmat.subsurface_scattering.radius[0] = ' + str(obj.active_material.subsurface_scattering.radius[0]),
-                              '\tmat.subsurface_scattering.radius[1] = ' + str(obj.active_material.subsurface_scattering.radius[1]),
-                              '\tmat.subsurface_scattering.radius[2] = ' + str(obj.active_material.subsurface_scattering.radius[2]),
-                              '\tmat.subsurface_scattering.front = ' + str(obj.active_material.subsurface_scattering.front),
-                              '\tmat.subsurface_scattering.back = ' + str(obj.active_material.subsurface_scattering.back),
-                              '\tmat.subsurface_scattering.error_threshold = ' + str(obj.active_material.subsurface_scattering.error_threshold),
-                              '\tmat.strand.root_size = ' + str(obj.active_material.strand.root_size),
-                              '\tmat.strand.tip_size = ' + str(obj.active_material.strand.tip_size),
-                              '\tmat.strand.size_min = ' + str(obj.active_material.strand.size_min),
-                              '\tmat.strand.use_blender_units = ' + str(obj.active_material.strand.use_blender_units),
-                              '\tmat.strand.use_tangent_shading = ' + str(obj.active_material.strand.use_tangent_shading),
-                              '\tmat.strand.shape = ' + str(obj.active_material.strand.shape),
-                              '\tmat.strand.width_fade = ' + str(obj.active_material.strand.width_fade),
-                              '\tmat.strand.blend_distance = ' + str(obj.active_material.strand.blend_distance),
-                              '\tmat.use_raytrace = ' + str(obj.active_material.use_raytrace),
-                              '\tmat.use_full_oversampling = ' + str(obj.active_material.use_full_oversampling),
-                              '\tmat.use_sky = ' + str(obj.active_material.use_sky),
-                              '\tmat.use_mist = ' + str(obj.active_material.use_mist),
-                              '\tmat.invert_z = ' + str(obj.active_material.invert_z),
-                              '\tmat.offset_z = ' + str(obj.active_material.offset_z),
-                              '\tmat.use_face_texture = ' + str(obj.active_material.use_face_texture),
-                              '\tmat.use_face_texture_alpha = ' + str(obj.active_material.use_face_texture_alpha),
-                              '\tmat.use_vertex_color_paint = ' + str(obj.active_material.use_vertex_color_paint),
-                              '\tmat.use_vertex_color_light = ' + str(obj.active_material.use_vertex_color_light),
-                              '\tmat.use_object_color = ' + str(obj.active_material.use_object_color),
-                              '\tmat.pass_index = ' + str(obj.active_material.pass_index),
-                              '\tmat.use_shadows = ' + str(obj.active_material.use_shadows),
-                              '\tmat.use_transparent_shadows = ' + str(obj.active_material.use_transparent_shadows),
-                              '\tmat.use_cast_shadows_only = ' + str(obj.active_material.use_cast_shadows_only),
-                              '\tmat.shadow_cast_alpha = ' + str(obj.active_material.shadow_cast_alpha),
-                              '\tmat.use_only_shadow = ' + str(obj.active_material.use_only_shadow),
-                              '\tmat.shadow_only_type = "' + str(obj.active_material.shadow_only_type) + '"',
-                              '\tmat.use_cast_buffer_shadows = ' + str(obj.active_material.use_cast_buffer_shadows),
-                              '\tmat.shadow_buffer_bias = ' + str(obj.active_material.shadow_buffer_bias),
-                              '\tmat.use_ray_shadow_bias = ' + str(obj.active_material.use_ray_shadow_bias),
-                              '\tmat.shadow_ray_bias = ' + str(obj.active_material.shadow_ray_bias),
-                              '\tmat.use_cast_approximate = ' + str(obj.active_material.use_cast_approximate),
-                              '\treturn mat',
-                              '',
-                              'bpy.ops.object.material_slot_add()',
-                              'obj.material_slots[-1].material = CreateMaterial("MAT_EXP_' +  Mat_Name + '")',
-                              '',
-                              '']
+    MY_EXPORT_INFORMATIONS = \
+        [
+            '# ****************************************************************',
+            '# Material name : ' + Mat_Name,
+            '# Created by ' + Inf_Creator,
+            '#           With Blender3D and BlenderShadersTools Add-on',
+            '# ****************************************************************',
+            '',
+            '# Imports :',
+            'import bpy',
+            'import os',
+            '',
+            '# Context :',
+            'obj = bpy.context.object',
+            'tex = bpy.context.active_object.active_material',
+            '',
+            '# Script Path :',
+            'Mat_Name = "' + Mat_Name + '"',
+            'Inf_Creator = "' + Inf_Creator + '"',
+            '!*- environnement path -*!',
+            '',
+            'test = Mat_Name + "_" + Inf_Creator + ".py"',
+            'scriptPath = scriptPath.replace(test, "")',
+            '',
+            '# Create Material :',
+            'def CreateMaterial(Mat_Name):',
+            '\t# Materials Values :',
+            '\tmat = bpy.data.materials.new(Mat_Name)',
+            '\tmat.diffuse_color[0] = ' + str(obj.active_material.diffuse_color[0]),
+            '\tmat.diffuse_color[1] = ' + str(obj.active_material.diffuse_color[1]),
+            '\tmat.diffuse_color[2] = ' + str(obj.active_material.diffuse_color[2]),
+            '\tmat.diffuse_shader = "' + str(obj.active_material.diffuse_shader) + '"',
+            '\tmat.diffuse_intensity = ' + str(obj.active_material.diffuse_intensity),
+            '\tmat.roughness = ' + str(obj.active_material.roughness),
+            '\tmat.diffuse_toon_size = ' + str(obj.active_material.diffuse_toon_size),
+            '\tmat.diffuse_toon_smooth = ' + str(obj.active_material.diffuse_toon_smooth),
+            '\tmat.darkness = ' + str(obj.active_material.darkness),
+            '\tmat.diffuse_fresnel = ' + str(obj.active_material.diffuse_fresnel),
+            '\tmat.diffuse_fresnel_factor = ' + str(obj.active_material.diffuse_fresnel_factor),
+            '\tmat.specular_shader = "' + str(obj.active_material.specular_shader) + '"',
+            '\tmat.specular_color[0] = ' + str(obj.active_material.specular_color[0]),
+            '\tmat.specular_color[1] = ' + str(obj.active_material.specular_color[1]),
+            '\tmat.specular_color[2] = ' + str(obj.active_material.specular_color[2]),
+            '\tmat.specular_intensity = ' + str(obj.active_material.specular_intensity),
+            '\tmat.specular_hardness = ' + str(obj.active_material.specular_hardness),
+            '\tmat.specular_ior = ' + str(obj.active_material.specular_ior),
+            '\tmat.specular_toon_size = ' + str(obj.active_material.specular_toon_size),
+            '\tmat.specular_toon_smooth = ' + str(obj.active_material.specular_toon_smooth),
+            '\tmat.emit = ' + str(obj.active_material.emit),
+            '\tmat.ambient = ' + str(obj.active_material.ambient),
+            '\tmat.translucency = ' + str(obj.active_material.translucency),
+            '\tmat.use_shadeless = ' + str(obj.active_material.use_shadeless),
+            '\tmat.use_tangent_shading = ' + str(obj.active_material.use_tangent_shading),
+            '\tmat.use_transparency = ' + str(obj.active_material.use_transparency),
+            '\tmat.transparency_method = "' + str(obj.active_material.transparency_method) + '"',
+            '\tmat.alpha = ' + str(obj.active_material.alpha),
+            '\tmat.raytrace_transparency.fresnel = ' + str(obj.active_material.raytrace_transparency.fresnel),
+            '\tmat.specular_alpha = ' + str(obj.active_material.specular_alpha),
+            '\tmat.raytrace_transparency.fresnel_factor = ' + str(obj.active_material.raytrace_transparency.fresnel_factor),
+            '\tmat.raytrace_transparency.ior = ' + str(obj.active_material.raytrace_transparency.ior),
+            '\tmat.raytrace_transparency.filter = ' + str(obj.active_material.raytrace_transparency.filter),
+            '\tmat.raytrace_transparency.falloff = ' + str(obj.active_material.raytrace_transparency.falloff),
+            '\tmat.raytrace_transparency.depth_max = ' + str(obj.active_material.raytrace_transparency.depth_max),
+            '\tmat.raytrace_transparency.depth = ' + str(obj.active_material.raytrace_transparency.depth),
+            '\tmat.raytrace_transparency.gloss_factor = ' + str(obj.active_material.raytrace_transparency.gloss_factor),
+            '\tmat.raytrace_transparency.gloss_threshold = ' + str(obj.active_material.raytrace_transparency.gloss_threshold),
+            '\tmat.raytrace_transparency.gloss_samples = ' + str(obj.active_material.raytrace_transparency.gloss_samples),
+            '\tmat.raytrace_mirror.use = ' + str(obj.active_material.raytrace_mirror.use),
+            '\tmat.raytrace_mirror.reflect_factor = ' + str(obj.active_material.raytrace_mirror.reflect_factor),
+            '\tmat.raytrace_mirror.fresnel = ' + str(obj.active_material.raytrace_mirror.fresnel),
+            '\tmat.mirror_color[0] = ' + str(obj.active_material.mirror_color[0]),
+            '\tmat.mirror_color[1] = ' + str(obj.active_material.mirror_color[1]),
+            '\tmat.mirror_color[2] = ' + str(obj.active_material.mirror_color[2]),
+            '\tmat.raytrace_mirror.fresnel_factor = ' + str(obj.active_material.raytrace_mirror.fresnel_factor),
+            '\tmat.raytrace_mirror.depth = ' + str(obj.active_material.raytrace_mirror.depth),
+            '\tmat.raytrace_mirror.distance = ' + str(obj.active_material.raytrace_mirror.distance),
+            '\tmat.raytrace_mirror.fade_to = "' + str(obj.active_material.raytrace_mirror.fade_to) + '"',
+            '\tmat.raytrace_mirror.gloss_factor = ' + str(obj.active_material.raytrace_mirror.gloss_factor),
+            '\tmat.raytrace_mirror.gloss_threshold = ' + str(obj.active_material.raytrace_mirror.gloss_threshold),
+            '\tmat.raytrace_mirror.gloss_samples = ' + str(obj.active_material.raytrace_mirror.gloss_samples),
+            '\tmat.raytrace_mirror.gloss_anisotropic = ' + str(obj.active_material.raytrace_mirror.gloss_anisotropic),
+            '\tmat.subsurface_scattering.use = ' + str(obj.active_material.subsurface_scattering.use ),
+            '\tmat.subsurface_scattering.ior = ' + str(obj.active_material.subsurface_scattering.ior),
+            '\tmat.subsurface_scattering.scale = ' + str(obj.active_material.subsurface_scattering.scale),
+            '\tmat.subsurface_scattering.color[0] = ' + str(obj.active_material.subsurface_scattering.color[0]),
+            '\tmat.subsurface_scattering.color[1] = ' + str(obj.active_material.subsurface_scattering.color[1]),
+            '\tmat.subsurface_scattering.color[2] = ' + str(obj.active_material.subsurface_scattering.color[2]),
+            '\tmat.subsurface_scattering.color_factor = ' + str(obj.active_material.subsurface_scattering.color_factor),
+            '\tmat.subsurface_scattering.texture_factor = ' + str(obj.active_material.subsurface_scattering.texture_factor),
+            '\tmat.subsurface_scattering.radius[0] = ' + str(obj.active_material.subsurface_scattering.radius[0]),
+            '\tmat.subsurface_scattering.radius[1] = ' + str(obj.active_material.subsurface_scattering.radius[1]),
+            '\tmat.subsurface_scattering.radius[2] = ' + str(obj.active_material.subsurface_scattering.radius[2]),
+            '\tmat.subsurface_scattering.front = ' + str(obj.active_material.subsurface_scattering.front),
+            '\tmat.subsurface_scattering.back = ' + str(obj.active_material.subsurface_scattering.back),
+            '\tmat.subsurface_scattering.error_threshold = ' + str(obj.active_material.subsurface_scattering.error_threshold),
+            '\tmat.strand.root_size = ' + str(obj.active_material.strand.root_size),
+            '\tmat.strand.tip_size = ' + str(obj.active_material.strand.tip_size),
+            '\tmat.strand.size_min = ' + str(obj.active_material.strand.size_min),
+            '\tmat.strand.use_blender_units = ' + str(obj.active_material.strand.use_blender_units),
+            '\tmat.strand.use_tangent_shading = ' + str(obj.active_material.strand.use_tangent_shading),
+            '\tmat.strand.shape = ' + str(obj.active_material.strand.shape),
+            '\tmat.strand.width_fade = ' + str(obj.active_material.strand.width_fade),
+            '\tmat.strand.blend_distance = ' + str(obj.active_material.strand.blend_distance),
+            '\tmat.use_raytrace = ' + str(obj.active_material.use_raytrace),
+            '\tmat.use_full_oversampling = ' + str(obj.active_material.use_full_oversampling),
+            '\tmat.use_sky = ' + str(obj.active_material.use_sky),
+            '\tmat.use_mist = ' + str(obj.active_material.use_mist),
+            '\tmat.invert_z = ' + str(obj.active_material.invert_z),
+            '\tmat.offset_z = ' + str(obj.active_material.offset_z),
+            '\tmat.use_face_texture = ' + str(obj.active_material.use_face_texture),
+            '\tmat.use_face_texture_alpha = ' + str(obj.active_material.use_face_texture_alpha),
+            '\tmat.use_vertex_color_paint = ' + str(obj.active_material.use_vertex_color_paint),
+            '\tmat.use_vertex_color_light = ' + str(obj.active_material.use_vertex_color_light),
+            '\tmat.use_object_color = ' + str(obj.active_material.use_object_color),
+            '\tmat.pass_index = ' + str(obj.active_material.pass_index),
+            '\tmat.use_shadows = ' + str(obj.active_material.use_shadows),
+            '\tmat.use_transparent_shadows = ' + str(obj.active_material.use_transparent_shadows),
+            '\tmat.use_cast_shadows_only = ' + str(obj.active_material.use_cast_shadows_only),
+            '\tmat.shadow_cast_alpha = ' + str(obj.active_material.shadow_cast_alpha),
+            '\tmat.use_only_shadow = ' + str(obj.active_material.use_only_shadow),
+            '\tmat.shadow_only_type = "' + str(obj.active_material.shadow_only_type) + '"',
+            '\tmat.use_cast_buffer_shadows = ' + str(obj.active_material.use_cast_buffer_shadows),
+            '\tmat.shadow_buffer_bias = ' + str(obj.active_material.shadow_buffer_bias),
+            '\tmat.use_ray_shadow_bias = ' + str(obj.active_material.use_ray_shadow_bias),
+            '\tmat.shadow_ray_bias = ' + str(obj.active_material.shadow_ray_bias),
+            '\tmat.use_cast_approximate = ' + str(obj.active_material.use_cast_approximate),
+            '\treturn mat',
+            '',
+            'bpy.ops.object.material_slot_add()',
+            'obj.material_slots[-1].material = CreateMaterial("MAT_EXP_' + Mat_Name + '")',
+            '',
+            '',
+        ]
 
     #I treat textures :
     textureName = False
@@ -1487,40 +1490,52 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
 
         if textureName :
             mytex = ""
-            MY_EXPORT_INFORMATIONS.append('')
-            MY_EXPORT_INFORMATIONS.append('#Create texture : ' + obj.active_material.texture_slots[textureNumbers].name + '.')
-            MY_EXPORT_INFORMATIONS.append('mytex = bpy.data.textures.new(name="' + obj.active_material.texture_slots[textureNumbers].name + '", type="' + obj.active_material.texture_slots[textureNumbers].texture.type + '")')
-            MY_EXPORT_INFORMATIONS.append('slot =  obj.active_material.texture_slots.add()')
-            MY_EXPORT_INFORMATIONS.append('slot.texture = mytex')
-            MY_EXPORT_INFORMATIONS.append('slot.texture.use_preview_alpha  = ' + str(tex.texture_slots[textureNumbers].texture.use_preview_alpha) +  '')
+            MY_EXPORT_INFORMATIONS.extend \
+                ([
+                    '',
+                    '#Create texture : ' + obj.active_material.texture_slots[textureNumbers].name + '.',
+                    'mytex = bpy.data.textures.new(name="' + obj.active_material.texture_slots[textureNumbers].name + '", type="' + obj.active_material.texture_slots[textureNumbers].texture.type + '")',
+                    'slot = obj.active_material.texture_slots.add()',
+                    'slot.texture = mytex',
+                    'slot.texture.use_preview_alpha = ' + str(tex.texture_slots[textureNumbers].texture.use_preview_alpha),
+                ])
 
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'CLOUDS':
-                MY_EXPORT_INFORMATIONS.append('slot.texture.cloud_type  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.cloud_type) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_type  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_type) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_basis  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_basis) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_scale  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_scale) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.nabla  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.nabla) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_depth  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_depth) +  '')
+                MY_EXPORT_INFORMATIONS.extend \
+                    ([
+                        'slot.texture.cloud_type = "' + str(obj.active_material.texture_slots[textureNumbers].texture.cloud_type) + '"',
+                        'slot.texture.noise_type = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_type) + '"',
+                        'slot.texture.noise_basis = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_basis) + '"',
+                        'slot.texture.noise_scale = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_scale),
+                        'slot.texture.nabla = ' + str(obj.active_material.texture_slots[textureNumbers].texture.nabla),
+                        'slot.texture.noise_depth = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_depth),
+                    ])
 
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'POINT_DENSITY':
-                MY_EXPORT_INFORMATIONS.append('slot.texture.point_density.point_source  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.point_source) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.point_density.radius  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.radius) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.point_density.particle_cache_space  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.particle_cache_space) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.point_density.falloff  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.falloff) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.point_density.use_falloff_curve  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.use_falloff_curve) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.point_density.falloff_soft  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.falloff_soft) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.point_density.falloff_speed_scale  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.falloff_speed_scale) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.point_density.speed_scale  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.speed_scale) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.point_density.color_source  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.color_source) +  '"')
+                MY_EXPORT_INFORMATIONS.extend \
+                    ([
+                        'slot.texture.point_density.point_source = "' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.point_source) + '"',
+                        'slot.texture.point_density.radius = ' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.radius),
+                        'slot.texture.point_density.particle_cache_space = "' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.particle_cache_space) + '"',
+                        'slot.texture.point_density.falloff = "' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.falloff) + '"',
+                        'slot.texture.point_density.use_falloff_curve = ' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.use_falloff_curve),
+                        'slot.texture.point_density.falloff_soft = ' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.falloff_soft),
+                        'slot.texture.point_density.falloff_speed_scale = ' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.falloff_speed_scale),
+                        'slot.texture.point_density.speed_scale = ' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.speed_scale),
+                        'slot.texture.point_density.color_source = "' + str(obj.active_material.texture_slots[textureNumbers].texture.point_density.color_source) + '"',
+                    ])
 
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'ENVIRONMENT_MAP':
-                MY_EXPORT_INFORMATIONS.append('slot.texture.environment_map.source  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.environment_map.source) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.environment_map.mapping  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.environment_map.mapping) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.environment_map.clip_start  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.environment_map.clip_start) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.environment_map.clip_end  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.environment_map.clip_end) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.environment_map.resolution  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.environment_map.resolution) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.environment_map.depth  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.environment_map.depth) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.environment_map.zoom  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.environment_map.zoom) +  '')
+                MY_EXPORT_INFORMATIONS.extend \
+                    ([
+                        'slot.texture.environment_map.source = "' + str(obj.active_material.texture_slots[textureNumbers].texture.environment_map.source) + '"',
+                        'slot.texture.environment_map.mapping = "' + str(obj.active_material.texture_slots[textureNumbers].texture.environment_map.mapping) + '"',
+                        'slot.texture.environment_map.clip_start = ' + str(obj.active_material.texture_slots[textureNumbers].texture.environment_map.clip_start),
+                        'slot.texture.environment_map.clip_end = ' + str(obj.active_material.texture_slots[textureNumbers].texture.environment_map.clip_end),
+                        'slot.texture.environment_map.resolution = ' + str(obj.active_material.texture_slots[textureNumbers].texture.environment_map.resolution),
+                        'slot.texture.environment_map.depth = ' + str(obj.active_material.texture_slots[textureNumbers].texture.environment_map.depth),
+                        'slot.texture.environment_map.zoom = ' + str(obj.active_material.texture_slots[textureNumbers].texture.environment_map.zoom),
+                    ])
 
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'IMAGE':
                 print(LanguageValuesDict['ErrorsMenuError001'])
@@ -1543,17 +1558,23 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                         print(LanguageValuesDict['ErrorsMenuError013'])
 
                     #I treat informations:
-                    MY_EXPORT_INFORMATIONS.append('imagePath = os.path.join(scriptPath, Mat_Name + "_" + "' + IMAGE_FILENAME +  '")')
-                    MY_EXPORT_INFORMATIONS.append('img=bpy.data.images.load(filepath=imagePath)')
+                    MY_EXPORT_INFORMATIONS.extend \
+                        ([
+                            'imagePath = os.path.join(scriptPath, Mat_Name + "_" + "' + IMAGE_FILENAME + '")',
+                            'img=bpy.data.images.load(filepath=imagePath)',
+                        ])
 
                     save_path = stripext(os.path.join(ZipPath, Mat_Name), '.py')
 
                     #Now I create file:
-                    MY_EXPORT_INFORMATIONS.append('slot.texture.image  = img')
-                    MY_EXPORT_INFORMATIONS.append('#slot.texture.image.name  = "' + IMAGE_FILENAME +  '"')
-                    MY_EXPORT_INFORMATIONS.append('slot.texture.image.use_fields  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.image.use_fields) +  '')
-                    MY_EXPORT_INFORMATIONS.append('slot.texture.image.use_premultiply  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.image.use_premultiply) +  '')
-                    MY_EXPORT_INFORMATIONS.append('slot.texture.image.field_order  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.image.field_order) +  '"')
+                    MY_EXPORT_INFORMATIONS.extend \
+                        ([
+                            'slot.texture.image = img',
+                            '#slot.texture.image.name = "' + IMAGE_FILENAME + '"',
+                            'slot.texture.image.use_fields = ' + str(obj.active_material.texture_slots[textureNumbers].texture.image.use_fields),
+                            'slot.texture.image.use_premultiply = ' + str(obj.active_material.texture_slots[textureNumbers].texture.image.use_premultiply),
+                            'slot.texture.image.field_order = "' + str(obj.active_material.texture_slots[textureNumbers].texture.image.field_order) + '"',
+                        ])
 
                     #I copy images :
                     shutil.copy2(IMAGE_FILEPATH, save_path + "_" + IMAGE_FILENAME)
@@ -1564,20 +1585,26 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                 if tex.texture_slots[textureNumbers].texture.image.source == 'GENERATED':
                     myImg = str(obj.active_material.texture_slots[textureNumbers].texture.image.name)
                     myImg = '"' + myImg
-                    MY_EXPORT_INFORMATIONS.append('imagePath = os.path.join(scriptPath, Mat_Name + "_" + ' + myImg +  '.png")')
-                    MY_EXPORT_INFORMATIONS.append('img=bpy.data.images.load(filepath=imagePath)')
+                    MY_EXPORT_INFORMATIONS.extend \
+                        ([
+                            'imagePath = os.path.join(scriptPath, Mat_Name + "_" + ' + myImg + '.png")',
+                            'img=bpy.data.images.load(filepath=imagePath)',
+                        ])
 
                     save_path = os.path.join(ZipPath, Mat_Name)
 
                     save_path = stripext(save_path, '.py')
 
                     #Now I create file:
-                    MY_EXPORT_INFORMATIONS.append('slot.texture.image  = img')
-                    MY_EXPORT_INFORMATIONS.append('slot.texture.image.use_fields  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.image.use_fields) +  '')
-                    MY_EXPORT_INFORMATIONS.append('slot.texture.image.generated_type  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.image.generated_type) +  '"')
-                    MY_EXPORT_INFORMATIONS.append('slot.texture.image.generated_width  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.image.generated_width) +  '')
-                    MY_EXPORT_INFORMATIONS.append('slot.texture.image.generated_height  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.image.generated_height) +  '')
-                    MY_EXPORT_INFORMATIONS.append('slot.texture.image.use_generated_float  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.image.use_generated_float) +  '')
+                    MY_EXPORT_INFORMATIONS.extend \
+                        ([
+                            'slot.texture.image = img',
+                            'slot.texture.image.use_fields = ' + str(obj.active_material.texture_slots[textureNumbers].texture.image.use_fields),
+                            'slot.texture.image.generated_type = "' + str(obj.active_material.texture_slots[textureNumbers].texture.image.generated_type) + '"',
+                            'slot.texture.image.generated_width = ' + str(obj.active_material.texture_slots[textureNumbers].texture.image.generated_width),
+                            'slot.texture.image.generated_height = ' + str(obj.active_material.texture_slots[textureNumbers].texture.image.generated_height),
+                            'slot.texture.image.use_generated_float = ' + str(obj.active_material.texture_slots[textureNumbers].texture.image.use_generated_float),
+                        ])
 
                     #I copy images :
                     save_path = save_path + "_" + str(obj.active_material.texture_slots[textureNumbers].texture.image.name) + ".png"
@@ -1592,157 +1619,196 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                     print("*******************************************************************************")
 
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'MAGIC':
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_depth  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_depth) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.turbulence  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.turbulence) +  '')
+                MY_EXPORT_INFORMATIONS.extend \
+                    ([
+                        'slot.texture.noise_depth = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_depth),
+                        'slot.texture.turbulence = ' + str(obj.active_material.texture_slots[textureNumbers].texture.turbulence),
+                    ])
 
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'MARBLE':
-                MY_EXPORT_INFORMATIONS.append('slot.texture.marble_type  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.marble_type) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_basis_2  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_basis_2) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_type  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_type) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_basis  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_basis) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_scale  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_scale) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.turbulence  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.turbulence) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_depth  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_depth) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.turbulence  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.turbulence) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.nabla  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.nabla) +  '')
+                MY_EXPORT_INFORMATIONS.extend \
+                    ([
+                        'slot.texture.marble_type = "' + str(obj.active_material.texture_slots[textureNumbers].texture.marble_type) + '"',
+                        'slot.texture.noise_basis_2 = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_basis_2) + '"',
+                        'slot.texture.noise_type = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_type) + '"',
+                        'slot.texture.noise_basis = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_basis) + '"',
+                        'slot.texture.noise_scale = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_scale),
+                        'slot.texture.turbulence = ' + str(obj.active_material.texture_slots[textureNumbers].texture.turbulence),
+                        'slot.texture.noise_depth = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_depth),
+                        'slot.texture.turbulence = ' + str(obj.active_material.texture_slots[textureNumbers].texture.turbulence),
+                        'slot.texture.nabla = ' + str(obj.active_material.texture_slots[textureNumbers].texture.nabla),
+                    ])
 
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'MUSGRAVE':
-                MY_EXPORT_INFORMATIONS.append('slot.texture.musgrave_type  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.musgrave_type) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.dimension_max  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.dimension_max) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.lacunarity  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.lacunarity) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.octaves  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.octaves) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_intensity  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_intensity) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_basis  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_basis) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_scale  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_scale) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.nabla  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.nabla) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.offset  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.offset) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.gain  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.gain) +  '')
+                MY_EXPORT_INFORMATIONS.extend \
+                    ([
+                        'slot.texture.musgrave_type = "' + str(obj.active_material.texture_slots[textureNumbers].texture.musgrave_type) + '"',
+                        'slot.texture.dimension_max = ' + str(obj.active_material.texture_slots[textureNumbers].texture.dimension_max),
+                        'slot.texture.lacunarity = ' + str(obj.active_material.texture_slots[textureNumbers].texture.lacunarity),
+                        'slot.texture.octaves = ' + str(obj.active_material.texture_slots[textureNumbers].texture.octaves),
+                        'slot.texture.noise_intensity = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_intensity),
+                        'slot.texture.noise_basis = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_basis) + '"',
+                        'slot.texture.noise_scale = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_scale),
+                        'slot.texture.nabla = ' + str(obj.active_material.texture_slots[textureNumbers].texture.nabla),
+                        'slot.texture.offset = ' + str(obj.active_material.texture_slots[textureNumbers].texture.offset),
+                        'slot.texture.gain = ' + str(obj.active_material.texture_slots[textureNumbers].texture.gain),
+                    ])
 
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'DISTORTED_NOISE':
-                MY_EXPORT_INFORMATIONS.append('slot.texture.distortion  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.distortion) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_distortion  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_distortion) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_basis  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_basis) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.nabla  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.nabla) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_scale  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_scale) +  '')
+                MY_EXPORT_INFORMATIONS.extend \
+                    ([
+                        'slot.texture.distortion = ' + str(obj.active_material.texture_slots[textureNumbers].texture.distortion),
+                        'slot.texture.noise_distortion = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_distortion) + '"',
+                        'slot.texture.noise_basis = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_basis) + '"',
+                        'slot.texture.nabla = ' + str(obj.active_material.texture_slots[textureNumbers].texture.nabla),
+                        'slot.texture.noise_scale = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_scale),
+                    ])
 
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'STUCCI':
-                MY_EXPORT_INFORMATIONS.append('slot.texture.stucci_type  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.stucci_type) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_type  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_type) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_basis  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_basis) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_scale  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_scale) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.turbulence  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.turbulence) +  '')
+                MY_EXPORT_INFORMATIONS.extend \
+                    ([
+                        'slot.texture.stucci_type = "' + str(obj.active_material.texture_slots[textureNumbers].texture.stucci_type) + '"',
+                        'slot.texture.noise_type = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_type) + '"',
+                        'slot.texture.noise_basis = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_basis) + '"',
+                        'slot.texture.noise_scale = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_scale),
+                        'slot.texture.turbulence = ' + str(obj.active_material.texture_slots[textureNumbers].texture.turbulence),
+                    ])
 
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'VORONOI':
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_intensity  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_intensity) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.distance_metric  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.distance_metric) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.minkovsky_exponent  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.minkovsky_exponent) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.color_mode  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.color_mode) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_scale  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_scale) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.nabla  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.nabla) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.weight_1  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.weight_1) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.weight_2  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.weight_2) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.weight_3  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.weight_3) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.weight_4  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.weight_4) +  '')
+                MY_EXPORT_INFORMATIONS.extend \
+                    ([
+                        'slot.texture.noise_intensity = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_intensity),
+                        'slot.texture.distance_metric = "' + str(obj.active_material.texture_slots[textureNumbers].texture.distance_metric) + '"',
+                        'slot.texture.minkovsky_exponent = ' + str(obj.active_material.texture_slots[textureNumbers].texture.minkovsky_exponent),
+                        'slot.texture.color_mode = "' + str(obj.active_material.texture_slots[textureNumbers].texture.color_mode) + '"',
+                        'slot.texture.noise_scale = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_scale),
+                        'slot.texture.nabla = ' + str(obj.active_material.texture_slots[textureNumbers].texture.nabla),
+                        'slot.texture.weight_1 = ' + str(obj.active_material.texture_slots[textureNumbers].texture.weight_1),
+                        'slot.texture.weight_2 = ' + str(obj.active_material.texture_slots[textureNumbers].texture.weight_2),
+                        'slot.texture.weight_3 = ' + str(obj.active_material.texture_slots[textureNumbers].texture.weight_3),
+                        'slot.texture.weight_4 = ' + str(obj.active_material.texture_slots[textureNumbers].texture.weight_4),
+                    ])
 
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'VOXEL_DATA':
-                MY_EXPORT_INFORMATIONS.append('slot.texture.voxel_data.file_format  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.file_format) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.voxel_data.filepath  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.filepath) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.voxel_data.use_still_frame  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.use_still_frame) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.voxel_data.still_frame  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.still_frame) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.voxel_data.interpolation  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.interpolation) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.voxel_data.extension  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.extension) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.voxel_data.intensity  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.intensity) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.voxel_data.resolution[0]  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.resolution[0]) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.voxel_data.resolution[1]  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.resolution[1]) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.voxel_data.resolution[2]  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.resolution[2]) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.voxel_data.smoke_data_type  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.smoke_data_type) +  '"')
+                MY_EXPORT_INFORMATIONS.extend \
+                    ([
+                        'slot.texture.voxel_data.file_format = "' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.file_format) + '"',
+                        'slot.texture.voxel_data.filepath = "' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.filepath) + '"',
+                        'slot.texture.voxel_data.use_still_frame = ' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.use_still_frame),
+                        'slot.texture.voxel_data.still_frame = ' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.still_frame),
+                        'slot.texture.voxel_data.interpolation = "' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.interpolation) + '"',
+                        'slot.texture.voxel_data.extension = "' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.extension) + '"',
+                        'slot.texture.voxel_data.intensity = ' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.intensity),
+                        'slot.texture.voxel_data.resolution[0] = ' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.resolution[0]),
+                        'slot.texture.voxel_data.resolution[1] = ' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.resolution[1]),
+                        'slot.texture.voxel_data.resolution[2] = ' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.resolution[2]),
+                        'slot.texture.voxel_data.smoke_data_type = "' + str(obj.active_material.texture_slots[textureNumbers].texture.voxel_data.smoke_data_type) + '"',
+                    ])
 
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'WOOD':
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_basis_2  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_basis_2) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.wood_type  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.wood_type) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_type  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_type) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_basis  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_basis) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.noise_scale  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_scale) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.nabla  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.nabla) +  '')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.turbulence  = ' + str(obj.active_material.texture_slots[textureNumbers].texture.turbulence) +  '')
+                MY_EXPORT_INFORMATIONS.extend \
+                    ([
+                        'slot.texture.noise_basis_2 = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_basis_2) + '"',
+                        'slot.texture.wood_type = "' + str(obj.active_material.texture_slots[textureNumbers].texture.wood_type) + '"',
+                        'slot.texture.noise_type = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_type) + '"',
+                        'slot.texture.noise_basis = "' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_basis) + '"',
+                        'slot.texture.noise_scale = ' + str(obj.active_material.texture_slots[textureNumbers].texture.noise_scale),
+                        'slot.texture.nabla = ' + str(obj.active_material.texture_slots[textureNumbers].texture.nabla),
+                        'slot.texture.turbulence = ' + str(obj.active_material.texture_slots[textureNumbers].texture.turbulence),
+                    ])
 
             if bpy.context.object.active_material.texture_slots[textureNumbers].texture.type == 'BLEND':
-                MY_EXPORT_INFORMATIONS.append('slot.texture.progression  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.progression) +  '"')
-                MY_EXPORT_INFORMATIONS.append('slot.texture.use_flip_axis  = "' + str(obj.active_material.texture_slots[textureNumbers].texture.use_flip_axis) +  '"')
+                MY_EXPORT_INFORMATIONS.extend \
+                    ([
+                        'slot.texture.progression = "' + str(obj.active_material.texture_slots[textureNumbers].texture.progression) + '"',
+                        'slot.texture.use_flip_axis = "' + str(obj.active_material.texture_slots[textureNumbers].texture.use_flip_axis) + '"',
+                    ])
 
-            MY_EXPORT_INFORMATIONS.append('slot.texture.factor_red  =  ' + str(obj.active_material.texture_slots[textureNumbers].texture.factor_red))
-            MY_EXPORT_INFORMATIONS.append('slot.texture.factor_green  =  ' + str(obj.active_material.texture_slots[textureNumbers].texture.factor_green))
-            MY_EXPORT_INFORMATIONS.append('slot.texture.factor_blue  =  ' + str(obj.active_material.texture_slots[textureNumbers].texture.factor_blue))
-            MY_EXPORT_INFORMATIONS.append('slot.texture.intensity  =  ' + str(obj.active_material.texture_slots[textureNumbers].texture.intensity))
-            MY_EXPORT_INFORMATIONS.append('slot.texture.contrast  =  ' + str(obj.active_material.texture_slots[textureNumbers].texture.contrast))
-            MY_EXPORT_INFORMATIONS.append('slot.texture.saturation  =  ' + str(obj.active_material.texture_slots[textureNumbers].texture.saturation))
-            MY_EXPORT_INFORMATIONS.append('slot.texture_coords  =  "' + str(obj.active_material.texture_slots[textureNumbers].texture_coords) +  '"')
-            MY_EXPORT_INFORMATIONS.append('slot.mapping  =  "' + str(obj.active_material.texture_slots[textureNumbers].mapping) +  '"')
+            MY_EXPORT_INFORMATIONS.extend \
+                ([
+                    'slot.texture.factor_red = ' + str(obj.active_material.texture_slots[textureNumbers].texture.factor_red),
+                    'slot.texture.factor_green = ' + str(obj.active_material.texture_slots[textureNumbers].texture.factor_green),
+                    'slot.texture.factor_blue = ' + str(obj.active_material.texture_slots[textureNumbers].texture.factor_blue),
+                    'slot.texture.intensity = ' + str(obj.active_material.texture_slots[textureNumbers].texture.intensity),
+                    'slot.texture.contrast = ' + str(obj.active_material.texture_slots[textureNumbers].texture.contrast),
+                    'slot.texture.saturation = ' + str(obj.active_material.texture_slots[textureNumbers].texture.saturation),
+                    'slot.texture_coords = "' + str(obj.active_material.texture_slots[textureNumbers].texture_coords) + '"',
+                    'slot.mapping = "' + str(obj.active_material.texture_slots[textureNumbers].mapping) + '"',
+                ])
 
             if obj.active_material.texture_slots[textureNumbers].texture_coords == 'UV' or obj.active_material.texture_slots[textureNumbers].texture_coords == 'ORCO':
-                MY_EXPORT_INFORMATIONS.append('slot.use_from_dupli  =  ' + str(obj.active_material.texture_slots[textureNumbers].use_from_dupli))
+                MY_EXPORT_INFORMATIONS.append('slot.use_from_dupli = ' + str(obj.active_material.texture_slots[textureNumbers].use_from_dupli))
 
             if obj.active_material.texture_slots[textureNumbers].texture_coords == 'OBJECT':
-                MY_EXPORT_INFORMATIONS.append('slot.use_from_original  =  ' + str(obj.active_material.texture_slots[textureNumbers].use_from_original))
+                MY_EXPORT_INFORMATIONS.append('slot.use_from_original = ' + str(obj.active_material.texture_slots[textureNumbers].use_from_original))
 
-            MY_EXPORT_INFORMATIONS.append('slot.mapping_x  =  "' + str(obj.active_material.texture_slots[textureNumbers].mapping_x) +  '"')
-            MY_EXPORT_INFORMATIONS.append('slot.mapping_y  =  "' + str(obj.active_material.texture_slots[textureNumbers].mapping_y) +  '"')
-            MY_EXPORT_INFORMATIONS.append('slot.mapping_z  =  "' + str(obj.active_material.texture_slots[textureNumbers].mapping_z) +  '"')
-            MY_EXPORT_INFORMATIONS.append('slot.offset[0]  =  ' + str(obj.active_material.texture_slots[textureNumbers].offset[0]))
-            MY_EXPORT_INFORMATIONS.append('slot.offset[1]  =  ' + str(obj.active_material.texture_slots[textureNumbers].offset[1]))
-            MY_EXPORT_INFORMATIONS.append('slot.offset[2]  =  ' + str(obj.active_material.texture_slots[textureNumbers].offset[2]))
-            MY_EXPORT_INFORMATIONS.append('slot.scale[0]  =  ' + str(obj.active_material.texture_slots[textureNumbers].scale[0]))
-            MY_EXPORT_INFORMATIONS.append('slot.scale[1]  =  ' + str(obj.active_material.texture_slots[textureNumbers].scale[1]))
-            MY_EXPORT_INFORMATIONS.append('slot.scale[2]  =  ' + str(obj.active_material.texture_slots[textureNumbers].scale[2]))
+            MY_EXPORT_INFORMATIONS.extend \
+                ([
+                    'slot.mapping_x = "' + str(obj.active_material.texture_slots[textureNumbers].mapping_x) + '"',
+                    'slot.mapping_y = "' + str(obj.active_material.texture_slots[textureNumbers].mapping_y) + '"',
+                    'slot.mapping_z = "' + str(obj.active_material.texture_slots[textureNumbers].mapping_z) + '"',
+                    'slot.offset[0] = ' + str(obj.active_material.texture_slots[textureNumbers].offset[0]),
+                    'slot.offset[1] = ' + str(obj.active_material.texture_slots[textureNumbers].offset[1]),
+                    'slot.offset[2] = ' + str(obj.active_material.texture_slots[textureNumbers].offset[2]),
+                    'slot.scale[0] = ' + str(obj.active_material.texture_slots[textureNumbers].scale[0]),
+                    'slot.scale[1] = ' + str(obj.active_material.texture_slots[textureNumbers].scale[1]),
+                    'slot.scale[2] = ' + str(obj.active_material.texture_slots[textureNumbers].scale[2]),
+                ])
 
-            MY_EXPORT_INFORMATIONS.append('slot.use_map_diffuse  =  ' + str(obj.active_material.texture_slots[textureNumbers].use_map_diffuse))
-            MY_EXPORT_INFORMATIONS.append('slot.use_map_color_diffuse  =  ' + str(obj.active_material.texture_slots[textureNumbers].use_map_color_diffuse))
-            MY_EXPORT_INFORMATIONS.append('slot.use_map_alpha  =  ' + str(obj.active_material.texture_slots[textureNumbers].use_map_alpha))
-            MY_EXPORT_INFORMATIONS.append('slot.use_map_translucency  =  ' + str(obj.active_material.texture_slots[textureNumbers].use_map_translucency))
-            MY_EXPORT_INFORMATIONS.append('slot.use_map_specular  =  ' + str(obj.active_material.texture_slots[textureNumbers].use_map_specular))
-            MY_EXPORT_INFORMATIONS.append('slot.use_map_color_spec  =  ' + str(obj.active_material.texture_slots[textureNumbers].use_map_color_spec))
-            MY_EXPORT_INFORMATIONS.append('slot.use_map_hardness  =  ' + str(obj.active_material.texture_slots[textureNumbers].use_map_hardness))
-            MY_EXPORT_INFORMATIONS.append('slot.use_map_ambient  =  ' + str(obj.active_material.texture_slots[textureNumbers].use_map_ambient))
-            MY_EXPORT_INFORMATIONS.append('slot.use_map_emit  =  ' + str(obj.active_material.texture_slots[textureNumbers].use_map_emit))
-            MY_EXPORT_INFORMATIONS.append('slot.use_map_mirror  =  ' + str(obj.active_material.texture_slots[textureNumbers].use_map_mirror))
-            MY_EXPORT_INFORMATIONS.append('slot.use_map_raymir  =  ' + str(obj.active_material.texture_slots[textureNumbers].use_map_raymir))
-            MY_EXPORT_INFORMATIONS.append('slot.use_map_normal  =  ' + str(obj.active_material.texture_slots[textureNumbers].use_map_normal))
-            MY_EXPORT_INFORMATIONS.append('slot.use_map_warp  =  ' + str(obj.active_material.texture_slots[textureNumbers].use_map_warp))
-            MY_EXPORT_INFORMATIONS.append('slot.use_map_displacement  =  ' + str(obj.active_material.texture_slots[textureNumbers].use_map_displacement))
-            MY_EXPORT_INFORMATIONS.append('slot.use_rgb_to_intensity  =  ' + str(obj.active_material.texture_slots[textureNumbers].use_rgb_to_intensity))
-            MY_EXPORT_INFORMATIONS.append('slot.invert =  ' + str(obj.active_material.texture_slots[textureNumbers].invert))
-            MY_EXPORT_INFORMATIONS.append('slot.diffuse_factor  =  ' + str(obj.active_material.texture_slots[textureNumbers].diffuse_factor))
-            MY_EXPORT_INFORMATIONS.append('slot.diffuse_color_factor  =  ' + str(obj.active_material.texture_slots[textureNumbers].diffuse_color_factor))
-            MY_EXPORT_INFORMATIONS.append('slot.alpha_factor  =  ' + str(obj.active_material.texture_slots[textureNumbers].alpha_factor))
-            MY_EXPORT_INFORMATIONS.append('slot.translucency_factor  =  ' + str(obj.active_material.texture_slots[textureNumbers].translucency_factor))
-            MY_EXPORT_INFORMATIONS.append('slot.specular_factor  =  ' + str(obj.active_material.texture_slots[textureNumbers].specular_factor))
-            MY_EXPORT_INFORMATIONS.append('slot.specular_color_factor  =  ' + str(obj.active_material.texture_slots[textureNumbers].specular_color_factor))
-            MY_EXPORT_INFORMATIONS.append('slot.hardness_factor  =  ' + str(obj.active_material.texture_slots[textureNumbers].hardness_factor))
-            MY_EXPORT_INFORMATIONS.append('slot.ambient_factor  =  ' + str(obj.active_material.texture_slots[textureNumbers].ambient_factor))
-            MY_EXPORT_INFORMATIONS.append('slot.emit_factor  =  ' + str(obj.active_material.texture_slots[textureNumbers].emit_factor))
-            MY_EXPORT_INFORMATIONS.append('slot.mirror_factor  =  ' + str(obj.active_material.texture_slots[textureNumbers].mirror_factor))
-            MY_EXPORT_INFORMATIONS.append('slot.raymir_factor  =  ' + str(obj.active_material.texture_slots[textureNumbers].raymir_factor))
-            MY_EXPORT_INFORMATIONS.append('slot.normal_factor  =  ' + str(obj.active_material.texture_slots[textureNumbers].normal_factor))
-            MY_EXPORT_INFORMATIONS.append('slot.warp_factor  =  ' + str(obj.active_material.texture_slots[textureNumbers].warp_factor))
-            MY_EXPORT_INFORMATIONS.append('slot.displacement_factor  =  ' + str(obj.active_material.texture_slots[textureNumbers].displacement_factor))
-            MY_EXPORT_INFORMATIONS.append('slot.default_value  =  ' + str(obj.active_material.texture_slots[textureNumbers].default_value))
-            MY_EXPORT_INFORMATIONS.append('slot.color[0]  =  ' + str(obj.active_material.texture_slots[textureNumbers].color[0]))
-            MY_EXPORT_INFORMATIONS.append('slot.color[1]  =  ' + str(obj.active_material.texture_slots[textureNumbers].color[1]))
-            MY_EXPORT_INFORMATIONS.append('slot.color[2]  =  ' + str(obj.active_material.texture_slots[textureNumbers].color[2]))
-            MY_EXPORT_INFORMATIONS.append('slot.bump_method  =  "' + str(obj.active_material.texture_slots[textureNumbers].bump_method) +  '"')
-            MY_EXPORT_INFORMATIONS.append('slot.bump_objectspace  =  "' + str(obj.active_material.texture_slots[textureNumbers].bump_objectspace) +  '"')
-            MY_EXPORT_INFORMATIONS.append('slot.use_stencil  = ' + str(obj.active_material.texture_slots[textureNumbers].use_stencil))
-            MY_EXPORT_INFORMATIONS.append('slot.blend_type  =  "' + str(obj.active_material.texture_slots[textureNumbers].blend_type) +  '"')
+            MY_EXPORT_INFORMATIONS.extend \
+                ([
+                    'slot.use_map_diffuse = ' + str(obj.active_material.texture_slots[textureNumbers].use_map_diffuse),
+                    'slot.use_map_color_diffuse = ' + str(obj.active_material.texture_slots[textureNumbers].use_map_color_diffuse),
+                    'slot.use_map_alpha = ' + str(obj.active_material.texture_slots[textureNumbers].use_map_alpha),
+                    'slot.use_map_translucency = ' + str(obj.active_material.texture_slots[textureNumbers].use_map_translucency),
+                    'slot.use_map_specular = ' + str(obj.active_material.texture_slots[textureNumbers].use_map_specular),
+                    'slot.use_map_color_spec = ' + str(obj.active_material.texture_slots[textureNumbers].use_map_color_spec),
+                    'slot.use_map_hardness = ' + str(obj.active_material.texture_slots[textureNumbers].use_map_hardness),
+                    'slot.use_map_ambient = ' + str(obj.active_material.texture_slots[textureNumbers].use_map_ambient),
+                    'slot.use_map_emit = ' + str(obj.active_material.texture_slots[textureNumbers].use_map_emit),
+                    'slot.use_map_mirror = ' + str(obj.active_material.texture_slots[textureNumbers].use_map_mirror),
+                    'slot.use_map_raymir = ' + str(obj.active_material.texture_slots[textureNumbers].use_map_raymir),
+                    'slot.use_map_normal = ' + str(obj.active_material.texture_slots[textureNumbers].use_map_normal),
+                    'slot.use_map_warp = ' + str(obj.active_material.texture_slots[textureNumbers].use_map_warp),
+                    'slot.use_map_displacement = ' + str(obj.active_material.texture_slots[textureNumbers].use_map_displacement),
+                    'slot.use_rgb_to_intensity = ' + str(obj.active_material.texture_slots[textureNumbers].use_rgb_to_intensity),
+                    'slot.invert = ' + str(obj.active_material.texture_slots[textureNumbers].invert),
+                    'slot.diffuse_factor = ' + str(obj.active_material.texture_slots[textureNumbers].diffuse_factor),
+                    'slot.diffuse_color_factor = ' + str(obj.active_material.texture_slots[textureNumbers].diffuse_color_factor),
+                    'slot.alpha_factor = ' + str(obj.active_material.texture_slots[textureNumbers].alpha_factor),
+                    'slot.translucency_factor = ' + str(obj.active_material.texture_slots[textureNumbers].translucency_factor),
+                    'slot.specular_factor = ' + str(obj.active_material.texture_slots[textureNumbers].specular_factor),
+                    'slot.specular_color_factor = ' + str(obj.active_material.texture_slots[textureNumbers].specular_color_factor),
+                    'slot.hardness_factor = ' + str(obj.active_material.texture_slots[textureNumbers].hardness_factor),
+                    'slot.ambient_factor = ' + str(obj.active_material.texture_slots[textureNumbers].ambient_factor),
+                    'slot.emit_factor = ' + str(obj.active_material.texture_slots[textureNumbers].emit_factor),
+                    'slot.mirror_factor = ' + str(obj.active_material.texture_slots[textureNumbers].mirror_factor),
+                    'slot.raymir_factor = ' + str(obj.active_material.texture_slots[textureNumbers].raymir_factor),
+                    'slot.normal_factor = ' + str(obj.active_material.texture_slots[textureNumbers].normal_factor),
+                    'slot.warp_factor = ' + str(obj.active_material.texture_slots[textureNumbers].warp_factor),
+                    'slot.displacement_factor = ' + str(obj.active_material.texture_slots[textureNumbers].displacement_factor),
+                    'slot.default_value = ' + str(obj.active_material.texture_slots[textureNumbers].default_value),
+                    'slot.color[0] = ' + str(obj.active_material.texture_slots[textureNumbers].color[0]),
+                    'slot.color[1] = ' + str(obj.active_material.texture_slots[textureNumbers].color[1]),
+                    'slot.color[2] = ' + str(obj.active_material.texture_slots[textureNumbers].color[2]),
+                    'slot.bump_method = "' + str(obj.active_material.texture_slots[textureNumbers].bump_method) + '"',
+                    'slot.bump_objectspace = "' + str(obj.active_material.texture_slots[textureNumbers].bump_objectspace) + '"',
+                    'slot.use_stencil = ' + str(obj.active_material.texture_slots[textureNumbers].use_stencil),
+                    'slot.blend_type = "' + str(obj.active_material.texture_slots[textureNumbers].blend_type) + '"',
+                ])
 
     #Here my diffuse ramp :
     ramp = bpy.context.object.active_material
-    MY_EXPORT_INFORMATIONS.append('')
-    MY_EXPORT_INFORMATIONS.append('')
-    MY_EXPORT_INFORMATIONS.append('# Create new context :')
-    MY_EXPORT_INFORMATIONS.append('ramp = bpy.context.object.active_material')
-    MY_EXPORT_INFORMATIONS.append('RAMP_MIN_POSITION = 0.0')
-    MY_EXPORT_INFORMATIONS.append('RAMP_MAX_POSITION = 1.0')
-    MY_EXPORT_INFORMATIONS.append('')
+    MY_EXPORT_INFORMATIONS.extend \
+        ([
+            '',
+            '',
+            '# Create new context :',
+            'ramp = bpy.context.object.active_material',
+            'RAMP_MIN_POSITION = 0.0',
+            'RAMP_MAX_POSITION = 1.0',
+            '',
+        ])
 
     #Here my diffuse ramp :
     if ramp.use_diffuse_ramp :
@@ -1757,45 +1823,54 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
         while counter <= loop:
             if counter == 0:
                 #Here i get differentes color bands:
-                MY_EXPORT_INFORMATIONS.append('# diffuse ramps datas ' + str(counter) + ' :')
-                MY_EXPORT_INFORMATIONS.append('RAMP_MIN_POSITION =' +str(ramp.diffuse_ramp.elements[0].position))
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.elements[0].position='+ str(ramp.diffuse_ramp.elements[counter].position) +'')
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp_blend  =  "' + str(ramp.diffuse_ramp_blend) +  '"')
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp_input  =  "' + str(ramp.diffuse_ramp_input) +  '"')
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp_factor  =  ' + str(ramp.diffuse_ramp_factor))
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.interpolation  =  "' + str(ramp.diffuse_ramp.interpolation) +  '"')
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.elements[' + str(counter) + '].color[0]  =  ' + str(ramp.diffuse_ramp.elements[counter].color[0]))
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.elements[' + str(counter) + '].color[1]  =  ' + str(ramp.diffuse_ramp.elements[counter].color[1]))
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.elements[' + str(counter) + '].color[2]  =  ' + str(ramp.diffuse_ramp.elements[counter].color[2]))
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.elements[' + str(counter) + '].color[3]  =  ' + str(ramp.diffuse_ramp.elements[counter].color[3]))
+                MY_EXPORT_INFORMATIONS.extend \
+                    ([
+                        '# diffuse ramps datas ' + str(counter) + ' :',
+                        'RAMP_MIN_POSITION =' +str(ramp.diffuse_ramp.elements[0].position),
+                        'ramp.diffuse_ramp.elements[0].position='+ str(ramp.diffuse_ramp.elements[counter].position) +'',
+                        'ramp.diffuse_ramp_blend = "' + str(ramp.diffuse_ramp_blend) + '"',
+                        'ramp.diffuse_ramp_input = "' + str(ramp.diffuse_ramp_input) + '"',
+                        'ramp.diffuse_ramp_factor = ' + str(ramp.diffuse_ramp_factor),
+                        'ramp.diffuse_ramp.interpolation = "' + str(ramp.diffuse_ramp.interpolation) + '"',
+                        'ramp.diffuse_ramp.elements[' + str(counter) + '].color[0] = ' + str(ramp.diffuse_ramp.elements[counter].color[0]),
+                        'ramp.diffuse_ramp.elements[' + str(counter) + '].color[1] = ' + str(ramp.diffuse_ramp.elements[counter].color[1]),
+                        'ramp.diffuse_ramp.elements[' + str(counter) + '].color[2] = ' + str(ramp.diffuse_ramp.elements[counter].color[2]),
+                        'ramp.diffuse_ramp.elements[' + str(counter) + '].color[3] = ' + str(ramp.diffuse_ramp.elements[counter].color[3]),
+                    ])
 
             if counter > 0 and counter < loop - 1 :
                 #Here i get differentes color bands:
-                MY_EXPORT_INFORMATIONS.append('# diffuse ramps datas ' + str(counter) + ' :')
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.elements.new(position=' + str(ramp.diffuse_ramp.elements[counter].position) + ')')
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp_blend  =  "' + str(ramp.diffuse_ramp_blend) +  '"')
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp_input  =  "' + str(ramp.diffuse_ramp_input) +  '"')
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp_factor  =  ' + str(ramp.diffuse_ramp_factor))
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.interpolation  =  "' + str(ramp.diffuse_ramp.interpolation) +  '"')
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.elements[' + str(counter) + '].color[0]  =  ' + str(ramp.diffuse_ramp.elements[counter].color[0]))
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.elements[' + str(counter) + '].color[1]  =  ' + str(ramp.diffuse_ramp.elements[counter].color[1]))
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.elements[' + str(counter) + '].color[2]  =  ' + str(ramp.diffuse_ramp.elements[counter].color[2]))
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.elements[' + str(counter) + '].color[3]  =  ' + str(ramp.diffuse_ramp.elements[counter].color[3]))
+                MY_EXPORT_INFORMATIONS.extend \
+                    ([
+                        '# diffuse ramps datas ' + str(counter) + ' :',
+                        'ramp.diffuse_ramp.elements.new(position=' + str(ramp.diffuse_ramp.elements[counter].position) + ')',
+                        'ramp.diffuse_ramp_blend = "' + str(ramp.diffuse_ramp_blend) + '"',
+                        'ramp.diffuse_ramp_input = "' + str(ramp.diffuse_ramp_input) + '"',
+                        'ramp.diffuse_ramp_factor = ' + str(ramp.diffuse_ramp_factor),
+                        'ramp.diffuse_ramp.interpolation = "' + str(ramp.diffuse_ramp.interpolation) + '"',
+                        'ramp.diffuse_ramp.elements[' + str(counter) + '].color[0] = ' + str(ramp.diffuse_ramp.elements[counter].color[0]),
+                        'ramp.diffuse_ramp.elements[' + str(counter) + '].color[1] = ' + str(ramp.diffuse_ramp.elements[counter].color[1]),
+                        'ramp.diffuse_ramp.elements[' + str(counter) + '].color[2] = ' + str(ramp.diffuse_ramp.elements[counter].color[2]),
+                        'ramp.diffuse_ramp.elements[' + str(counter) + '].color[3] = ' + str(ramp.diffuse_ramp.elements[counter].color[3]),
+                    ])
 
             if counter == loop - 1:
-                MY_EXPORT_INFORMATIONS.append('# diffuse ramps datas ' + str(counter) + ' :')
-                MY_EXPORT_INFORMATIONS.append('RAMP_MAX_POSITION =' +str(ramp.diffuse_ramp.elements[counter].position))
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.elements[' + str(counter) +'].position=1.0')
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp_blend  =  "' + str(ramp.diffuse_ramp_blend) +  '"')
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp_input  =  "' + str(ramp.diffuse_ramp_input) +  '"')
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp_factor  =  ' + str(ramp.diffuse_ramp_factor))
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.interpolation  =  "' + str(ramp.diffuse_ramp.interpolation) +  '"')
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.elements[' + str(counter) + '].color[0]  =  ' + str(ramp.diffuse_ramp.elements[counter].color[0]))
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.elements[' + str(counter) + '].color[1]  =  ' + str(ramp.diffuse_ramp.elements[counter].color[1]))
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.elements[' + str(counter) + '].color[2]  =  ' + str(ramp.diffuse_ramp.elements[counter].color[2]))
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.elements[' + str(counter) + '].color[3]  =  ' + str(ramp.diffuse_ramp.elements[counter].color[3]))
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.elements[0].position = RAMP_MIN_POSITION ')
-                MY_EXPORT_INFORMATIONS.append('ramp.diffuse_ramp.elements[' +  str(counter) + '].position = RAMP_MAX_POSITION ')
+                MY_EXPORT_INFORMATIONS.extend \
+                    ([
+                        '# diffuse ramps datas ' + str(counter) + ' :',
+                        'RAMP_MAX_POSITION =' +str(ramp.diffuse_ramp.elements[counter].position),
+                        'ramp.diffuse_ramp.elements[' + str(counter) +'].position=1.0',
+                        'ramp.diffuse_ramp_blend = "' + str(ramp.diffuse_ramp_blend) + '"',
+                        'ramp.diffuse_ramp_input = "' + str(ramp.diffuse_ramp_input) + '"',
+                        'ramp.diffuse_ramp_factor = ' + str(ramp.diffuse_ramp_factor),
+                        'ramp.diffuse_ramp.interpolation = "' + str(ramp.diffuse_ramp.interpolation) + '"',
+                        'ramp.diffuse_ramp.elements[' + str(counter) + '].color[0] = ' + str(ramp.diffuse_ramp.elements[counter].color[0]),
+                        'ramp.diffuse_ramp.elements[' + str(counter) + '].color[1] = ' + str(ramp.diffuse_ramp.elements[counter].color[1]),
+                        'ramp.diffuse_ramp.elements[' + str(counter) + '].color[2] = ' + str(ramp.diffuse_ramp.elements[counter].color[2]),
+                        'ramp.diffuse_ramp.elements[' + str(counter) + '].color[3] = ' + str(ramp.diffuse_ramp.elements[counter].color[3]),
+                        'ramp.diffuse_ramp.elements[0].position = RAMP_MIN_POSITION ',
+                        'ramp.diffuse_ramp.elements[' + str(counter) + '].position = RAMP_MAX_POSITION ',
+                    ])
 
             counter = counter + 1
 
@@ -1804,10 +1879,13 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
         counter = 0
         loop = 0
         values = ""
-        MY_EXPORT_INFORMATIONS.append('ramp.use_specular_ramp = True')
-        MY_EXPORT_INFORMATIONS.append('RAMP_MIN_POSITION = 0.0')
-        MY_EXPORT_INFORMATIONS.append('RAMP_MAX_POSITION = 1.0')
-        MY_EXPORT_INFORMATIONS.append('')
+        MY_EXPORT_INFORMATIONS.extend \
+            ([
+                'ramp.use_specular_ramp = True',
+                'RAMP_MIN_POSITION = 0.0',
+                'RAMP_MAX_POSITION = 1.0',
+                '',
+            ])
 
         for values in ramp.specular_ramp.elements.items():
             loop = loop + 1
@@ -1815,45 +1893,54 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
         while counter <= loop:
             if counter == 0:
                 #Here i get differentes color bands:
-                MY_EXPORT_INFORMATIONS.append('# Specular ramps datas ' + str(counter) + ' :')
-                MY_EXPORT_INFORMATIONS.append('RAMP_MIN_POSITION =' +str(ramp.specular_ramp.elements[0].position))
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[0].position='+ str(ramp.specular_ramp.elements[counter].position) +'')
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp_blend  =  "' + str(ramp.specular_ramp_blend) +  '"')
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp_input  =  "' + str(ramp.specular_ramp_input) +  '"')
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp_factor  =  ' + str(ramp.specular_ramp_factor))
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.interpolation  =  "' + str(ramp.specular_ramp.interpolation) +  '"')
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[' + str(counter) + '].color[0]  =  ' + str(ramp.specular_ramp.elements[counter].color[0]))
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[' + str(counter) + '].color[1]  =  ' + str(ramp.specular_ramp.elements[counter].color[1]))
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[' + str(counter) + '].color[2]  =  ' + str(ramp.specular_ramp.elements[counter].color[2]))
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[' + str(counter) + '].color[3]  =  ' + str(ramp.specular_ramp.elements[counter].color[3]))
+                MY_EXPORT_INFORMATIONS.extend \
+                    ([
+                        '# Specular ramps datas ' + str(counter) + ' :',
+                        'RAMP_MIN_POSITION =' +str(ramp.specular_ramp.elements[0].position),
+                        'ramp.specular_ramp.elements[0].position='+ str(ramp.specular_ramp.elements[counter].position) +'',
+                        'ramp.specular_ramp_blend = "' + str(ramp.specular_ramp_blend) + '"',
+                        'ramp.specular_ramp_input = "' + str(ramp.specular_ramp_input) + '"',
+                        'ramp.specular_ramp_factor = ' + str(ramp.specular_ramp_factor),
+                        'ramp.specular_ramp.interpolation = "' + str(ramp.specular_ramp.interpolation) + '"',
+                        'ramp.specular_ramp.elements[' + str(counter) + '].color[0] = ' + str(ramp.specular_ramp.elements[counter].color[0]),
+                        'ramp.specular_ramp.elements[' + str(counter) + '].color[1] = ' + str(ramp.specular_ramp.elements[counter].color[1]),
+                        'ramp.specular_ramp.elements[' + str(counter) + '].color[2] = ' + str(ramp.specular_ramp.elements[counter].color[2]),
+                        'ramp.specular_ramp.elements[' + str(counter) + '].color[3] = ' + str(ramp.specular_ramp.elements[counter].color[3]),
+                    ])
 
             if counter > 0 and counter < loop - 1 :
                 #Here i get differentes color bands:
-                MY_EXPORT_INFORMATIONS.append('# Specular ramps datas ' + str(counter) + ' :')
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements.new(position=' + str(ramp.specular_ramp.elements[counter].position) + ')')
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp_blend  =  "' + str(ramp.specular_ramp_blend) +  '"')
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp_input  =  "' + str(ramp.specular_ramp_input) +  '"')
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp_factor  =  ' + str(ramp.specular_ramp_factor))
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.interpolation  =  "' + str(ramp.specular_ramp.interpolation) +  '"')
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[' + str(counter) + '].color[0]  =  ' + str(ramp.specular_ramp.elements[counter].color[0]))
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[' + str(counter) + '].color[1]  =  ' + str(ramp.specular_ramp.elements[counter].color[1]))
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[' + str(counter) + '].color[2]  =  ' + str(ramp.specular_ramp.elements[counter].color[2]))
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[' + str(counter) + '].color[3]  =  ' + str(ramp.specular_ramp.elements[counter].color[3]))
+                MY_EXPORT_INFORMATIONS.extend \
+                    ([
+                        '# Specular ramps datas ' + str(counter) + ' :',
+                        'ramp.specular_ramp.elements.new(position=' + str(ramp.specular_ramp.elements[counter].position) + ')',
+                        'ramp.specular_ramp_blend = "' + str(ramp.specular_ramp_blend) + '"',
+                        'ramp.specular_ramp_input = "' + str(ramp.specular_ramp_input) + '"',
+                        'ramp.specular_ramp_factor = ' + str(ramp.specular_ramp_factor),
+                        'ramp.specular_ramp.interpolation = "' + str(ramp.specular_ramp.interpolation) + '"',
+                        'ramp.specular_ramp.elements[' + str(counter) + '].color[0] = ' + str(ramp.specular_ramp.elements[counter].color[0]),
+                        'ramp.specular_ramp.elements[' + str(counter) + '].color[1] = ' + str(ramp.specular_ramp.elements[counter].color[1]),
+                        'ramp.specular_ramp.elements[' + str(counter) + '].color[2] = ' + str(ramp.specular_ramp.elements[counter].color[2]),
+                        'ramp.specular_ramp.elements[' + str(counter) + '].color[3] = ' + str(ramp.specular_ramp.elements[counter].color[3]),
+                    ])
 
             if counter == loop - 1:
-                MY_EXPORT_INFORMATIONS.append('# Specular ramps datas ' + str(counter) + ' :')
-                MY_EXPORT_INFORMATIONS.append('RAMP_MAX_POSITION =' +str(ramp.specular_ramp.elements[counter].position))
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[' + str(counter) +'].position=1.0')
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp_blend  =  "' + str(ramp.specular_ramp_blend) +  '"')
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp_input  =  "' + str(ramp.specular_ramp_input) +  '"')
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp_factor  =  ' + str(ramp.specular_ramp_factor))
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.interpolation  =  "' + str(ramp.specular_ramp.interpolation) +  '"')
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[' + str(counter) + '].color[0]  =  ' + str(ramp.specular_ramp.elements[counter].color[0]))
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[' + str(counter) + '].color[1]  =  ' + str(ramp.specular_ramp.elements[counter].color[1]))
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[' + str(counter) + '].color[2]  =  ' + str(ramp.specular_ramp.elements[counter].color[2]))
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[' + str(counter) + '].color[3]  =  ' + str(ramp.specular_ramp.elements[counter].color[3]))
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[0].position = RAMP_MIN_POSITION ')
-                MY_EXPORT_INFORMATIONS.append('ramp.specular_ramp.elements[' +  str(counter) + '].position = RAMP_MAX_POSITION ')
+                MY_EXPORT_INFORMATIONS.extend \
+                    ([
+                        '# Specular ramps datas ' + str(counter) + ' :',
+                        'RAMP_MAX_POSITION =' +str(ramp.specular_ramp.elements[counter].position),
+                        'ramp.specular_ramp.elements[' + str(counter) +'].position=1.0',
+                        'ramp.specular_ramp_blend = "' + str(ramp.specular_ramp_blend) + '"',
+                        'ramp.specular_ramp_input = "' + str(ramp.specular_ramp_input) + '"',
+                        'ramp.specular_ramp_factor = ' + str(ramp.specular_ramp_factor),
+                        'ramp.specular_ramp.interpolation = "' + str(ramp.specular_ramp.interpolation) + '"',
+                        'ramp.specular_ramp.elements[' + str(counter) + '].color[0] = ' + str(ramp.specular_ramp.elements[counter].color[0]),
+                        'ramp.specular_ramp.elements[' + str(counter) + '].color[1] = ' + str(ramp.specular_ramp.elements[counter].color[1]),
+                        'ramp.specular_ramp.elements[' + str(counter) + '].color[2] = ' + str(ramp.specular_ramp.elements[counter].color[2]),
+                        'ramp.specular_ramp.elements[' + str(counter) + '].color[3] = ' + str(ramp.specular_ramp.elements[counter].color[3]),
+                        'ramp.specular_ramp.elements[0].position = RAMP_MIN_POSITION ',
+                        'ramp.specular_ramp.elements[' + str(counter) + '].position = RAMP_MAX_POSITION ',
+                    ])
 
             counter = counter + 1
 
@@ -1882,11 +1969,14 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                     else:
                         cou = cou + 1
 
-                MY_EXPORT_INFORMATIONS.append('# Texture color ramps datas ' + str(textureNumberSlot) + ' :')
-                MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.use_color_ramp = True')
-                MY_EXPORT_INFORMATIONS.append('RAMP_MIN_POSITION = 0.0')
-                MY_EXPORT_INFORMATIONS.append('RAMP_MAX_POSITION = 1.0')
-                MY_EXPORT_INFORMATIONS.append('')
+                MY_EXPORT_INFORMATIONS.extend \
+                    ([
+                        '# Texture color ramps datas ' + str(textureNumberSlot) + ' :',
+                        'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.use_color_ramp = True',
+                        'RAMP_MIN_POSITION = 0.0',
+                        'RAMP_MAX_POSITION = 1.0',
+                        '',
+                    ])
 
                 for values in ramp.texture_slots[textureNumbers].texture.color_ramp.elements.items():
                     loop = loop + 1
@@ -1894,35 +1984,44 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                 while counter <= loop:
                     if counter == 0:
                         #Here i get differentes color bands:
-                        MY_EXPORT_INFORMATIONS.append('RAMP_MIN_POSITION =' +str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[0].position))
-                        MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[0].position='+ str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].position) +'')
-                        MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.interpolation  =  "' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.interpolation) +  '"')
-                        MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[0]  =  ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[0]))
-                        MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[1]  =  ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[1]))
-                        MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[2]  =  ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[2]))
-                        MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[3]  =  ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[3]))
+                        MY_EXPORT_INFORMATIONS.extend \
+                            ([
+                                'RAMP_MIN_POSITION =' +str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[0].position),
+                                'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[0].position='+ str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].position) +'',
+                                'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.interpolation = "' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.interpolation) + '"',
+                                'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[0] = ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[0]),
+                                'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[1] = ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[1]),
+                                'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[2] = ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[2]),
+                                'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[3] = ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[3]),
+                            ])
 
                     if counter > 0 and counter < loop - 1 :
                         #Here i get differentes color bands:
-                        MY_EXPORT_INFORMATIONS.append('# Texture color ramps datas ' + str(textureNumberSlot) + ' :')
-                        MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements.new(position=' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].position) + ')')
-                        MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.interpolation  =  "' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.interpolation) +  '"')
-                        MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[0]  =  ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[0]))
-                        MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[1]  =  ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[1]))
-                        MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[2]  =  ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[2]))
-                        MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[3]  =  ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[3]))
+                        MY_EXPORT_INFORMATIONS.extend \
+                            ([
+                                '# Texture color ramps datas ' + str(textureNumberSlot) + ' :',
+                                'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements.new(position=' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].position) + ')',
+                                'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.interpolation = "' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.interpolation) + '"',
+                                'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[0] = ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[0]),
+                                'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[1] = ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[1]),
+                                'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[2] = ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[2]),
+                                'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[3] = ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[3]),
+                            ])
 
                     if counter == loop - 1:
-                        MY_EXPORT_INFORMATIONS.append('# Texture color ramps datas ' + str(textureNumberSlot) + ' :')
-                        MY_EXPORT_INFORMATIONS.append('RAMP_MAX_POSITION =' +str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].position))
-                        MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) +'].position=1.0')
-                        MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.interpolation  =  "' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.interpolation) +  '"')
-                        MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[0]  =  ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[0]))
-                        MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[1]  =  ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[1]))
-                        MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[2]  =  ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[2]))
-                        MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[3]  =  ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[3]))
-                        MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[0].position = RAMP_MIN_POSITION ')
-                        MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' +  str(counter) + '].position = RAMP_MAX_POSITION ')
+                        MY_EXPORT_INFORMATIONS.extend \
+                            ([
+                                '# Texture color ramps datas ' + str(textureNumberSlot) + ' :',
+                                'RAMP_MAX_POSITION =' +str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].position),
+                                'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) +'].position=1.0',
+                                'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.interpolation = "' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.interpolation) + '"',
+                                'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[0] = ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[0]),
+                                'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[1] = ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[1]),
+                                'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[2] = ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[2]),
+                                'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].color[3] = ' + str(ramp.texture_slots[textureNumbers].texture.color_ramp.elements[counter].color[3]),
+                                'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[0].position = RAMP_MIN_POSITION ',
+                                'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.color_ramp.elements[' + str(counter) + '].position = RAMP_MAX_POSITION ',
+                            ])
 
                     counter = counter + 1
 
@@ -1951,10 +2050,13 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                         else:
                             cou = cou + 1
 
-                    MY_EXPORT_INFORMATIONS.append('# Texture point density ramps datas ' + str(textureNumberSlot) + ' :')
-                    MY_EXPORT_INFORMATIONS.append('RAMP_MIN_POSITION = 0.0')
-                    MY_EXPORT_INFORMATIONS.append('RAMP_MAX_POSITION = 1.0')
-                    MY_EXPORT_INFORMATIONS.append('')
+                    MY_EXPORT_INFORMATIONS.extend \
+                        ([
+                            '# Texture point density ramps datas ' + str(textureNumberSlot) + ' :',
+                            'RAMP_MIN_POSITION = 0.0',
+                            'RAMP_MAX_POSITION = 1.0',
+                            '',
+                        ])
 
                     for values in ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements.items():
                         loop = loop + 1
@@ -1962,35 +2064,44 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                     while counter <= loop:
                         if counter == 0:
                             #Here i get differentes color bands:
-                            MY_EXPORT_INFORMATIONS.append('RAMP_MIN_POSITION =' +str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[0].position))
-                            MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[0].position='+ str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].position) +'')
-                            MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.interpolation  =  "' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.interpolation) +  '"')
-                            MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[0]  =  ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[0]))
-                            MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[1]  =  ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[1]))
-                            MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[2]  =  ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[2]))
-                            MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[3]  =  ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[3]))
+                            MY_EXPORT_INFORMATIONS.extend \
+                                ([
+                                    'RAMP_MIN_POSITION =' +str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[0].position),
+                                    'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[0].position='+ str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].position) +'',
+                                    'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.interpolation = "' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.interpolation) + '"',
+                                    'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[0] = ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[0]),
+                                    'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[1] = ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[1]),
+                                    'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[2] = ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[2]),
+                                    'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[3] = ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[3]),
+                                ])
 
                         if counter > 0 and counter < loop - 1 :
                             #Here i get differentes color bands:
-                            MY_EXPORT_INFORMATIONS.append('# Texture point density ramps datas ' + str(textureNumberSlot) + ' :')
-                            MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements.new(position=' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].position) + ')')
-                            MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.interpolation  =  "' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.interpolation) +  '"')
-                            MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[0]  =  ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[0]))
-                            MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[1]  =  ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[1]))
-                            MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[2]  =  ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[2]))
-                            MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[3]  =  ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[3]))
+                            MY_EXPORT_INFORMATIONS.extend \
+                                ([
+                                    '# Texture point density ramps datas ' + str(textureNumberSlot) + ' :',
+                                    'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements.new(position=' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].position) + ')',
+                                    'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.interpolation = "' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.interpolation) + '"',
+                                    'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[0] = ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[0]),
+                                    'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[1] = ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[1]),
+                                    'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[2] = ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[2]),
+                                    'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[3] = ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[3]),
+                                ])
 
                         if counter == loop - 1:
-                            MY_EXPORT_INFORMATIONS.append('# Texture point density ramps datas ' + str(textureNumberSlot) + ' :')
-                            MY_EXPORT_INFORMATIONS.append('RAMP_MIN_POSITION =' +str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].position))
-                            MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) +'].position=1.0')
-                            MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.interpolation  =  "' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.interpolation) +  '"')
-                            MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[0]  =  ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[0]))
-                            MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[1]  =  ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[1]))
-                            MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[2]  =  ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[2]))
-                            MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[3]  =  ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[3]))
-                            MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[0].position = RAMP_MIN_POSITION ')
-                            MY_EXPORT_INFORMATIONS.append('ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' +  str(counter) + '].position = RAMP_MAX_POSITION ')
+                            MY_EXPORT_INFORMATIONS.extend \
+                                ([
+                                    '# Texture point density ramps datas ' + str(textureNumberSlot) + ' :',
+                                    'RAMP_MIN_POSITION =' +str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].position),
+                                    'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) +'].position=1.0',
+                                    'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.interpolation = "' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.interpolation) + '"',
+                                    'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[0] = ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[0]),
+                                    'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[1] = ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[1]),
+                                    'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[2] = ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[2]),
+                                    'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].color[3] = ' + str(ramp.texture_slots[textureNumbers].texture.point_density.color_ramp.elements[counter].color[3]),
+                                    'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[0].position = RAMP_MIN_POSITION ',
+                                    'ramp.texture_slots[' + str(textureNumberSlot) + '].texture.point_density.color_ramp.elements[' + str(counter) + '].position = RAMP_MAX_POSITION ',
+                                ])
 
                         counter = counter + 1
 
@@ -2000,8 +2111,8 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
     Mat_Name = stripext(Mat_Name, '.py')
     Mat_Name = Mat_Name.replace('.', '')
 
-    #fileExport =  File_Path + "_" + Inf_Creator + ".py"
-    fileExport =  os.path.join(ZipPath, Mat_Name + "_" + Inf_Creator + ".py")
+    #fileExport = File_Path + "_" + Inf_Creator + ".py"
+    fileExport = os.path.join(ZipPath, Mat_Name + "_" + Inf_Creator + ".py")
 
     file = open(fileExport, "w")
     for line in MY_EXPORT_INFORMATIONS:
