@@ -15,7 +15,6 @@
 #  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 #======================= END GPL LICENSE BLOCK ========================
-#Test update
 bl_info = {
     "name": "Shader Tools",
     "author": "Please press Credits Button for more details",
