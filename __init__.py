@@ -1048,8 +1048,9 @@ def ImporterSQL(SearchName):
         TableName = "TEXTURES",
         Condition = "Mat_Idx = %s",
         Values = [MyMaterialIndex],
-        FieldDefs = texture_fields
-      ) # fixme: note no explicit ordering specified
+        FieldDefs = texture_fields,
+        Extra = "order by Tex_Index asc" # hopefully this is sufficient to match insertion order
+      )
     #I must extract IMAGES/UV before create Textures:
     MyTextureIdxResult = list(t["Tex_Index"] for t in MyTextureResult)
     Render = ""
@@ -1166,8 +1167,9 @@ def ImporterSQL(SearchName):
                 TableName = "POINTDENSITY_RAMP",
                 Condition = "Poi_Num_Texture = %s",
                 Values = [ThisTexture["Tex_Index"]],
-                FieldDefs = pointdensity_ramp_fields
-              ) # fixme: note no explicit ordering specified
+                FieldDefs = pointdensity_ramp_fields,
+                Extra = "order by Poi_Index asc" # hopefully this is sufficient to match insertion order
+              )
             RAMP_MIN_POSITION = 0.0
             RAMP_MAX_POSITION = 1.0
             if MyPointDensityRampResult != [] :
@@ -1230,8 +1232,9 @@ def ImporterSQL(SearchName):
             TableName = "COLORS_RAMP",
             Condition = "Col_Num_Texture = %s",
             Values = [ThisTexture["Tex_Index"]],
-            FieldDefs = color_ramp_fields
-          ) # fixme: note no explicit ordering specified
+            FieldDefs = color_ramp_fields,
+            Extra = "order by Col_Index asc" # hopefully this is sufficient to match insertion order
+          )
         if MyColorRampResult != [] :
             ramp_last = len(MyColorRampResult) - 1
             #Now I create ramps:
@@ -1272,8 +1275,9 @@ def ImporterSQL(SearchName):
         TableName = "DIFFUSE_RAMP",
         Condition = "Dif_Num_material = %s",
         Values = [MyMaterialIndex],
-        FieldDefs = diffuse_ramp_fields
-      ) # fixme: note no explicit ordering specified
+        FieldDefs = diffuse_ramp_fields,
+        Extra = "order by Dif_Index asc" # hopefully this is sufficient to match insertion order
+      )
     if MyDiffuseRampResult != [] :
         ramp_last = len(MyDiffuseRampResult) - 1
         #Now I create ramps:
@@ -1314,8 +1318,9 @@ def ImporterSQL(SearchName):
         TableName = "SPECULAR_RAMP",
         Condition = "Spe_Num_Material = %s",
         Values = [MyMaterialIndex],
-        FieldDefs = specular_ramp_fields
-      ) # fixme: note no explicit ordering specified
+        FieldDefs = specular_ramp_fields,
+        Extra = "order by Spe_Index asc" # hopefully this is sufficient to match insertion order
+      )
     if MySpecularRampResult != []:
         ramp_last = len(MySpecularRampResult) - 1
         #Now I create ramps:
