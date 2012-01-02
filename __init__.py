@@ -2468,10 +2468,9 @@ def UpdateDatabase(Inf_Creator, Inf_Category, Inf_Description, Inf_Weblink, Inf_
 #end UpdateDatabase
 
 # ************************************************************************************
-# *                                     SEARCH SHADERS                               *
+# *                                 SEARCH SHARED FUNCTION                           *
 # ************************************************************************************
-def SearchShaders(self, context):
-
+def SearchSharedFunction(Type, PreviewName):
     #I must verify if search file not exist :
     if not os.path.exists(os.path.join(TempPath, "searching")) :
 
@@ -2495,7 +2494,6 @@ def SearchShaders(self, context):
             if not os.path.isdir(f) and f.endswith(".jpg"):
                 shutil.copy2(os.path.join(shaderFolderPath, f), os.path.join(TempPath, f))
 
-
     #Here I remove all files in Base Preview Folder:
     files = os.listdir(shaderFolderPath)
     for f in files:
@@ -2506,57 +2504,28 @@ def SearchShaders(self, context):
     files = os.listdir(TempPath)
     for f in files:
         if not os.path.isdir(f) and f.endswith(".jpg"):
-            if self.Search.upper() in f.upper():
-                shutil.copy2(os.path.join(TempPath, f), os.path.join(shaderFolderPath, f))
+            if type == "normal":
+                if PreviewName.upper() in f.upper():
+                    shutil.copy2(os.path.join(TempPath, f), os.path.join(shaderFolderPath, f))
 
+            else:
+                if PreviewName.upper() in f.upper():
+                    shutil.copy2(os.path.join(TempPath, f), os.path.join(shaderFolderPath, f))
 
     bpy.ops.file.refresh()
 
-
-
+# ************************************************************************************
+# *                                     SEARCH SHADERS                               *
+# ************************************************************************************
+def SearchShaders(self, context):
+    SearchSharedFunction("normal", self.Search) #search shaders & search shaders history use same part code
+    
 
 # ************************************************************************************
 # *                                 SEARCH SHADERS HISTORY                           *
 # ************************************************************************************
-def SearchShadersEnum(self, context):
-
-    #I must verify if search file not exist :
-    if not os.path.exists(os.path.join(TempPath, "searching")) :
-
-        #I create file until user do not cancel or valid choice :
-        searchFile = open(os.path.join(TempPath, "searching"), 'w')
-        searchFile.close()
-
-        #Here I remove all files in the Tempory Folder:
-        if os.path.exists(TempPath) :
-            files = os.listdir(TempPath)
-            for f in files:
-                if not os.path.isdir(f) and f.endswith(".jpg"):
-                    os.remove(os.path.join(TempPath, f))
-        else:
-            os.makedirs(TempPath)
-
-        #Here I copy all files in Base Preview Folder:
-        files = os.listdir(shaderFolderPath)
-        for f in files:
-            if not os.path.isdir(f) and f.endswith(".jpg"):
-                shutil.copy2(os.path.join(shaderFolderPath, f), os.path.join(TempPath, f))
-
-    #Here I remove all files in Base Preview Folder:
-    files = os.listdir(shaderFolderPath)
-    for f in files:
-        if not os.path.isdir(f) and f.endswith(".jpg"):
-            os.remove(os.path.join(shaderFolderPath, f))
-
-    #Now I must copy files corresponding search entry :
-    files = os.listdir(TempPath)
-    for f in files:
-        if not os.path.isdir(f) and f.endswith(".jpg"):
-            if True in map(lambda h : os.path.normcase(f) == os.path.normcase(h), HISTORY_FILE) :
-                shutil.copy2(os.path.join(TempPath, f), os.path.join(shaderFolderPath, f))
-
-    bpy.ops.file.refresh()
-
+def SearchShadersEnum(self, context):   
+    SearchSharedFunction("enumerator", self.History) #search shaders & search shaders history use same part code    
 
 # ************************************************************************************
 # *                                        OPEN SHADERS                              *
@@ -2680,7 +2649,7 @@ class Credits(bpy.types.Operator):
         row.label("Tinangel")
         row = layout.row(align=True)
         row.label("")
-        row.label("Lawrence D'Oliveiro (Clean up code)")
+        row.label("Lawrence D'Oliveiro")
         row = layout.row(align=True)
         row.label("Testing & corrections : ")
         row.label("Ezee, LA-Crobate,")
