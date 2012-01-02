@@ -81,10 +81,13 @@ DefaultCategory = "Personal"
 DefaultEmail = "my_email@company.com"
 Resolution_X = 120
 Resolution_Y = 120
-
 DefaultLanguage = locale.getdefaultlocale()[0]
-#Config Path :
-if os.path.exists(ConfigPath) :
+
+def LoadConfig() :
+    # loads the last-saved config into globals.
+    global AppPath, DataBasePath, DefaultCreator, DefaultDescription, DefaultWeblink
+    global DefaultMaterialName, DefaultCategory, DefaultEmail, Resolution_X, Resolution_Y
+    global DefaultLanguage
     config = open(ConfigPath, 'r')
     AppPath = config.readline().rstrip("\n")
     DataBasePath = config.readline().rstrip("\n")
@@ -97,7 +100,11 @@ if os.path.exists(ConfigPath) :
     Resolution_X = config.readline().rstrip("\n")
     Resolution_Y = config.readline().rstrip("\n")
     DefaultLanguage = config.readline().rstrip("\n")
-else:
+    config.close()
+#end LoadConfig
+
+def SaveConfig() :
+    # saves the current config globals.
     config = open(ConfigPath,'w')
     config.write(AppPath + '\n')
     config.write(DataBasePath + '\n')
@@ -110,8 +117,15 @@ else:
     config.write(str(Resolution_X) + '\n')
     config.write(str(Resolution_Y) + '\n')
     config.write(DefaultLanguage + '\n')
+    config.flush()
+    config.close()
+#end SaveConfig
+
+if os.path.exists(ConfigPath) :
+    LoadConfig()
+else:
+    SaveConfig()
 #end if
-config.close()
 
 
 if os.path.exists(TempPath) :
@@ -3265,26 +3279,22 @@ class Configuration(bpy.types.Operator):
         return wm.invoke_props_dialog(self, width=500)
 
     def execute(self, context):
-        #Delete configuration file:
-        os.remove(ConfigPath)
-
-        #Create a new configuration file:
-        config = open(ConfigPath,'w')
-        config.write(AppPath + '\n')
-        config.write(self.DataBasePathFile + '\n')
-        config.write(self.Inf_Creator + '\n')
-        config.write(self.Inf_Description + '\n')
-        config.write(self.Inf_Weblink + '\n')
-        config.write(self.Mat_Name + '\n')
-        config.write(self.Inf_Category + '\n')
-        config.write(self.Inf_Email + '\n')
-        config.write(self.Inf_ResolutionX + '\n')
-        config.write(self.Inf_ResolutionY + '\n')
-        config.write(self.Inf_Language + '\n')
-
-        config.close()
-
-        bpy.ops.script.python_file_run(filepath=os.path.join(AppPath, "__init__.py")) # just to reload the config??
+        global DataBasePath, DefaultCreator, DefaultDescription, DefaultWeblink
+        global DefaultMaterialName, DefaultCategory, DefaultEmail, Resolution_X, Resolution_Y
+        global DefaultLanguage
+        # set new config
+        DataBasePath = self.DataBasePathFile
+        DefaultCreator = self.Inf_Creator
+        DefaultDescription = self.Inf_Description
+        DefaultWeblink = self.Inf_Weblink
+        DefaultMaterialName = self.Mat_Name
+        DefaultCategory = self.Inf_Category
+        DefaultEmail = self.Inf_Email
+        Resolution_X = self.Inf_ResolutionX
+        Resolution_Y = self.Inf_ResolutionY
+        DefaultLanguage = self.Inf_Language
+        LoadLanguageValues(DefaultLanguage, LanguageValuesDict)
+        SaveConfig()
         return {'FINISHED'}
 
 # ************************************************************************************
