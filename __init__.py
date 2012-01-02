@@ -69,6 +69,7 @@ DataBasePath = os.path.join(AppPath, "ShaderToolsDatabase.sqlite")
 ConfigPath = os.path.join(AppPath, "config")
 HistoryPath = os.path.join(AppPath, "history")
 TempPath = os.path.join(AppPath, "temp")
+LanguagePath = os.path.join(AppPath, "lang")
 BookmarksPathUser = os.path.join(bpy.utils.resource_path('USER', major=bpy.app.version[0], minor=bpy.app.version[1]), "config", "bookmarks.txt")
 
 #Defaults configuration values
@@ -81,7 +82,7 @@ DefaultEmail = "my_email@company.com"
 Resolution_X = 120
 Resolution_Y = 120
 
-DefaultLanguage = 'en_US'
+DefaultLanguage = locale.getdefaultlocale()[0]
 #Config Path :
 if os.path.exists(ConfigPath) :
     config = open(ConfigPath, 'r')
@@ -122,6 +123,11 @@ if os.path.exists(TempPath) :
             os.remove(os.path.join(TempPath, f))
 else:
     os.makedirs(TempPath)
+
+#I verify if there is an Update:
+if os.path.exists(os.path.join(AppPath, "first")) and os.path.exists(os.path.join(AppPath, "update")):
+    os.remove(os.path.join(AppPath, "first"))
+    os.remove(os.path.join(AppPath, "update"))
 
 # ************************************************************************************
 # *                                       HISTORY FILE                               *
@@ -169,9 +175,28 @@ if HISTORY_FILE == None :
 # *                                     LANGUAGE PARAMETERS                           *
 # ************************************************************************************
 
+#Now I create my Keyboards languages:
+ValidLanguages = {} # key is language code, value is dictionary containing name
+for f in os.listdir(LanguagePath):
+    if not os.path.isdir(f):
+        #I must to open language file and found laguage name:
+        KeyboardPath = os.path.join(LanguagePath, f)
+        KeyboardLanguage = open(KeyboardPath, 'r', encoding="utf-8")
+        val = ""
+        while val != "[Language]":
+            val = KeyboardLanguage.readline().rstrip("\n")
+        #Here i update ValidLanguages :
+        Name = KeyboardLanguage.readline().rstrip("\n")
+        Name = Name.replace("Name=", '')
+        ValidLanguages[f] = {"name" : Name}
+        KeyboardLanguage.close()
+    #end if
+#end for
+
 LanguageKeys = \
     { # sets of keys for language strings, grouped by category prefix
         "Panel" : {"Name"},
+        "Language" : {"Name"},
         "Buttons" :
             {
                 "Open", "Save", "Configuration", "Export",
@@ -186,7 +211,7 @@ LanguageKeys = \
                 "LabelCategory", "Category", "LabelDescription", "Description",
                 "LabelWebLink", "WebLink", "LabelEmail", "Email",
             },
-        "WarningWin" : {"Title"} | set("Label%02d" % i for i in range(1, 11)),
+        "WarningWin" : {"Title"} | set("Label%02d" % i for i in range(1, 11)), # not really needed any more
         "SaveMenu" :
                 {
                     "Title", "Label01", "Name", "Creator", "CreatorValue",
@@ -200,13 +225,14 @@ LanguageKeys = \
             |
                 set(MaterialCategories),
         "ConfigurationMenu" :
-                {"Title", "ResolutionPreviewX", "ResolutionPreviewY", "DataBasePath",}
+                {"Title", "ResolutionPreviewX", "ResolutionPreviewY", "DataBasePath", "ExportPath"}
             |
                 set("Label%02d" % i for i in range(1, 6))
             |
                 set("Warning%02d" % i for i in range(1, 6)),
         "ExportMenu" : {"Title", "Label01", "Name", "Creator", "CreatorDefault", "TakePreview"},
         "ImportMenu" : {"Title"},
+        "FindImageMenu" : {"Name"},
         "HelpMenu" : {"Title"} | set("Label%02d" % i for i in range(1, 41)),
     }
 
@@ -245,11 +271,10 @@ for k in LanguageKeys :
         LanguageValuesDict[k + j] = ""
     #end for
 #end for
-language = locale.getdefaultlocale()[0]
-if os.path.exists(os.path.join(AppPath, "lang", language)) :
-    LoadLanguageValues(language, LanguageValuesDict)
-else:
-    LoadLanguageValues('en_US', LanguageValuesDict)
+if not os.path.exists(os.path.join(AppPath, "lang", DefaultLanguage)) :
+    DefaultLanguage = 'en_US'
+#end if
+LoadLanguageValues(DefaultLanguage, LanguageValuesDict)
 
 #+
 # Useful database stuff
@@ -703,7 +728,7 @@ texture_fields = \
         "Tex_colors_intensity" : {"attr" : ("texture.intensity",)},
         "Tex_colors_contrast" : {"attr" : ("texture.contrast",)},
         "Tex_colors_saturation" : {"attr" : ("texture.saturation",)},
-        "Mat_Idx" : {}, # Mat_Index value for parent material 
+        "Mat_Idx" : {}, # Mat_Index value for parent material
         # following fields really useless, should be removed:
         "Poi_Idx" : {},
         "Col_Idx" : {},
@@ -2719,7 +2744,7 @@ class OpenShaders(bpy.types.Operator):
               (
                 Conn = ShaderToolsDatabase,
                 TableName = "MATERIALS inner join RENDER on MATERIALS.Mat_Index = RENDER.Mat_Index",
-                Fields = 
+                Fields =
                     (
                         "MATERIALS.Mat_Index as Mat_Index",
                         "MATERIALS.Mat_Name as Mat_Name",
@@ -2738,14 +2763,8 @@ class OpenShaders(bpy.types.Operator):
         #end for
         ShaderToolsDatabase.close()
 
-        if os.path.exists(os.path.join(AppPath, "first")) :
-            bpy.ops.object.shadertools_warning('INVOKE_DEFAULT')
-            os.remove(os.path.join(AppPath, "first"))
-            time.sleep(1)
-
-        else:
-            wm = context.window_manager
-            wm.fileselect_add(self)
+        wm = context.window_manager
+        wm.fileselect_add(self)
 
         return {'RUNNING_MODAL'}
 
@@ -3158,49 +3177,11 @@ class SaveCurrentConfiguration(bpy.types.Operator):
         return {'FINISHED'}
 
 # ************************************************************************************
-# *                                  UPDATE WARNING                                  *
-# ************************************************************************************
-class UpdateWarning(bpy.types.Operator):
-    bl_idname = "object.shadertools_warning"
-    bl_label = LanguageValuesDict['WarningWinTitle']
-
-    def draw(self, context):
-        layout = self.layout
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['WarningWinLabel01'], icon='RADIO')
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['WarningWinLabel02'])
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['WarningWinLabel03'])
-        row = layout.row(align=True)
-
-    def invoke(self, context, event):
-        #I verify if an object it's selected :
-        wm = context.window_manager
-        return wm.invoke_props_dialog(self, width=500, height=480)
-
-    def execute(self, context):
-        return {'FINISHED'}
-
-# ************************************************************************************
 # *                                      CONFIGURATION                               *
 # ************************************************************************************
 class Configuration(bpy.types.Operator):
     bl_idname = "object.shadertools_configuration"
     bl_label = LanguageValuesDict['ConfigurationMenuTitle']
-
-    #I normalize values:
-    DefaultCreator = DefaultCreator.replace('\n', '')
-    DefaultDescription = DefaultDescription.replace('\n', '')
-    DefaultWeblink = DefaultWeblink.replace('\n', '')
-    DefaultMaterialName = DefaultMaterialName.replace('\n', '')
-    DefaultCategory = DefaultCategory.replace('\n', '')
-    DefaultEmail = DefaultEmail.replace('\n', '')
-    Resolution_X = str(Resolution_X)
-    Resolution_Y = str(Resolution_Y)
-    Resolution_X = str(Resolution_X.replace('\n', ''))
-    Resolution_Y = str(Resolution_Y.replace('\n', ''))
-    DefaultLanguage = DefaultLanguage.replace('\n', '')
 
     #I prepare the window :
     DataBasePathFile = bpy.props.StringProperty(name=LanguageValuesDict['ConfigurationMenuDataBasePath'], default=DataBasePath)
@@ -3227,18 +3208,17 @@ class Configuration(bpy.types.Operator):
     Mat_Name = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuName'], default=DefaultMaterialName)
 
 
-    Inf_ResolutionX = bpy.props.StringProperty(name=LanguageValuesDict['ConfigurationMenuResolutionPreviewX'], default=Resolution_X)
-    Inf_ResolutionY = bpy.props.StringProperty(name=LanguageValuesDict['ConfigurationMenuResolutionPreviewY'], default=Resolution_Y)
+    Inf_ResolutionX = bpy.props.StringProperty(name=LanguageValuesDict['ConfigurationMenuResolutionPreviewX'], default=str(Resolution_X))
+    Inf_ResolutionY = bpy.props.StringProperty(name=LanguageValuesDict['ConfigurationMenuResolutionPreviewY'], default=str(Resolution_Y))
     Inf_Language = bpy.props.EnumProperty \
       (
         name = LanguageValuesDict['ConfigurationMenuLabel05'],
         items =
-            ( # fixme: build this list dynamically and put language names into lang files themselves
-                ('en_US', 'English', ""),
-                ('fr_FR', 'French', ""),
-                ('de_DE', 'Deutsch', ""),
-                ('es_ES', 'Spanish', ""),
-            ),
+            tuple
+              (
+                (k, ValidLanguages[k]["name"], "")
+                    for k in sorted(ValidLanguages.keys(), key = lambda k : ValidLanguages[k]["name"])
+              ),
         default = DefaultLanguage
       )
 
@@ -3304,7 +3284,7 @@ class Configuration(bpy.types.Operator):
 
         config.close()
 
-        bpy.ops.script.python_file_run(filepath=os.path.join(AppPath, "__init__.py"))
+        bpy.ops.script.python_file_run(filepath=os.path.join(AppPath, "__init__.py")) # just to reload the config??
         return {'FINISHED'}
 
 # ************************************************************************************
@@ -3342,7 +3322,6 @@ class CreateNew(bpy.types.Operator):
 MyRegClasses = \
     (
         SaveCurrentConfiguration,
-        UpdateWarning,
         OpenShaders,
         Configuration,
         Export,

@@ -1,5 +1,8 @@
-
 *!-* Blender Addon Langage
+
+[Language]
+Name=English
+*!-*
 
 [Panel]
 Name=Material pre-defined
@@ -35,7 +38,7 @@ Name=Materials Database
 
 [WarningWin]
 Title=Important information(s)
-Label01=An update of  your parameters had just been effectued
+Label01=Update: please start again Blender
 Label02=Thank you for relaunching Blender so that the modifications are taken into account.
 Label03=
 *!-*
@@ -87,13 +90,14 @@ Wood=Wood
 *!-*
 
 [ConfigurationMenu]
-Title=Create a confiuguration
+Title=Create a configuration
 Label01=Parameters of export
+ExportPath=Path export
 Label02=Parameters of the Database
-Label03=Preview parameters
-Label04=Language parameters
-Label05=Select your language
 DataBasePath=Path of Database
+Label04=Select your language
+Label05=Language
+Label03=Preview parameters
 ResolutionPreviewX=Resolution X
 ResolutionPreviewY=Resolution Y
 Warning01=
@@ -115,6 +119,11 @@ TakePreview=Create a preview
 [ImportMenu]
 Title=Import a material
 *!-*
+
+[FindImageMenu]
+Name=Search image
+*!-*
+
 
 
 [InformationsMenu]

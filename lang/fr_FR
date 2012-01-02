@@ -1,4 +1,8 @@
 *!-* Blender Addon Langage
+[Language]
+Name=French
+*!-*
+
 
 [Panel]
 Name=Materiaux Pre-configures
@@ -21,7 +25,7 @@ Label01=INFORMATIONS SUR LE MATERIAU
 Label02=Materiau
 Label03=Createur
 Label04=Categorie
-Label05=Description
+Label05=Descritpion
 Label06=Lien Internet
 Label07=Email
 Label08=RECHERCHER
@@ -33,8 +37,8 @@ Name=Base Materiaux
 *!-*
 
 [WarningWin]
-Title=Information(s) importante(s)
-Label01=Une mise a jour de vos parametres vient d'être effectuee.
+Title=Mise à jour : veuillez relancer Blender
+Label01=Mise à jour : veuillez relancer Blender
 Label02=Merci de relancer Blender pour que les modifications soient prises en compte.
 Label03=
 *!-*
@@ -93,13 +97,14 @@ Wood=Bois
 [ConfigurationMenu]
 Title=Creer une configuration
 Label01=Parametres d'export
+ExportPath=Chemin d'export
 Label02=Parametres de la Base de Donnees
-Label03=Parametres de preview
-Label04=Parametres de langues
-Label05=Selectionnez votre langue
 DataBasePath=Chemin de la Base
+Label03=Parametres de preview
 ResolutionPreviewX=Resolution X
 ResolutionPreviewY=Resolution Y
+Label04=Choix de la langue
+Label05=Langue
 Warning01=Les valeurs de configuration ne se rafraichissent pas automatiquement mais les modifications 
 Warning02=sont correctement sauvegardees dans le fichier de configuration 'config' (qui se situe dans le 
 Warning03=repertoire de l'add-on). Ne vous inquietez pas. Vous pouvez aussi redemarrer Blender pour que les 
@@ -119,6 +124,10 @@ TakePreview=Creer une preview
 
 [ImportMenu]
 Title=Importer un materiau
+*!-*
+
+[FindImageMenu]
+Name=Rechercher une image
 *!-*
 
 
