@@ -15,6 +15,7 @@
 #  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 #======================= END GPL LICENSE BLOCK ========================
+
 bl_info = {
     "name": "Shader Tools",
     "author": "Please press Credits Button for more details",
@@ -79,7 +80,7 @@ DefaultCategory = "Personal"
 DefaultEmail = "my_email@company.com"
 Resolution_X = 120
 Resolution_Y = 120
-DefaultLanguage = 'en_US'
+DefaultLanguage = 'English'
 
 
 #Config Path :
@@ -174,46 +175,23 @@ if HISTORY_FILE == None :
 # ************************************************************************************
 # *                                     LANGUAGE PARAMETERS                           *
 # ************************************************************************************
-
-#Here I count files numbers:
-KeyboardNumbers = 0
-files = os.listdir(LanguagePath)
-for f in files:
-    if not os.path.isdir(f): 
-        KeyboardNumbers = KeyboardNumbers + 1
-
-
 #Here I create keyboards languages struct (dict):
 ValidLanguages = []
 
 #Now I create my Keyboards languages: 
-c = 0
+KeyboardNumbers = 0
 files = os.listdir(LanguagePath)
 for f in files:
     if not os.path.isdir(f):
-        #I must to open language file and found laguage name:
-        KeyboardPath = os.path.join(LanguagePath, f)
-        KeyboardLanguage = open(KeyboardPath, 'r', encoding="utf-8")
+        ValidLanguages.append(f)
+        KeyboardNumbers = KeyboardNumbers + 1
         
-        val = ""
-        while val != "[Language]":
-            val = KeyboardLanguage.readline().rstrip("\n")
-                
-        #Here i update ValidLanguages :
-        Name = KeyboardLanguage.readline().rstrip("\n")
-        Name = Name.replace("Name=", '')
-        v = [c, f, Name]
-        ValidLanguages.append(v)
-        KeyboardLanguage.close()
-        c = c + 1
-
 ValidLanguages = sorted(ValidLanguages, reverse=True)
 #end for
 
 LanguageKeys = \
     { # sets of keys for language strings, grouped by category prefix
         "Panel" : {"Name"},
-        "Language" : {"Name"},       
         "Buttons" :
             {
                 "Open", "Save", "Configuration", "Export",
@@ -291,7 +269,7 @@ for k in LanguageKeys :
 if os.path.exists(os.path.join(AppPath, "lang", DefaultLanguage)) :
     LoadLanguageValues(DefaultLanguage, LanguageValuesDict)
 else:
-    LoadLanguageValues('en_US', LanguageValuesDict)
+    LoadLanguageValues('English', LanguageValuesDict)
 
 #+
 # Useful database stuff
@@ -3096,15 +3074,6 @@ class Configuration(bpy.types.Operator):
     #I normalize values:
     Resolution_X = str(Resolution_X)
     Resolution_Y = str(Resolution_Y)
-    #I use that loops because i must to found index list of enumerator (Inf_Language)
-    c = 0
-    for k in ValidLanguages:
-        for v in k:
-            if v == DefaultLanguage:
-                DefaultLanguage = str(c)
-        
-        c = c+1 
-    #fors    
 
     #I prepare the window :
     DataBasePathFile = bpy.props.StringProperty(name=LanguageValuesDict['ConfigurationMenuDataBasePath'], default=DataBasePath)
@@ -3139,7 +3108,7 @@ class Configuration(bpy.types.Operator):
         items =
             (
              tuple(
-                   (str(i), ValidLanguages[i][2], "") for i in range(0, KeyboardNumbers)   
+                   (ValidLanguages[i], ValidLanguages[i], "") for i in range(0, KeyboardNumbers)   
                   )
             ),
             default = DefaultLanguage
@@ -3203,7 +3172,7 @@ class Configuration(bpy.types.Operator):
         config.write(self.Inf_Email + '\n')
         config.write(self.Inf_ResolutionX + '\n')
         config.write(self.Inf_ResolutionY + '\n')
-        config.write(ValidLanguages[int(self.Inf_Language)][1] + '\n')
+        config.write(self.Inf_Language + '\n')
         config.close()
 
         bpy.ops.script.python_file_run(filepath=os.path.join(AppPath, "__init__.py"))

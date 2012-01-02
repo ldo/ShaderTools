@@ -1,0 +1,223 @@
+*!-* Blender Addon Langage
+[Language]
+Name=French
+*!-*
+
+
+[Panel]
+Name=Materiaux Pre-configures
+*!-*
+
+[Buttons]
+Open=Ouvrir...
+Save=Sauvegarder
+Configuration=Configuration
+Export=Exporter
+Import=Importer
+Help=Aide
+Informations=Informations
+Create=Nouveau
+*!-*
+
+[OpenMenu]
+Title=Valider le choix du materiau
+Label01=INFORMATIONS SUR LE MATERIAU
+Label02=Materiau
+Label03=Createur
+Label04=Categorie
+Label05=Descritpion
+Label06=Lien Internet
+Label07=Email
+Label08=RECHERCHER
+Label09=HISTORIQUE
+*!-*
+
+[BookmarksMenu]
+Name=Base Materiaux
+*!-*
+
+[WarningWin]
+Title=Mise à jour : veuillez relancer Blender
+Label01=Mise à jour : veuillez relancer Blender
+Label02=Merci de relancer Blender pour que les modifications soient prises en compte.
+Label03=
+*!-*
+
+
+[SaveMenu]
+Title=Sauvegarder le materiau selectionne
+Label01=Veuillez saisir les informations
+Name=Nom du materiau
+Creator=Nom du createur
+CreatorValue=Vous
+CategoryDefault=Personnelle
+DescriptionLabel=Description
+Description=Une description du materiau
+WebLinkLabel=Lien Internet
+WebLink=http://
+EmailLabel=Adresse email
+Email=mon_email@fai.fr
+Warning01=Attention vous devez correctement valider les champs sous peine de voir Blender planter.
+Warning02=Le bug n'a pas encore ete corrige et l'API Blender ne donne aucune information sur ce genre
+Warning03=de problemes. Merci de votre comprehension et de votre patience. :-)
+Warning04=
+Warning05=
+*!-*
+
+
+
+[SaveCategory]
+Title=Selectionnez une categorie
+CategoryTitle=Categories
+CarPaint=Peinture de voiture
+Dirt=Salete
+FabricClothes=Tissu
+Fancy=Fantaisie
+FibreFur=Fourrure
+Glass=Verre
+Halo=Halo
+Liquids=Liquide
+Metal=Metal
+Misc=Divers
+Nature=Nature
+Organic=Organique
+Personal=Personnel
+Plastic=Plastique
+Sky=Ciel
+Space=Espace
+Stone=Pierre
+Toon=Toon
+Wall=Mur
+Water=Eau
+Wood=Bois
+*!-*
+
+
+ 
+[ConfigurationMenu]
+Title=Creer une configuration
+Label01=Parametres d'export
+ExportPath=Chemin d'export
+Label02=Parametres de la Base de Donnees
+DataBasePath=Chemin de la Base
+Label03=Parametres de preview
+ResolutionPreviewX=Resolution X
+ResolutionPreviewY=Resolution Y
+Label04=Choix de la langue
+Label05=Langue
+Warning01=Les valeurs de configuration ne se rafraichissent pas automatiquement mais les modifications 
+Warning02=sont correctement sauvegardees dans le fichier de configuration 'config' (qui se situe dans le 
+Warning03=repertoire de l'add-on). Ne vous inquietez pas. Vous pouvez aussi redemarrer Blender pour que les 
+Warning04=modifications soient prises en compte. Merci de votre comprehension :-).
+Warning05=
+*!-*
+
+
+[ExportMenu]
+Title=Exporter les materiaux pre-configures
+Label01=Veuillez completer les informations
+Name=Nom du materiau
+Creator=Nom du createur
+CreatorDefault=Vous
+TakePreview=Creer une preview
+*!-*
+
+[ImportMenu]
+Title=Importer un materiau
+*!-*
+
+[FindImageMenu]
+Name=Rechercher une image
+*!-*
+
+
+[InformationsMenu]
+Title=Informations sur le materiau
+LabelName=Materiau
+Name=Aucun
+LabelCreator=Createur
+Creator=Aucun
+LabelCategory=Categorie
+Category=Aucune
+LabelDescription=Description
+Description=Aucune
+LabelWebLink=Lien Internet
+WebLink=Aucun
+LabelEmail=Email
+Email=Aucune
+*!-*
+
+
+
+[HelpMenu]
+Title=Menu d'aide
+Label01=Aide a l'utilisation du module
+Label02=
+Label03=- Foire aux questions :
+Label04=Ouvrir… - Comment ça marche ?
+Label05=Ce module vous permet d'acceder a votre base de materiaux. Une fois avoir cliquer sur le module vous devrez cliquer sur le Bookmarks nouvellement cree "Base Materiaux". Vous
+Label06=pouvez activer le mode icones pour voir le contenu sous forme d'icones. Le bouton "RECHERCHER" vous permet d'effectuer une recherche dans la base. Pour afficher tout les 
+Label07=materiaux apres une recherche saisissez une valeur vide dans la module de recherche et valider. Le module historique vous permettra d'acceder aux 20 derniers materiaux utilises. 
+Label08=Une fois votre choix effectue double cliquez sur le materiau pour vous permettre de l'importer sur votre object actif.
+Label09=
+Label10=
+Label11=Sauvegarder - C'est quoi ?
+Label12=Ce module vous permet de sauvegarder le materiau actif directement dans la base. Il vous suffit pour l'utiliser de completer les champs (en partie ou totallement) et de valider par 
+Label13=le bouton "OK". Vous pourrez reutiliser ce materiau en passant par le module "Ouvrir…".  
+Label14=
+Label15=Exporter - Pour quelle raison ?
+Label16=Ce module vous permet d'exporter un materiau sous forme de fichier executable par n'importe quel autre Blender. Pour Exporter il vous suffit de cliquer sur le module puis de   
+Label17=selectionner le repertoire, le nom du fichier ainsi que le nom du createur (c'est a dire VOUS), puis de valider. Pour executer ce fichier il vous suffira d'ouvrir le "Texteditor",   
+Label18=puis d'aller sur le menu "Text" puis "Open text block" et de charger le fichier exporter. Ne vous restera plus qu'a cliquer sur le bouton "Run Script" du "Text editor".
+Label19= 
+Label20=
+Label21=Nouveau - A quoi ça sert ?
+Label22=Ce module va vous permettre de charger un modele de materiau. Vous pourrez jongler entre les quatres premiers calques suivant que vous ayez besoin d'une base ressemblant a  
+Label23=une Sphere/Cube/Plan/Suzanne. Ce modele est celui utiliser pour afficher les previews de la base de materiaux. Il est pratique pour la creation d'un nouveau materiau. 
+Label24=
+Label25=
+Label26=Configuration - Je dois y toucher ?
+Label27=Ce module permet de parametrer l'endroit où se situe la base de donnees de materiau. Pratique pour les personnes desireuses de modifier l'emplacement de la base.  
+Label28=
+Label29=
+Label30=Credits - C'est quoi tout ces noms bizarre ?
+Label31=Il s'agit de toutes les personnes ayant contribuer a la creation de cet addon et que je remercie encore une fois pour leur aide precieuse.
+Label32=
+Label33=
+Label34=
+Label35=
+Label36=
+Label37=
+Label38=
+Label39=
+Label40=
+
+[ErrorsMenu]
+Error001=Informations importantes : Si vous rencontrez une erreur ci-dessous, verifiez :
+Error002=1/ Que vous avez bien creer ou ouvert une image,
+Error003=2/ Le chemin de l'image est correctement saisie.
+Error004=Pas d'erreur : le materiau a ete correctement sauvegarder.
+Error005=Pas d'erreur : l'image a ete correctement exporter.
+Error006= --> Que votre projet est sauvegarde. 
+Error007=L'import c'est effectue correctement.
+Error008=Impossible de trouver le script dans le fichier '*.blex'. L'archive est corrompue.
+Error009=Erreur : Impossible de trouver l'image :
+Error010=Solution : Veuillez changer l'adresse de l'image dans les proprietes de textures de Blender.
+Error011=Conseil : Preferez une adresse Absolue ou epurez l'adresse en supprimant les caracteres '..', '/..', '\', '\\', '//../' 
+Error012=ATTENTION : L'image ne sera donc pas ajoutee lors de l'exportation ou de la sauvegarde.
+Error013=INFORMATION : Une image de substitution a ete ajoutee pour eviter une erreur. 
+Error014=
+Error015=
+Error016=
+Error017=
+Error018=
+Error019=
+Error020=
+*!-*
+
+
+*!-* Blender Gui Langage
+
+
+
+
