@@ -182,7 +182,7 @@ ValidLanguages = []
 KeyboardNumbers = 0
 files = os.listdir(LanguagePath)
 for f in files:
-    if not os.path.isdir(f):
+    if not os.path.isdir(f) and "." not in f:
         ValidLanguages.append(f)
         KeyboardNumbers = KeyboardNumbers + 1
         
@@ -227,7 +227,7 @@ LanguageKeys = \
                 set("Warning%02d" % i for i in range(1, 6)),
         "ExportMenu" : {"Title", "Label01", "Name", "Creator", "CreatorDefault", "TakePreview"},
         "ImportMenu" : {"Title"},
-        "HelpMenu" : {"Title"} | set("Label%02d" % i for i in range(1, 41)),
+        "HelpMenu" : {"Title"},
     }
 
 def LoadLanguageValues(languageUser, languageDict) :
@@ -2504,7 +2504,7 @@ def SearchSharedFunction(Type, PreviewName):
     files = os.listdir(TempPath)
     for f in files:
         if not os.path.isdir(f) and f.endswith(".jpg"):
-            if type == "normal":
+            if Type == "normal":
                 if PreviewName.upper() in f.upper():
                     shutil.copy2(os.path.join(TempPath, f), os.path.join(shaderFolderPath, f))
 
@@ -2694,95 +2694,17 @@ class Help(bpy.types.Operator):
     def poll(cls, context):
         return context.object is not None
 
-    def draw(self, context):
-        layout = self.layout
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel01'], icon='HELP')
-        #row = layout.row(align=True)
-        #row.label(LanguageValuesDict['HelpMenuLabel02'])
-        #row = layout.row(align=True)
-        #row.label(LanguageValuesDict['HelpMenuLabel03'])
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel04'], icon='NEWFOLDER')
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel05'])
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel06'])
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel07'])
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel08'])
-        row = layout.row(align=True)
-        #row.label(LanguageValuesDict['HelpMenuLabel09'])
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel10'])
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel11'], icon='MATERIAL')
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel12'])
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel13'])
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel14'])
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel15'], icon='SCRIPTWIN')
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel16'])
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel17'])
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel18'])
-        row = layout.row(align=True)
-        #row.label(LanguageValuesDict['HelpMenuLabel19'])
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel20'])
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel21'], icon='BLENDER')
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel22'])
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel23'])
-        row = layout.row(align=True)
-        #row.label(LanguageValuesDict['HelpMenuLabel24'])
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel25'])
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel26'], icon='TEXT')
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel27'])
-        row = layout.row(align=True)
-        #row.label(LanguageValuesDict['HelpMenuLabel28'])
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel29'])
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel30'], icon='QUESTION')
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel31'])
-        row = layout.row(align=True)
-        row.label(LanguageValuesDict['HelpMenuLabel32'])
-        row = layout.row(align=True)
-        #row.label(LanguageValuesDict['HelpMenuLabel33'])
-        #row = layout.row(align=True)
-        #row.label(LanguageValuesDict['HelpMenuLabel34'])
-        #row = layout.row(align=True)
-        #row.label(LanguageValuesDict['HelpMenuLabel35'])
-        #row = layout.row(align=True)
-        #row.label(LanguageValuesDict['HelpMenuLabel36'])
-        #row = layout.row(align=True)
-        #row.label(LanguageValuesDict['HelpMenuLabel37'])
-        #row = layout.row(align=True)
-        #row.label(LanguageValuesDict['HelpMenuLabel38'])
-        #row = layout.row(align=True)
-        #row.label(LanguageValuesDict['HelpMenuLabel39'])
-        #row = layout.row(align=True)
-        #row.label(LanguageValuesDict['HelpMenuLabel40'])
-        #row = layout.row(align=True)
-
-    def invoke(self, context, event):
-        wm = context.window_manager
-        return wm.invoke_popup(self, width=900, height=768)
-
     def execute(self, context):
+        #I open modele file:
+        if platform.system() == 'Windows':
+            env_base_save= os.popen('"' + os.path.join(AppPath, 'html', DefaultLanguage + ".html") + '"')
+
+        if platform.system() == 'Darwin':
+            env_base_save= os.popen("open '" + os.path.join(AppPath, 'html', DefaultLanguage + ".html") + "'")
+
+        if platform.system() == 'Linux':
+            env_base_save= os.popen(" '" + os.path.join(AppPath, 'html', DefaultLanguage + ".html") + "'")
+
         return {'FINISHED'}
 
 # ************************************************************************************
