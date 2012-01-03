@@ -25,8 +25,9 @@ bl_info = {
     "location": "Properties > Material",
     "description": "Database shaders interface",
     "warning": "Beta version",
-    "wiki_url": "http://shadertools.tuxfamily.org/?page_id=36",
+    "wiki_url": "http://shadertools.tuxfamily.org",
     "tracker_url": "",
+    "support": 'COMMUNITY',
     "category": "System"}
 
 import bpy
@@ -85,7 +86,7 @@ DefaultLanguage = 'English'
 
 #Config Path :
 if os.path.exists(ConfigPath) :
-    config = open(ConfigPath, 'r')
+    config = open(ConfigPath, 'r', encoding = "utf-8")
     AppPath = config.readline().rstrip("\n")
     DataBasePath = config.readline().rstrip("\n")
     DefaultCreator = config.readline().rstrip("\n")
@@ -98,7 +99,7 @@ if os.path.exists(ConfigPath) :
     Resolution_Y = config.readline().rstrip("\n")
     DefaultLanguage = config.readline().rstrip("\n")
 else:
-    config = open(ConfigPath,'w')
+    config = open(ConfigPath,'w',  encoding = "utf-8")
     config.write(AppPath + '\n')
     config.write(DataBasePath + '\n')
     config.write(DefaultCreator + '\n')
@@ -138,7 +139,7 @@ def LoadHistory() :
     # returns the contents of the history file, if it exists.
     if os.path.exists(HistoryPath) :
         HISTORY_FILE = []
-        history = open(HistoryPath, 'r')
+        history = open(HistoryPath, 'r', encoding = "utf-8")
         history.readline() # ignore "[HISTORY]" header
         for i, l in enumerate(history) :
             l = l.rstrip("\n")
@@ -157,7 +158,7 @@ def LoadHistory() :
 
 def SaveHistory(HISTORY_FILE) :
     # saves the specified list of items to the history file.
-    history = open(HistoryPath, 'w')
+    history = open(HistoryPath, 'w', encoding = "utf-8")
     history.write("[HISTORY]\n")
     for i, l in enumerate(HISTORY_FILE) :
         history.write("History%d=%s\n" % (i + 1, l))
@@ -2016,7 +2017,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
     #fileExport =  File_Path + "_" + Inf_Creator + ".py"
     fileExport =  os.path.join(ZipPath, Mat_Name + "_" + Inf_Creator + ".py")
 
-    file = open(fileExport, "w")
+    file = open(fileExport, "w", encoding = "utf-8")
     for line in MY_EXPORT_INFORMATIONS:
         file.write(line)
     file.close()
@@ -2475,7 +2476,7 @@ def SearchSharedFunction(Type, PreviewName):
     if not os.path.exists(os.path.join(TempPath, "searching")) :
 
         #I create file until user do not cancel or valid choice :
-        searchFile = open(os.path.join(TempPath, "searching"), 'w')
+        searchFile = open(os.path.join(TempPath, "searching"), 'w', encoding = "utf-8")
         searchFile.close()
 
         #Here I remove all files in the Tempory Folder:
@@ -2793,7 +2794,7 @@ def Importer(File_Path, Mat_Name):
 
         #Here I save script in a list:
         MY_SCRIPT_LIST = []
-        env_file = open(os.path.join(CopyMatFolder, script_name),'r')
+        env_file = open(os.path.join(CopyMatFolder, script_name),'r', encoding = "utf-8")
 
         for values in env_file:
             if values == "!*- environnement path -*!" or values == "!*- environnement path -*!\n":
@@ -2807,7 +2808,7 @@ def Importer(File_Path, Mat_Name):
 
         #I remove old script and I create a new script in Material Folder:
         os.remove(os.path.join(CopyMatFolder, script_name))
-        new_script = open(os.path.join(CopyMatFolder, script_name), "w")
+        new_script = open(os.path.join(CopyMatFolder, script_name), "w", encoding = "utf-8")
 
         c = 0
         for values in MY_SCRIPT_LIST:
@@ -3052,7 +3053,7 @@ class Configuration(bpy.types.Operator):
         os.remove(ConfigPath)
 
         #Create a new configuration file:
-        config = open(ConfigPath,'w')
+        config = open(ConfigPath,'w', encoding = "utf-8")
         config.write(AppPath + '\n')
         config.write(self.DataBasePathFile + '\n')
         config.write(self.Inf_Creator + '\n')
@@ -3113,7 +3114,7 @@ class PreconfiguredShadersPanel(bpy.types.Panel):
         
         if os.path.exists(os.path.join(AppPath, "first")):
             row.operator(UpdateWarning.bl_idname, text=LanguageValuesDict['WarningWinLabel01'], icon="RADIO" )
-            open(os.path.join(AppPath, "update"),'w')
+            open(os.path.join(AppPath, "update"),'w', encoding = "utf-8")
                              
         else:        
             row.operator(OpenShaders.bl_idname, text=LanguageValuesDict['ButtonsOpen'], icon="NEWFOLDER" )
@@ -3174,7 +3175,7 @@ if os.path.exists(BookmarksPathUser) :
         os.makedirs(shaderFolderPath)
 
     #Here I copy bookmarks and i verify if Shader Tempory folder exist:
-    bookmarkspathfile = open(BookmarksPathUser,'r')
+    bookmarkspathfile = open(BookmarksPathUser,'r', encoding = "utf-8")
     for value in bookmarkspathfile:
         MY_BOOKMARKS_FILE.append(value)
 
@@ -3193,7 +3194,7 @@ if os.path.exists(BookmarksPathUser) :
     #I create new bookmarks:
     if updateInformation :
         os.remove(BookmarksPathUser)
-        bookmarkspathfile = open(BookmarksPathUser,'w')
+        bookmarkspathfile = open(BookmarksPathUser,'w', encoding = "utf-8")
         for value in MY_BOOKMARKS_FILE:
 
             if value=='[Bookmarks]' or value=='[Bookmarks]\n':

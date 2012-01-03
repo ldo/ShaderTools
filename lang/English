@@ -144,46 +144,6 @@ Email=None
 
 [HelpMenu]
 Title=Help menu
-Label01=How to use modules
-Label02=
-Label03=- Frequent asked questions
-Label04=Open - How does it work ?
-Label05=This module allows you to obtain your files of materials. Once to have to click the module you will have to click Bookmarks, recently create " Material Database ". You
-Label06=can activate the “mode icons” to see the contents of the  icons form. The button "to LOOK FOR" allows you to make a search(research) in the data/file. To show/see everything ...
-Label07=after searched materials, take an empty value in the module of search and validate. The historic module will allow you to reach the last 20 materials use.
-Label08=Once your choice makes double click the material to allow you of the importer on your active object.
-Label09=
-Label10=
-Label11=Save - What is it?
-Label12=This module allows you to protect the active material directly in the base. It is enough to you to use him(it) to complete fields (partially or totally) and to validate by
-Label13=the button "OK". You can re-use this material by way of the module "Open".
-Label14=
-Label15=Export - Why?
-Label16=This module allows you to export a material in the form of feasible file by any other Blender. For Exporter you just have to click the module then of
-Label17=the directory, the name of the file as well as the name of the creator (it is has to say YOU), then to validate. To execute this file you will just have to open "Texteditor",
-Label18=puis d'aller sur le menu "Text" puis "Open text block" et de charger le fichier exporter. Ne vous restera plus qu'a cliquer sur le bouton "Run Script" du "Text editor".Then to go on the menu " Text " then " Open text block " and to ask the file to export. Will not stay in you more than has to click the button " Run Script " of " Text editor ".
-Label19= 
-Label20=
-Label21=New - To what that is of use ?
-Label22=This module is going to allow you to load(charge) a model of material. You can juggle between the first four copies as you need a looking like base has
-Label23=Sphere Sphere/Cube/Plan/Suzanne Sphere/Cube/Plan/Suzanne Sphere/Cube/Plan/Suzanne Sph. This modele is the one to use to post(show) the previews of the base of materials. He(it) is practical for the creation of a material new.
-Label24=
-Label25=
-Label26=I have to get(touch) it?
-Label27=This module allows to parameter the place where is situated the database of materials. Practice for the desirous persons to modify the place of the base.
-Label28=
-Label29=
-Label30=Credits - It is what all names bizarre?
-Label31=It is about all the persons having to contribute has the creation of this addon and also thank once again for their precious help.
-Label32=
-Label33=
-Label34=
-Label35=
-Label36=
-Label37=
-Label38=
-Label39=
-Label40=
 *!-*
 
 

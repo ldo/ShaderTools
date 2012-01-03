@@ -147,50 +147,8 @@ LabelEmail=Email
 Email=Aucune
 *!-*
 
-
-
 [HelpMenu]
 Title=Menu d'aide
-Label01=Aide a l'utilisation du module
-Label02=
-Label03=- Foire aux questions :
-Label04=Ouvrir… - Comment ça marche ?
-Label05=Ce module vous permet d'acceder a votre base de materiaux. Une fois avoir cliquer sur le module vous devrez cliquer sur le Bookmarks nouvellement cree "Base Materiaux". Vous
-Label06=pouvez activer le mode icones pour voir le contenu sous forme d'icones. Le bouton "RECHERCHER" vous permet d'effectuer une recherche dans la base. Pour afficher tout les 
-Label07=materiaux apres une recherche saisissez une valeur vide dans la module de recherche et valider. Le module historique vous permettra d'acceder aux 20 derniers materiaux utilises. 
-Label08=Une fois votre choix effectue double cliquez sur le materiau pour vous permettre de l'importer sur votre object actif.
-Label09=
-Label10=
-Label11=Sauvegarder - C'est quoi ?
-Label12=Ce module vous permet de sauvegarder le materiau actif directement dans la base. Il vous suffit pour l'utiliser de completer les champs (en partie ou totallement) et de valider par 
-Label13=le bouton "OK". Vous pourrez reutiliser ce materiau en passant par le module "Ouvrir…".  
-Label14=
-Label15=Exporter - Pour quelle raison ?
-Label16=Ce module vous permet d'exporter un materiau sous forme de fichier executable par n'importe quel autre Blender. Pour Exporter il vous suffit de cliquer sur le module puis de   
-Label17=selectionner le repertoire, le nom du fichier ainsi que le nom du createur (c'est a dire VOUS), puis de valider. Pour executer ce fichier il vous suffira d'ouvrir le "Texteditor",   
-Label18=puis d'aller sur le menu "Text" puis "Open text block" et de charger le fichier exporter. Ne vous restera plus qu'a cliquer sur le bouton "Run Script" du "Text editor".
-Label19= 
-Label20=
-Label21=Nouveau - A quoi ça sert ?
-Label22=Ce module va vous permettre de charger un modele de materiau. Vous pourrez jongler entre les quatres premiers calques suivant que vous ayez besoin d'une base ressemblant a  
-Label23=une Sphere/Cube/Plan/Suzanne. Ce modele est celui utiliser pour afficher les previews de la base de materiaux. Il est pratique pour la creation d'un nouveau materiau. 
-Label24=
-Label25=
-Label26=Configuration - Je dois y toucher ?
-Label27=Ce module permet de parametrer l'endroit où se situe la base de donnees de materiau. Pratique pour les personnes desireuses de modifier l'emplacement de la base.  
-Label28=
-Label29=
-Label30=Credits - C'est quoi tout ces noms bizarre ?
-Label31=Il s'agit de toutes les personnes ayant contribuer a la creation de cet addon et que je remercie encore une fois pour leur aide precieuse.
-Label32=
-Label33=
-Label34=
-Label35=
-Label36=
-Label37=
-Label38=
-Label39=
-Label40=
 
 [ErrorsMenu]
 Error001=Informations importantes : Si vous rencontrez une erreur ci-dessous, verifiez :

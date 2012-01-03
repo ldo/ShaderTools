@@ -4,7 +4,6 @@
 Name=Spanish
 *!-*
 
-
 [Panel]
 Name=Materiales Preconfigurados
 *!-*
@@ -44,7 +43,6 @@ Label02=Gracias de reactivar Blender para que las modificaciones se tengan en cu
 Label03=
 *!-*
 
-
 [SaveMenu]
 Title=Salvar el material selecciona
 Label01=Quiere entender la informacion
@@ -64,8 +62,6 @@ Warning03=
 Warning04=
 Warning05=
 *!-*
-
-
 
 [SaveCategory]
 Title=Seleccione una categoria
@@ -92,8 +88,6 @@ Wall=Mur
 Water=Agua
 Wood=Madera
 *!-*
-
-
  
 [ConfigurationMenu]
 Title=Crear una configuracion
@@ -113,7 +107,6 @@ Warning04=
 Warning05=
 *!-*
 
-
 [ExportMenu]
 Title=Exportar los materiales preconfigurados
 Label01=Quiere completar la informacion
@@ -131,7 +124,6 @@ Title=Importar un material
 Name=Rechercher une image
 *!-*
 
-
 [InformationsMenu]
 Title=Informations sur le materiau
 LabelName=Materiau
@@ -148,50 +140,9 @@ LabelEmail=Email
 Email=Aucune
 *!-*
 
-
-
 [HelpMenu]
 Title=Sutilmente de ayuda
-Label01=Ayuda tiene la utilizacion del modulo
-Label02=- Feria a las cuestiones:
-Label03=
-Label04=Abrir
-Label05=Este modulo le permite acceder a su base de materiales. Una vez tener presionar el modulo debera presionar el Bookmarks Base recientemente crea Base Materiales . Usted
-Label06=puede activar el meodo iconos para ver el contenido en forma de iconos. El boton 'BUSCAR' le permite efectuar una investigacion en la base. Para indicar todo el 
-Label07=materiales despues de una investigacion entienden un valor vacio en el modula de investigacion y validar. El modulo historico le permitira acceder a los 20 ultimos materiales utilizados. 
-Label08=
-Label09=
-Label10=Una vez su eleccion efecta a doble presionan el material para permitirle importarlo sobre su object activo
-Label11=Salvar
-Label12=Este modulo le permite salvar el material activo directamente en la base. Usted basta para utilizarlo de completar los campos (en parte o completamente) y validar por 
-Label13=el boton 'OK'. Podra reutilizar este material pasando por el modula 'Abrir...'.  
-Label14=
-Label15=Exportar
-Label16=Este modulo le permite exportar un material en forma de archivo realizable por cualquier otro Blender. Para exportar le basta que presione el modulo luego de  
-Label17=seleccionar el directorio, el nombre del archivo asi como el nombre del creador (es decir, USTED), luego de validar. Para realizar este archivo le bastara que abra el 'Texteditor',    
-Label18=luego de ir sobre la carta 'Text' luego 'Open text bloc' y el archivo exportar. No le quedara ya que por presionar el boton 'Run script' del 'Text editor'.
-Label19= 
-Label20=
-Label21=Nuevo
-Label22=Este modula va a permitir escargar un modelo de material. Podra hacer juegos malabares entre los quatres primeros calcos segun que necesite une base que se asemeja a  
-Label23=una Esfera/Cubo/Plan/Suzanne. Este modelo es el utilizar para indicar los previews de la base de materiales. Es practico para la creacion de un nuevo material. 
-Label24=
-Label25=
-Label26=Configuracion
-Label27=Este modulo permite adaptar el lugar donde se situa la base de datos de material. Practica para las personas deseosas de modificar el sitio de la base. 
-Label28=
-Label29=
-Label30=Credits
-Label31=Se trata de todas las personas que tienen contribuir a la creacion de este addon y que agradezco una vez mas su ayuda preciosa.
-Label32=
-Label33=
-Label34=
-Label35=
-Label36=
-Label37=
-Label38=
-Label39=
-Label40=
+*!-*
 
 [ErrorsMenu]
 Error001=Informacion importante: Si encuentra un error siguiente, comprueba:
@@ -215,7 +166,6 @@ Error018=
 Error019=
 Error020=
 *!-*
-
 
 *!-* Blender Gui Langage
 
