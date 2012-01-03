@@ -25,20 +25,12 @@ bl_info = {
     "location": "Properties > Material",
     "description": "Database shaders interface",
     "warning": "Beta version",
-    "wiki_url": "http://shadertools.tuxfamily.org",
+    "wiki_url": "http://shadertools.tuxfamily.org/?page_id=36",
     "tracker_url": "",
     "support": 'COMMUNITY',
     "category": "System"}
 
-import bpy
-import sqlite3
-import os
-import platform
-import locale
-import shutil
-import zipfile
-import time
-import sys
+import bpy, sqlite3, os, platform, locale, shutil, zipfile, time, sys, webbrowser
 
 def stripext(name, ext) :
     # returns name with ext stripped off if it occurs at end.
@@ -2696,16 +2688,9 @@ class Help(bpy.types.Operator):
         return context.object is not None
 
     def execute(self, context):
-        #I open modele file:
-        if platform.system() == 'Windows':
-            env_base_save= os.popen('"' + os.path.join(AppPath, 'html', DefaultLanguage + ".html") + '"')
-
-        if platform.system() == 'Darwin':
-            env_base_save= os.popen("open '" + os.path.join(AppPath, 'html', DefaultLanguage + ".html") + "'")
-
-        if platform.system() == 'Linux':
-            env_base_save= os.popen(" '" + os.path.join(AppPath, 'html', DefaultLanguage + ".html") + "'")
-
+        #I open help file:
+        url = "file://" + os.path.join(AppPath, 'html', DefaultLanguage + ".html")
+        webbrowser.open_new(url)        
         return {'FINISHED'}
 
 # ************************************************************************************
