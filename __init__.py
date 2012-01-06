@@ -18,14 +18,14 @@
 
 bl_info = {
     "name": "Shader Tools",
-    "author": "Please press Credits Button for more details",
+    "author": "GRETETE Karim (Tinangel)",
     "version": (0, 8, 1),
     "blender": (2, 6, 1),
     "api": 42614,
     "location": "Properties > Material",
     "description": "Database shaders interface",
     "warning": "Beta version",
-    "wiki_url": "http://shadertools.tuxfamily.org/?page_id=36",
+    "wiki_url": "http://shadertools.tuxfamily.org",
     "tracker_url": "",
     "support": 'COMMUNITY',
     "category": "System"}
@@ -40,6 +40,24 @@ def stripext(name, ext) :
     return name    
 #end stripext
 
+def clear_folder(path, extend):
+    if os.path.exists(path) :
+        files = os.listdir(path)
+        for f in files:           
+            if extend == 'SIMPLE' or extend == 'NORMAL':
+                if not os.path.isdir(f):
+                    os.remove(os.path.join(path, f))
+
+            if extend == 'EXTEND_TEMP' or extend == 'EXTEND_SHADER' :
+                if not os.path.isdir(f) and f.endswith(".jpg"):
+                    os.remove(os.path.join(path, f))
+                else:
+                    os.remove(os.path.join(path, f))                
+
+    else:
+        if extend == 'NORMAL' or extend == 'EXTEND_TEMP':
+            os.makedirs(path)
+
 MaterialCategories = \
     (
         "CarPaint", "Dirt", "FabricClothes", "Fancy", "FibreFur",
@@ -47,7 +65,7 @@ MaterialCategories = \
         "Organic", "Personal", "Plastic", "Sky", "Space", "Stone",
         "Toon", "Wall", "Water", "Wood",
     )
-
+    
 # ************************************************************************************
 # *                                     HERE I UPDATE PATH                           *
 # ************************************************************************************
@@ -61,6 +79,7 @@ DataBasePath = os.path.join(AppPath, "ShaderToolsDatabase.sqlite")
 ConfigPath = os.path.join(AppPath, "config")
 HistoryPath = os.path.join(AppPath, "history")
 TempPath = os.path.join(AppPath, "temp")
+PackPath = os.path.join(AppPath, "pack")
 LanguagePath = os.path.join(AppPath, "lang")
 BookmarksPathUser = os.path.join(bpy.utils.resource_path('USER', major=bpy.app.version[0], minor=bpy.app.version[1]), "config", "bookmarks.txt")
 
@@ -75,6 +94,12 @@ Resolution_X = 120
 Resolution_Y = 120
 DefaultLanguage = 'English'
 
+clear_folder(TempPath, 'EXTEND_TEMP')
+clear_folder(PackPath, 'SIMPLE')
+
+CONFIG_LIST = [AppPath, DataBasePath, DefaultCreator, DefaultDescription,
+               DefaultWeblink, DefaultMaterialName, DefaultCategory,
+               DefaultEmail, Resolution_X, Resolution_Y, DefaultLanguage]
 
 #Config Path :
 if os.path.exists(ConfigPath) :
@@ -90,33 +115,14 @@ if os.path.exists(ConfigPath) :
     Resolution_X = config.readline().rstrip("\n")
     Resolution_Y = config.readline().rstrip("\n")
     DefaultLanguage = config.readline().rstrip("\n")
+
 else:
     config = open(ConfigPath,'w',  encoding = "utf-8")
-    config.write(AppPath + '\n')
-    config.write(DataBasePath + '\n')
-    config.write(DefaultCreator + '\n')
-    config.write(DefaultDescription + '\n')
-    config.write(DefaultWeblink + '\n')
-    config.write(DefaultMaterialName + '\n')
-    config.write(DefaultCategory + '\n')
-    config.write(DefaultEmail + '\n')
-    config.write(str(Resolution_X) + '\n')
-    config.write(str(Resolution_Y) + '\n')
-    config.write(DefaultLanguage + '\n')
-#end if
+    for v in CONFIG_LIST:
+        config.write(str(v) + '\n')
+
 config.close()
-
-
-if os.path.exists(TempPath) :
-    files = os.listdir(TempPath)
-    for f in files:
-        if not os.path.isdir(f) and f.endswith(".jpg"):
-            os.remove(os.path.join(TempPath, f))
-        else:
-            os.remove(os.path.join(TempPath, f))
-else:
-    os.makedirs(TempPath)
-
+#end if
 
 #I verify if there is an Update:
 if os.path.exists(os.path.join(AppPath, "first")) and os.path.exists(os.path.join(AppPath, "update")):
@@ -126,7 +132,6 @@ if os.path.exists(os.path.join(AppPath, "first")) and os.path.exists(os.path.joi
 # ************************************************************************************
 # *                                       HISTORY FILE                               *
 # ************************************************************************************
-
 def LoadHistory() :
     # returns the contents of the history file, if it exists.
     if os.path.exists(HistoryPath) :
@@ -261,13 +266,13 @@ for k in LanguageKeys :
 
 if os.path.exists(os.path.join(AppPath, "lang", DefaultLanguage)) :
     LoadLanguageValues(DefaultLanguage, LanguageValuesDict)
+
 else:
     LoadLanguageValues('English', LanguageValuesDict)
 
 #+
 # Useful database stuff
 #-
-
 def SQLIter(Conn, Cmd, MapFn = lambda x : x) :
     """executes cmd on a new cursor from connection Conn and yields
     the results in turn."""
@@ -401,7 +406,6 @@ def LastInsertID(Conn) :
 #+
 # Database definitions
 #-
-
 tobool = lambda x : x == 1 # inbound convertor for boolean-valued fields
 frombool = lambda x : int(x) # outbound convertor for boolean-valued fields
 material_fields = \
@@ -1032,12 +1036,7 @@ def ImporterSQL(SearchName):
     Render_exists = False
     if os.path.exists(OutPath) :
         #Here I remove all files in this folder:
-        files = os.listdir(OutPath)
-        for f in files:
-            if not os.path.isdir(f):
-                os.remove(os.path.join(OutPath, f))
-    else:
-        os.makedirs(OutPath)
+        clear_folder(OutPath, 'NORMAL')
 
     #I must find all textures in database:
     for val in MyTextureIdxResult:
@@ -1183,6 +1182,7 @@ def ImporterSQL(SearchName):
             img = bpy.data.images.load(filepath = imagePath)
             #Now I create file:
             slot.texture.image = img
+            print(MyImageUvRequest["Ima_Fields"])
             slot.texture.image.use_fields = MyImageUvRequest["Ima_Fields"]
             slot.texture.image.use_premultiply = MyImageUvRequest["Ima_Premultiply"]
             if MyImageUvRequest["Ima_Fields_order"] != '' : #Debug
@@ -1342,16 +1342,10 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
     tex = bpy.context.active_object.active_material
 
     #Here I verify if Zip Folder exists:
-    if not os.path.exists(ZipPath) :
-        os.makedirs(ZipPath)
-
-    #Here I remove all files in Zip Folder:
-    files = os.listdir(ZipPath)
-    for f in files:
-        if not os.path.isdir(f):
-            os.remove(os.path.join(ZipPath, f))
+    clear_folder(ZipPath, 'NORMAL')
 
     #I create a list before export material/textures configuration :
+    
     MY_EXPORT_INFORMATIONS = ['# ****************************************************************\n',
                               '# Material name : ' + Mat_Name + '\n',
                               '# Created by ' + Inf_Creator + '\n',
@@ -1543,7 +1537,7 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
                     Tex_ima_filepath = obj.active_material.texture_slots[textureNumbers].texture.image.filepath
 
                     #I must found Image File Name
-                    IMAGE_FILEPATH = Raw_Image_Path(Tex_ima_filepath)
+                    IMAGE_FILEPATH = Raw_Image_Path(Tex_ima_filepath, textureNumbers)
                     IMAGE_FILENAME = Raw_Image_Name(IMAGE_FILEPATH)
 
                     if '*Error*' in IMAGE_FILEPATH:
@@ -2038,23 +2032,46 @@ def Exporter(File_Path, Mat_Name, Inf_Creator, TakePreview):
 # ************************************************************************************
 # *                                     RAW IMAGE PATH                               *
 # ************************************************************************************
-def Raw_Image_Path(Image_Path):
-    Image_Path = Image_Path.replace("'", "") # only needed because caller might have quoted it
+def Raw_Image_Path(Image_Path, Texture_Number):
+    context = bpy.context.object.active_material.texture_slots[Texture_Number].texture.image
+    Image_Path = os.path.normpath(Image_Path)
+    Image_Path = Image_Path.replace("//", "/")    
+
+    def find_file(image_path, new_path):
+        image_path = new_path
+        image_path = os.path.normpath(image_path)
+        image_path = image_path.replace("//", "/")          
+        return image_path
+        
+    if not os.path.exists(Image_Path):
+        Image_Path = find_file(Image_Path, os.path.join(BlendPath, 'textures', Raw_Image_Name(Image_Path)))
+
+    if not os.path.exists(Image_Path):
+        Image_Path = find_file(Image_Path, os.path.join(BlendPath, context.filepath))
+        
+    if not os.path.exists(Image_Path):
+        if context.filepath[0] == os.sep:
+            Image_Path = find_file(Image_Path, '~' + context.filepath)
+        
+        else:
+            Image_Path = find_file(Image_Path, os.path.join('~', context.filepath))
+                     
+    if not os.path.exists(Image_Path):
+        Image_Path = find_file(Image_Path, os.path.join('~', Raw_Image_Name(Image_Path)))
+
+    #Now I verify if image packed:
+    if not str(context.packed_file) == 'None':
+        bpy.data.images[context.name].unpack(method='WRITE_LOCAL')
+        bpy.data.images[context.name].pack()
+        Image_Path = os.path.join(BlendPath, 'textures', Raw_Image_Name(Image_Path))
+        
     SaveOriginalName = Image_Path
-
-    #Relative/Absolute Paths:
-    if '..' in Image_Path or './' in Image_Path:
-        Image_Path = os.path.normpath(Image_Path)
-
-    SaveOriginalPath = Image_Path
-
-    if not os.path.exists(Image_Path) :
-        Image_Path = os.path.join(BlendPath, Image_Path)
-
-    if not os.path.exists(Image_Path) :
-        Image_Path = '~' + SaveOriginalPath
-
-    if not os.path.exists(Image_Path) :
+    if os.path.exists(Image_Path):
+       clear_folder(PackPath, 'NORMAL')
+       shutil.copy(Image_Path, os.path.join(AppPath, 'pack', Raw_Image_Name(Image_Path)))
+       Image_Path = os.path.join(AppPath, 'pack', Raw_Image_Name(Image_Path))
+       
+    else:       
         SaveOriginalName = SaveOriginalName.replace("'", "")
         print(LanguageValuesDict['ErrorsMenuError009'] + '"' + SaveOriginalName + '"')
         print(LanguageValuesDict['ErrorsMenuError010'])
@@ -2125,6 +2142,7 @@ def PrepareSqlUpdateSaveRequest(ShaderToolsDatabase, Cursor, Mat_Name):
             "Mat_subsurfacescattering_color_a" : 0, # not used
           # Note I'm not bothering to define Idx_ramp_diffuse, Idx_ramp_specular or Idx_textures fields
         }
+    
     GetObjectFields(obj.active_material, Material, material_fields)
     InsertRecord(Cursor, "MATERIALS", Material)
     Mat_Index = LastInsertID(ShaderToolsDatabase)
@@ -2182,7 +2200,7 @@ def PrepareSqlUpdateSaveRequest(ShaderToolsDatabase, Cursor, Mat_Name):
                 if texslot.texture.image.source == 'FILE':
                     #I must found Image File Name
                     ThisImage["Ima_Filepath"] = texslot.texture.image.filepath
-                    IMAGE_FILEPATH = Raw_Image_Path(ThisImage["Ima_Filepath"])
+                    IMAGE_FILEPATH = Raw_Image_Path(ThisImage["Ima_Filepath"], textureNumbers)
                     IMAGE_FILENAME = Raw_Image_Name(IMAGE_FILEPATH)
                     if '*Error*' in IMAGE_FILEPATH:
                         ErrorsPathJpg = os.path.join(ErrorsPath, 'error_save.jpg')
@@ -2198,6 +2216,7 @@ def PrepareSqlUpdateSaveRequest(ShaderToolsDatabase, Cursor, Mat_Name):
                         ThisImage["Ima_Premultiply"] = texslot.texture.image.use_premultiply
                         ThisImage["Ima_Fields_order"] = texslot.texture.image.field_order
                     #end if
+                    
                 #GENERATED IMAGE FILE (UV FILE) :
                 if texslot.texture.image.source == 'GENERATED':
                     ThisImage["Ima_Filepath"] = texslot.texture.image.filepath
@@ -2366,7 +2385,10 @@ def PrepareSqlUpdateSaveRequest(ShaderToolsDatabase, Cursor, Mat_Name):
               )
         #end for
     #end if
-
+    #I remove textures folder if it's packed textures
+    if os.path.exists(os.path.join(BlendPath, 'textures')):
+        shutil.rmtree(os.path.join(BlendPath, 'textures'))
+    #end if
     # ShaderToolsDatabase.commit() # leave to caller to do
     return Mat_Index
 #end PrepareSqlUpdateSaveRequest
@@ -2420,7 +2442,6 @@ def TakePreviewRender(Inf_Creator, Mat_Name):
 
     #Remove Preview File:
     os.remove(os.path.join(AppPath, Mat_Name + "_" + Inf_Creator + "_preview.jpg"))
-
     return PreviewFileImageInMemory
 
 # ************************************************************************************
@@ -2472,14 +2493,7 @@ def SearchSharedFunction(Type, PreviewName):
         searchFile.close()
 
         #Here I remove all files in the Tempory Folder:
-        if os.path.exists(TempPath) :
-            files = os.listdir(TempPath)
-            for f in files:
-                if not os.path.isdir(f) and f.endswith(".jpg"):
-                    os.remove(os.path.join(TempPath, f))
-
-        else:
-            os.makedirs(TempPath)
+        clear_folder(TempPath, 'EXTEND_TEMP')
 
         #Here I copy all files in Base Preview Folder:
         files = os.listdir(shaderFolderPath)
@@ -2488,10 +2502,7 @@ def SearchSharedFunction(Type, PreviewName):
                 shutil.copy2(os.path.join(shaderFolderPath, f), os.path.join(TempPath, f))
 
     #Here I remove all files in Base Preview Folder:
-    files = os.listdir(shaderFolderPath)
-    for f in files:
-        if not os.path.isdir(f) and f.endswith(".jpg"):
-            os.remove(os.path.join(shaderFolderPath, f))
+    clear_folder(shaderFolderPath, 'EXTEND_SHADER')
 
     #Now I must copy files corresponding search entry :
     files = os.listdir(TempPath)
@@ -2604,7 +2615,6 @@ class OpenShaders(bpy.types.Operator):
 
         wm = context.window_manager
         wm.fileselect_add(self)
-
         return {'RUNNING_MODAL'}
 
 # ************************************************************************************
@@ -2697,6 +2707,7 @@ class Help(bpy.types.Operator):
 # *                                       IMPORTER                                   *
 # ************************************************************************************
 def Importer(File_Path, Mat_Name):
+    
     ImportPath = os.path.dirname(bpy.data.filepath)
 
 
@@ -2706,14 +2717,7 @@ def Importer(File_Path, Mat_Name):
     print(LanguageValuesDict['ErrorsMenuError006'])
 
     #Here I verify if Zip Folder exists:
-    if not os.path.exists(ZipPath) :
-        os.makedirs(ZipPath)
-
-    #Here I remove all files in Zip Folder:
-    files = os.listdir(ZipPath)
-    for f in files:
-        if not os.path.isdir(f):
-            os.remove(os.path.join(ZipPath, f))
+    clear_folder(ZipPath, 'NORMAL')
 
     def unzip(ZipFile_Name, BlendDestination = ''):
         if BlendDestination == '': BlendDestination = os.getcwd()
@@ -2818,6 +2822,9 @@ class Import(bpy.types.Operator):
     bl_idname = "object.shadertools_import"
     bl_label = LanguageValuesDict['ImportMenuTitle']
 
+    filename_ext = ".blex"
+    filter_glob = bpy.props.StringProperty(default="*.blex;*.BLEX", options={'HIDDEN'})
+
     filename = bpy.props.StringProperty(subtype="FILENAME")
     filepath = bpy.props.StringProperty(subtype="FILE_PATH")
 
@@ -2838,6 +2845,8 @@ class Export(bpy.types.Operator):
     bl_label = LanguageValuesDict['ExportMenuTitle']
 
     DefaultCreator = DefaultCreator.replace('\n', '')
+    filename_ext = ".blex"
+    filter_glob = bpy.props.StringProperty(default="*.blex;*.BLEX", options={'HIDDEN'})
     filename = bpy.props.StringProperty(subtype="FILENAME")
     filepath = bpy.props.StringProperty(subtype="FILE_PATH")
 
@@ -2948,10 +2957,6 @@ class Configuration(bpy.types.Operator):
     bl_idname = "object.shadertools_configuration"
     bl_label = LanguageValuesDict['ConfigurationMenuTitle']
 
-    #I normalize values:
-    Resolution_X = str(Resolution_X)
-    Resolution_Y = str(Resolution_Y)
-
     #I prepare the window :
     DataBasePathFile = bpy.props.StringProperty(name=LanguageValuesDict['ConfigurationMenuDataBasePath'], default=DataBasePath)
     Inf_Creator = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuCreator'], default=DefaultCreator)
@@ -2977,8 +2982,8 @@ class Configuration(bpy.types.Operator):
     Mat_Name = bpy.props.StringProperty(name=LanguageValuesDict['SaveMenuName'], default=DefaultMaterialName)
 
 
-    Inf_ResolutionX = bpy.props.StringProperty(name=LanguageValuesDict['ConfigurationMenuResolutionPreviewX'], default=Resolution_X)
-    Inf_ResolutionY = bpy.props.StringProperty(name=LanguageValuesDict['ConfigurationMenuResolutionPreviewY'], default=Resolution_Y)
+    Inf_ResolutionX = bpy.props.StringProperty(name=LanguageValuesDict['ConfigurationMenuResolutionPreviewX'], default=str(Resolution_X))
+    Inf_ResolutionY = bpy.props.StringProperty(name=LanguageValuesDict['ConfigurationMenuResolutionPreviewY'], default=str(Resolution_Y))
     Inf_Language = bpy.props.EnumProperty \
       (
         name = LanguageValuesDict['ConfigurationMenuLabel05'],
@@ -3038,20 +3043,15 @@ class Configuration(bpy.types.Operator):
         os.remove(ConfigPath)
 
         #Create a new configuration file:
+        CONFIG_LIST = [AppPath, self.DataBasePathFile, self.Inf_Creator, self.Inf_Description, 
+                       self.Inf_Weblink, self.Mat_Name, self.Inf_Category, self.Inf_Email,
+                       self.Inf_ResolutionX, self.Inf_ResolutionY, self.Inf_Language]
+        
         config = open(ConfigPath,'w', encoding = "utf-8")
-        config.write(AppPath + '\n')
-        config.write(self.DataBasePathFile + '\n')
-        config.write(self.Inf_Creator + '\n')
-        config.write(self.Inf_Description + '\n')
-        config.write(self.Inf_Weblink + '\n')
-        config.write(self.Mat_Name + '\n')
-        config.write(self.Inf_Category + '\n')
-        config.write(self.Inf_Email + '\n')
-        config.write(self.Inf_ResolutionX + '\n')
-        config.write(self.Inf_ResolutionY + '\n')
-        config.write(self.Inf_Language + '\n')
-        config.close()
+        for v in CONFIG_LIST:
+            config.write(str(v) + '\n')
 
+        config.close()        
         bpy.ops.script.python_file_run(filepath=os.path.join(AppPath, "__init__.py"))
         return {'FINISHED'}
 
@@ -3148,7 +3148,7 @@ def unregister():
 
 #Create a new configuration file:
 #Bookmarks USER
-shaderFolderPath = os.path.join(AppPath, LanguageValuesDict['BookmarksMenuName'])
+shaderFolderPath = os.path.join(AppPath, LanguageValuesDict['BookmarksMenuName'].rstrip("\n"))
 if os.path.exists(BookmarksPathUser) :
     shutil.copy2(BookmarksPathUser, BookmarksPathUser+"_2")
     value = ""
@@ -3164,10 +3164,10 @@ if os.path.exists(BookmarksPathUser) :
     for value in bookmarkspathfile:
         MY_BOOKMARKS_FILE.append(value)
 
-        if value=='[Bookmarks]' or value=='[Bookmarks]\n':
+        if value.rstrip("\n") =='[Bookmarks]':
             bookmarks_category = True
 
-        if value=='[Recent]' or value=='[Recent]\n':
+        if value.rstrip("\n") =='[Recent]':
             bookmarks_category = False
 
         if bookmarks_category :
@@ -3182,8 +3182,8 @@ if os.path.exists(BookmarksPathUser) :
         bookmarkspathfile = open(BookmarksPathUser,'w', encoding = "utf-8")
         for value in MY_BOOKMARKS_FILE:
 
-            if value=='[Bookmarks]' or value=='[Bookmarks]\n':
-                bookmarkspathfile.write(value)
+            if value.rstrip("\n") =='[Bookmarks]':
+                bookmarkspathfile.write(value+"\n")
                 bookmarkspathfile.write(shaderFolderPath+"\n")
             else:
                 bookmarkspathfile.write(value)
@@ -3194,16 +3194,8 @@ if os.path.exists(BookmarksPathUser) :
             firstFile.write("update bookmarks\n")
             firstFile.close()
 
-
 #Delete Preview Jpg:
-if os.path.exists(shaderFolderPath) :
-    files = os.listdir(shaderFolderPath)
-    for f in files:
-        if not os.path.isdir(f) and f.endswith(".jpg"):
-            os.remove(os.path.join(shaderFolderPath, f))
-
-        else:
-            os.remove(os.path.join(shaderFolderPath, f))
+clear_folder(shaderFolderPath, 'EXTEND_SHADER')
 
 if __name__ == "__main__":
     register()
