@@ -2398,43 +2398,42 @@ def PrepareSqlUpdateSaveRequest(ShaderToolsDatabase, Cursor, Mat_Name):
 # ************************************************************************************
 def TakePreviewRender(Inf_Creator, Mat_Name):
     #Here the Preview Render
-    #I must save render configuration before save preview image of object :
     ren = bpy.context.scene.render
+    
+    def preview_parameters(pp_context, pp_resX, pp_resY, pp_ratio, pp_pixX, pp_pixY, \
+                            pp_antialiasing, pp_format, pp_mode, pp_filepath):
+        
+        ren.resolution_x = int(pp_resX)
+        ren.resolution_y = int(pp_resY)
+        ren.resolution_percentage = pp_ratio
+        ren.pixel_aspect_x = pp_pixX
+        ren.pixel_aspect_y = pp_pixY
+        ren.antialiasing_samples = pp_antialiasing
+        ren.image_settings.file_format = pp_format
+        ren.image_settings.color_mode = pp_mode
+        ren.filepath = pp_filepath
+    
+    #I must save render configuration before save preview image of object :
     resX = ren.resolution_x
     resY = ren.resolution_y
     ratio = ren.resolution_percentage
     pixX = ren.pixel_aspect_x
     pixY = ren.pixel_aspect_y
     antialiasing = ren.antialiasing_samples
-    filepath = ren.filepath
     format = ren.image_settings.file_format
     mode = ren.image_settings.color_mode
+    filepath = ren.filepath
 
     #I save preview image of object :
-    ren.resolution_x = int(Resolution_X)
-    ren.resolution_y = int(Resolution_Y)
-    ren.resolution_percentage = 100
-    ren.pixel_aspect_x = 1.0
-    ren.pixel_aspect_y = 1.0
-    ren.antialiasing_samples = '16'
-    ren.filepath = os.path.join(AppPath, Mat_Name + "_" + Inf_Creator + "_preview.jpg")
-    ren.image_settings.file_format = 'JPEG'
-    ren.image_settings.color_mode = 'RGB'
-
+    preview_parameters(ren, Resolution_X, Resolution_Y, 100, 1.0, 1.0,'16', 'JPEG', 'RGB',
+                       os.path.join(AppPath, Mat_Name + "_" + Inf_Creator + "_preview.jpg"))
+                       
     bpy.ops.render.render()
     bpy.data.images['Render Result'].save_render(filepath=ren.filepath)
 
     #I must restore render values configuration :
-    ren.resolution_x = resX
-    ren.resolution_y = resY
-    ren.resolution_percentage = ratio
-    ren.pixel_aspect_x = pixX
-    ren.pixel_aspect_y = pixY
-    ren.antialiasing_samples = antialiasing
-    ren.filepath = filepath
-    ren.image_settings.file_format = format
-    ren.image_settings.color_mode = mode
-
+    preview_parameters(ren, resX, resY, ratio, pixX, pixY, antialiasing, format, mode, filepath)
+ 
     #I do a preview of scene and i send render in memory:
     PreviewFileImage = open(os.path.join(AppPath, Mat_Name + "_" + Inf_Creator + "_preview.jpg"),'rb')
     PreviewFileImageInMemory = PreviewFileImage.read()
